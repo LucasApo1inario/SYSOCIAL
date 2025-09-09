@@ -34,3 +34,15 @@ Monitorar a frequência e desempenho dos estudantes.
 Permitir uma análise clara sobre evasão escolar e engajamento.
 
 Oferecer relatórios estratégicos para apoiar decisões pedagógicas e administrativas.
+
+
+
+
+
+Alunos: 
+
+Arthur Romano    - RA: 168498
+Arthur Losano    - RA: 163564
+Bruno de Abreu   - RA: 168522
+Luis Felipe      - RA: 158555
+Lucas Apolinario - RA: 163913
