@@ -5,7 +5,26 @@
   "projects": {
     "SYSOCIAL": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+        "style": "css",
+        "prefix": "app",
+        "flat": false,
+        "skipTests": false,
+        "type": "component"
+      },
+      "@schematics/angular:service": {
+        "flat": false,
+        "skipTests": false,
+        "type": "service"
+      },
+      "@schematics/angular:directive": {
+        "skipTests": false
+      },
+      "@schematics/angular:pipe": {
+        "skipTests": false
+      }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -88,5 +107,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
