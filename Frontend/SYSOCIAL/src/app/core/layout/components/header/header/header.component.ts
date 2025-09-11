@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { ZardBreadcrumbModule } from '@shared/components/breadcrumb/breadcrumb.module';
 
 @Component({
   selector: 'app-header',
-  imports: [],
+  imports: [ZardBreadcrumbModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
