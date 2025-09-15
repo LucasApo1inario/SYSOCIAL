@@ -1,0 +1,29 @@
+name: CI - Continuous Integration
+
+on:
+  pull_request:
+    branches: [ main ]
+
+# Job 1: Validar as dependências e commits
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' 
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Validate conventional commits
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
