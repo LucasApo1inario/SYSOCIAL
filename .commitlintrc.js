@@ -8,8 +8,11 @@ module.exports = {
     ],
     'scope-enum': [
       2,
-      'never',
+      'always',
       ['backend', 'frontend', 'api', 'ui', 'database', 'docs']
+    ],
+    'scope-empty': [
+      2, 'always',
     ],
     'subject-max-length': [2, 'always', 50],
     'body-max-line-length': [2, 'always', 72]
