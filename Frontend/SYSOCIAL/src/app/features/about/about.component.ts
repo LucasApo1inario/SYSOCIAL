@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { ZardDividerComponent } from '@shared/components/divider/divider.component';
+ 
+import { ZardAccordionComponent } from '@shared/components/accordion/accordion.component';
+import { ZardAccordionItemComponent } from '@shared/components/accordion/accordion-item.component';
+ 
 @Component({
-  selector: 'app-about',
-  imports: [ZardDividerComponent], 
+  standalone: true,
+  imports: [ZardAccordionComponent, ZardAccordionItemComponent],
   templateUrl: './about.component.html',
   styleUrl: './about.component.css'
 })
-export class AboutComponent {
-  
-}
+export class AboutComponent {}
+ 
