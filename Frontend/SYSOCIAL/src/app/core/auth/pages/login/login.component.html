@@ -1,52 +1,56 @@
-<div class="flex items-center justify-center">
-  <form [formGroup]="form" (ngSubmit)="Submit()" class="w-full max-w-sm">
+<div class="flex items-center justify-center ">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-sm">
     <z-card
       class="w-full"
-      zTitle="Login to your account"
-      zDescription="Enter your email below to login to your account"
+      zTitle="Entrar na sua conta"
+      zDescription="Digite seu e-mail e senha para continuar"
     >
       <div class="space-y-4">
         <!-- Email -->
         <div class="space-y-2">
-          <label for="idEmail" class="text-sm font-medium">Email</label>
+          <label for="idEmail" class="text-sm font-medium">E-mail</label>
           <input
             id="idEmail"
             type="email"
             formControlName="email"
-            placeholder="m@example.com"
+            placeholder="exemplo@dominio.com"
             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
           @if (form.get('email')?.touched && form.get('email')?.invalid) {
             <div class="text-red-500 text-xs">
-              Digite um email válido
+              Digite um e-mail válido
             </div>
           }
         </div>
 
-        <!-- Password -->
+        <!-- Senha -->
         <div class="space-y-2">
           <div class="flex items-center">
-            <label for="idPassword" class="text-sm font-medium">Password</label>
-            <a href="#" class="ml-auto text-sm underline-offset-4 hover:underline">Forgot your password?</a>
+            <label for="idPassword" class="text-sm font-medium">Senha</label>
+            <a href="#" class="ml-auto text-sm underline-offset-4 hover:underline">
+              Esqueceu sua senha?
+            </a>
           </div>
           <input
             id="idPassword"
             type="password"
             formControlName="password"
+            placeholder="Digite sua senha"
             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
           @if (form.get('password')?.touched && form.get('password')?.invalid) {
             <div class="text-red-500 text-xs">
-              Senha mínima de 6 caracteres
+              A senha deve ter pelo menos 6 caracteres
             </div>
           }
         </div>
 
         <!-- Botões -->
         <div class="space-y-2">
-          <z-button zType="default" class="w-full" type="submit">
-            Login
+          <z-button zType="default" class="w-full bg-[#368F8B]" type="button" (click)="submit()">
+            Entrar
           </z-button>
+
         </div>
       </div>
     </z-card>

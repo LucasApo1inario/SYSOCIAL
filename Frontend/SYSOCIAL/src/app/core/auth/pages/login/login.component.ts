@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { ZardCardComponent } from '@shared/components/card/card.component';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,16 +20,9 @@ export class LoginComponent {
   protected readonly idPassword = 'password' + Math.random();
 
 
-  Submit() {
-    if (this.form.valid) {
-      console.log("submitou")
-    } else {
-      this.form.markAllAsTouched();
-    }
-  }
+  AuthService = inject(AuthService)
 
 
-  
   form = new FormGroup({
     email: new FormControl('',{
       validators: [Validators.required]
@@ -38,5 +32,26 @@ export class LoginComponent {
     })
   });
 
+
+  
+  submit() {
+      console.log("entrou")
+    if (this.form.invalid){
+      return;
+    }
+
+    const payload = {
+      email: this.form.controls.email.value as string,
+      password: this.form.controls.password.value as string
+    };
+
+    this.AuthService.login(payload)
+    .subscribe({
+      next: (res) => {
+        console.log(res)
+      }
+    })
+
+  }
   
 }
