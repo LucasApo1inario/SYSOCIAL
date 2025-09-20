@@ -6,6 +6,8 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthTokenStorageService } from '../../services/auth/auth-token-storage.service';
+import { LoggedInUserStoreService } from '../../stores/logged-in-user-store.ts/logged-in-user-store.ts.service';
+import { switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -23,10 +25,10 @@ export class LoginComponent {
   protected readonly idPassword = 'password' + Math.random();
 
 
-  AuthService = inject(AuthService)
+  authService = inject(AuthService)
   router = inject(Router)
-  AuthTokenService = inject(AuthTokenStorageService)
-
+  authTokenService = inject(AuthTokenStorageService)
+  loggedInUserStoreService = inject(LoggedInUserStoreService);
 
   form = new FormGroup({
     email: new FormControl('',{
@@ -49,11 +51,17 @@ export class LoginComponent {
       password: this.form.controls.password.value as string
     };
 
-    this.AuthService.login(payload)
+    this.authService.login(payload)
+    .pipe(
+      tap((res) => this.authTokenService.set(res.token)),
+      switchMap((res) => this.authService.getCurrentUser(res.token)),
+      tap(user => this.loggedInUserStoreService.setUser(user))
+    )
     .subscribe({
       next: (res) => {
-        this.AuthTokenService.set(res.token)
+        
         this.router.navigate(['/contato']);
+        
       },
       error: (response: HttpErrorResponse) =>{
         if (response.status === 401){
