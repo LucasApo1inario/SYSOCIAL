@@ -5,7 +5,7 @@ import { ContactComponent } from "../contact/contact.component";
 
 
 
-export const routes: Routes = [
+export default [
     {
         path:'',
         component:HomeComponent
@@ -24,4 +24,4 @@ export const routes: Routes = [
     }
   
 
-]
+] as Routes;
