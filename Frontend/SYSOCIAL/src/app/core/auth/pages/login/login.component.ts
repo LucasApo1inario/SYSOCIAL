@@ -5,6 +5,7 @@ import { ZardCardComponent } from '@shared/components/card/card.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthTokenStorageService } from '../../services/auth/auth-token-storage.service';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ export class LoginComponent {
 
   AuthService = inject(AuthService)
   router = inject(Router)
+  AuthTokenService = inject(AuthTokenStorageService)
 
 
   form = new FormGroup({
@@ -50,7 +52,8 @@ export class LoginComponent {
     this.AuthService.login(payload)
     .subscribe({
       next: (res) => {
-        this.router.navigate(['']);
+        this.AuthTokenService.set(res.token)
+        this.router.navigate(['/contato']);
       },
       error: (response: HttpErrorResponse) =>{
         if (response.status === 401){
