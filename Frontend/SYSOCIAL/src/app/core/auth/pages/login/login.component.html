@@ -45,6 +45,12 @@
           }
         </div>
 
+         @if (form.hasError('wrongCredentials')) {
+            <div class="text-red-500 text-xs">
+             Usuário ou senha inválidos!
+            </div>
+          }
+
         <!-- Botões -->
         <div class="space-y-2">
           <z-button zType="default" class="w-full bg-[#368F8B]" type="button" (click)="submit()">

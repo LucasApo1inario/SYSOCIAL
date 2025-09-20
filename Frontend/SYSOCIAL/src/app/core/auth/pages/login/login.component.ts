@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } 
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { ZardCardComponent } from '@shared/components/card/card.component';
 import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +23,7 @@ export class LoginComponent {
 
 
   AuthService = inject(AuthService)
+  router = inject(Router)
 
 
   form = new FormGroup({
@@ -35,7 +38,6 @@ export class LoginComponent {
 
   
   submit() {
-      console.log("entrou")
     if (this.form.invalid){
       return;
     }
@@ -48,7 +50,14 @@ export class LoginComponent {
     this.AuthService.login(payload)
     .subscribe({
       next: (res) => {
-        console.log(res)
+        this.router.navigate(['']);
+      },
+      error: (response: HttpErrorResponse) =>{
+        if (response.status === 401){
+          this.form.setErrors({
+            wrongCredentials: true
+          })
+        }
       }
     })
 
