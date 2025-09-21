@@ -9,7 +9,7 @@ module.exports = {
       ['backend', 'frontend', 'api', 'ui', 'database', 'docs']
     ],
 
-    'subject-max-length': [2, 'always', 50],
+    'subject-max-length': [2, 'always', 75],
     'body-max-line-length': [2, 'always', 72]
   }
 };
