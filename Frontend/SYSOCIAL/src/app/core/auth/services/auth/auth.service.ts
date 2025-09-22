@@ -49,4 +49,8 @@ export class AuthService {
     return of({token: generateFakeJwt()})
   }
 
+  logout(){
+    return of({})
+  }
+
 }

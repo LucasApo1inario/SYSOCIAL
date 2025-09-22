@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { UserCredentials } from '../../interfaces/user-credentials';
-import { AuthService } from '../../services/auth/auth.service';
+import { UserCredentials } from '../interfaces/user-credentials';
+import { AuthService } from '../services/auth/auth.service';
 import { pipe, switchMap, tap } from 'rxjs';
-import { AuthTokenStorageService } from '../../services/auth/auth-token-storage.service';
-import { LoggedInUserStoreService } from '../../stores/logged-in-user-store.ts/logged-in-user-store.ts.service';
-import { AuthTokenResponse } from '../../interfaces/auth-token-response';
+import { AuthTokenStorageService } from '../services/auth/auth-token-storage.service';
+import { LoggedInUserStoreService } from '../stores/logged-in-user-store.ts/logged-in-user-store.ts.service';
+import { AuthTokenResponse } from '../interfaces/auth-token-response';
 
 @Injectable({
   providedIn: 'root'

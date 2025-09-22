@@ -5,7 +5,7 @@ import { ZardCardComponent } from '@shared/components/card/card.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LoginFacadeService } from '../../facades/login-facade/login-facade.service';
+import { LoginFacadeService } from '../../facades/login-facade.service';
 
 @Component({
   selector: 'app-login',
