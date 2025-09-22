@@ -1,13 +1,11 @@
 import { Component, inject, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormGroup, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { ZardCardComponent } from '@shared/components/card/card.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthTokenStorageService } from '../../services/auth/auth-token-storage.service';
-import { LoggedInUserStoreService } from '../../stores/logged-in-user-store.ts/logged-in-user-store.ts.service';
-import { switchMap, tap } from 'rxjs';
+import { LoginFacadeService } from '../../facades/login-facade/login-facade.service';
 
 @Component({
   selector: 'app-login',
@@ -27,8 +25,7 @@ export class LoginComponent {
 
   authService = inject(AuthService)
   router = inject(Router)
-  authTokenService = inject(AuthTokenStorageService)
-  loggedInUserStoreService = inject(LoggedInUserStoreService);
+  loginFacadeService = inject(LoginFacadeService)
 
   form = new FormGroup({
     email: new FormControl('',{
@@ -51,17 +48,10 @@ export class LoginComponent {
       password: this.form.controls.password.value as string
     };
 
-    this.authService.login(payload)
-    .pipe(
-      tap((res) => this.authTokenService.set(res.token)),
-      switchMap((res) => this.authService.getCurrentUser(res.token)),
-      tap(user => this.loggedInUserStoreService.setUser(user))
-    )
+    this.loginFacadeService.login(payload)
     .subscribe({
-      next: (res) => {
-        
+      next: () => {
         this.router.navigate(['/contato']);
-        
       },
       error: (response: HttpErrorResponse) =>{
         if (response.status === 401){
