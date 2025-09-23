@@ -34,6 +34,7 @@
           </z-breadcrumb-link>
         </z-breadcrumb-item>
 
+        @if(!isLoggedIn()){
         <!-- Sign Up (destaque estilo template) -->
         <z-breadcrumb-item>
           <z-breadcrumb-link 
@@ -42,6 +43,18 @@
             Login
           </z-breadcrumb-link>
         </z-breadcrumb-item>
+      }
+
+        @if(isLoggedIn()){
+         <!-- Sign Up (destaque estilo template) -->
+        <z-breadcrumb-item>
+          <z-breadcrumb-link 
+            (click)="logout()"
+            class="bg-white px-4 py-1 rounded-full text-blue-900 font-semibold hover:bg-gray-200 transition">
+            Logout
+          </z-breadcrumb-link>
+        </z-breadcrumb-item>
+      }
 
       </z-breadcrumb-list>
     </z-breadcrumb>
