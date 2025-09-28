@@ -5,10 +5,12 @@
     margin-bottom: 24px;
     padding-left: 24px;
     padding-bottom: 24px;
-
+    
 }
 
-.container-content{
+.container-content {
     width: 100%;
-    max-width: 720px;
+    max-width: 1200px;
+
 }
+

@@ -9,6 +9,8 @@ export class LoggedInUserStoreService {
   private readonly state = signal<User | null>(null)
 
   currentUser = computed(() => this.state())
+  userName = computed(() => this.state()?.username ?? '');
+  userType = computed(() => this.state()?.type ?? '' );
 
   isLoggdIn = computed(()=> this.state() !== null);
 
