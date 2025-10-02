@@ -39,7 +39,8 @@ export class AuthService {
 
   getCurrentUser(token: string): Observable<User>{
     return of({
-      username: 'admin'
+      username: 'admin',
+      type: 'admin'
     });
   }
 
