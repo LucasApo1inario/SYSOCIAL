@@ -12,7 +12,7 @@ import { MenuComponent } from "../menu/menu.component";
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-
+   menuAberto: boolean = false;
   private readonly logoutFacadeService = inject(LogoutFacadeService)
   private readonly router = inject(Router)
   private readonly loggedInUserStoreService = inject(LoggedInUserStoreService)

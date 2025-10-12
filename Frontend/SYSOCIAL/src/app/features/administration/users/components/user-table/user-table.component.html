@@ -1,0 +1,44 @@
+<div class="overflow-hidden rounded-md border">
+  <table z-table class="w-full">
+    <thead z-table-header>
+      <tr z-table-row>
+        <th z-table-head>Usuario</th>
+        <th z-table-head>Tipo</th>
+        <th z-table-head>Status</th>
+        <th z-table-head class="w-36 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody z-table-body>
+      @for (user of users; track user.id) {
+        <tr z-table-row>
+          <td z-table-cell>{{ user.username }}</td>
+          <td z-table-cell>{{ user.type }}</td>
+          <td z-table-cell>
+            <z-badge [zType]="getBadgeType(user.status)">
+              {{ user.status }}
+            </z-badge>
+          </td>
+          <td z-table-cell>
+            <div class="flex justify-end gap-2">
+              <z-button zType="ghost" zSize="icon" (click)="onEdit(user)" title="Visualizar">
+                <div class="icon-eye"></div>
+              </z-button>
+              <z-button zType="ghost" zSize="icon" (click)="onEdit(user)" title="Editar">
+                <div class="icon-pencil"></div>
+              </z-button>
+              <z-button zType="ghost" zSize="icon" (click)="onDelete(user)" title="Deletar">
+                <div class="icon-trash"></div>
+              </z-button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr z-table-row>
+          <td z-table-cell [attr.colspan]="4" class="h-24 text-center text-gray-500">
+            Nenhum usuário encontrado.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
