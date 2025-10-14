@@ -1,29 +1,46 @@
-<div class="header bg-blue-600 text-white p-4">
-  <a href="#default" class="logo font-bold text-xl text-yellow-300">SYSOCIAL</a>
+<div class="header bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
+  <!-- Logo -->
+  <a href="#default" class="logo font-bold text-2xl text-yellow-300">SYSOCIAL</a>
+
+
   <div class="header-right">
-    <z-breadcrumb class="text-gray-200">
-      <z-breadcrumb-list zWrap="wrap" zAlign="start">
+    <z-breadcrumb>
+      <z-breadcrumb-list zWrap="wrap" zAlign="start" class="flex space-x-4">
+        
+        <!-- Sobre -->
+        @if(!isLoggedIn()){
         <z-breadcrumb-item>
-          <z-breadcrumb-link zLink="/sobre" class="text-[#F7F7F2] hover:text-[#C6EBBE]">
-            <div class="icon-house"></div>
+          <z-breadcrumb-link 
+            zLink="/sobre" 
+            class="px-4 py-1 rounded-full text-[#F7F7F2]">
             Sobre
           </z-breadcrumb-link>
         </z-breadcrumb-item>
-        <z-breadcrumb-separator />
+
+        <!-- Contato -->
         <z-breadcrumb-item>
-          <z-breadcrumb-link zLink="/contato" class="text-[#F7F7F2] hover:text-[#C6EBBE]">
-            <div class="icon-puzzle"></div>
+          <z-breadcrumb-link 
+            zLink="/contato" 
+            class="px-4 py-1 rounded-full text-[#F7F7F2]">
             Contato
           </z-breadcrumb-link>
         </z-breadcrumb-item>
-        <z-breadcrumb-separator />
+        
+        <!-- Sign Up -->
         <z-breadcrumb-item>
-          <z-breadcrumb-link zLink="/home" class="text-[#F7F7F2] hover:text-[#C6EBBE]">
-            <div class="icon-square-library"></div>
-            Home
+          <z-breadcrumb-link 
+            zLink="/auth/login" 
+            class="bg-white px-4 py-1 rounded-full text-blue-900 font-semibold hover:bg-gray-200 transition">
+            Login
           </z-breadcrumb-link>
         </z-breadcrumb-item>
+      }
       </z-breadcrumb-list>
     </z-breadcrumb>
+
+    @if(isLoggedIn()){
+      <app-menu></app-menu>
+    }
+
   </div>
 </div>

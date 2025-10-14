@@ -1,0 +1,64 @@
+<div class="flex items-center justify-center ">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-sm">
+    <z-card
+      class="w-full"
+      zTitle="Entrar na sua conta"
+      zDescription="Digite seu e-mail e senha para continuar"
+    >
+      <div class="space-y-4">
+        <!-- Email -->
+        <div class="space-y-2">
+          <label for="idEmail" class="text-sm font-medium">E-mail</label>
+          <input
+            id="idEmail"
+            type="email"
+            formControlName="email"
+            placeholder="exemplo@dominio.com"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+            <div class="text-red-500 text-xs">
+              Digite um e-mail válido
+            </div>
+          }
+        </div>
+
+        <!-- Senha -->
+        <div class="space-y-2">
+          <div class="flex items-center">
+            <label for="idPassword" class="text-sm font-medium">Senha</label>
+            <a href="#" class="ml-auto text-sm underline-offset-4 hover:underline">
+              Esqueceu sua senha?
+            </a>
+          </div>
+          <input
+            id="idPassword"
+            type="password"
+            formControlName="password"
+            placeholder="Digite sua senha"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          @if (form.get('password')?.touched && form.get('password')?.invalid) {
+            <div class="text-red-500 text-xs">
+              A senha deve ter pelo menos 6 caracteres
+            </div>
+          }
+        </div>
+
+         @if (form.hasError('wrongCredentials')) {
+            <div class="text-red-500 text-xs">
+             Usuário ou senha inválidos!
+            </div>
+          }
+
+        <!-- Botões -->
+        <div class="space-y-2">
+          <z-button zType="default" class="w-full bg-[#368F8B]" type="button" (click)="submit()">
+            Entrar
+          </z-button>
+
+        </div>
+      </div>
+    </z-card>
+  </form>
+</div>

@@ -12,7 +12,7 @@ Frontend: Angular
 Backend: Python
  + Go
 
-Banco de Dados: MariaDB
+Banco de Dados: PostgreSQL hospedado no Supabase
 
 📌 Funcionalidades Principais
 
