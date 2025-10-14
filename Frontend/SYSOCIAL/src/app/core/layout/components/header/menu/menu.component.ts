@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { ZardButtonComponent } from '@shared/components/button/button.component';
-import { ZardDividerComponent } from '@shared/components/divider/divider.component';
 import { ZardMenuModule } from '@shared/components/menu/menu.module';
 import { Router } from '@angular/router';
 import { LogoutFacadeService } from 'src/app/core/auth/facades/logout-facade.service';
@@ -29,6 +28,11 @@ export class MenuComponent {
         this.router.navigate(['auth/login']);        
       }
     })
+  }
+
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
   }
 
    log(item: string) {
