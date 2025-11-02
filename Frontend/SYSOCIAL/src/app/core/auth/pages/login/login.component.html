@@ -3,22 +3,22 @@
     <z-card
       class="w-full"
       zTitle="Entrar na sua conta"
-      zDescription="Digite seu e-mail e senha para continuar"
+      zDescription="Digite seu login e senha para continuar"
     >
       <div class="space-y-4">
-        <!-- Email -->
+        <!-- User -->
         <div class="space-y-2">
-          <label for="idEmail" class="text-sm font-medium">E-mail</label>
+          <label for="idUser" class="text-sm font-medium"> Usuário</label>
           <input
-            id="idEmail"
-            type="email"
-            formControlName="email"
-            placeholder="exemplo@dominio.com"
+            id="idUser"
+            type="user"
+            formControlName="user"
+            placeholder="Digite seu usuario"
             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           />
-          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          @if (form.get('user')?.touched && form.get('user')?.invalid) {
             <div class="text-red-500 text-xs">
-              Digite um e-mail válido
+              Digite um usuário válido
             </div>
           }
         </div>
@@ -62,3 +62,5 @@
     </z-card>
   </form>
 </div>
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-spin-clockwise" [fullScreen] = "true"><p style="color: white" > Aguarde... </p></ngx-spinner>

@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { User } from '../../interfaces/user';
+import { AuthTokenResponse } from '../../interfaces/auth-token-response';
 
 @Injectable({
   providedIn: 'root'

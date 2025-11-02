@@ -9,7 +9,10 @@ import { isAuthenticatedGuard } from "src/app/core/auth/guards/is-authenticated-
 export default [
     {
         path:'',
-        component:HomeComponent
+        component:HomeComponent,
+        canActivate:[
+            isAuthenticatedGuard
+        ]
     },
     {
         path:'home',

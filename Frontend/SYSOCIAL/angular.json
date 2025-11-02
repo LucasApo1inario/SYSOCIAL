@@ -44,7 +44,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/ngx-spinner/animations/ball-spin-clockwise.css"
             ]
           },
           "configurations": {
@@ -101,7 +102,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/ngx-spinner/animations/ball-spin-clockwise.css"
             ]
           }
         }
