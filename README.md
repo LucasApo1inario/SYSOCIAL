@@ -21,8 +21,8 @@ O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONG
 
 ## 📋 User Stories
 
-|N  |Descrição |
-|--- | --- |
+| N | Descrição |
+| :---: | :--- |
 |1  |Como Regular, quero preencher relatórios de aulas divididas em semanas com a descrição do planejamento e a descrição da execução. |
 |2  |Como Regular, quero inserir o status de presença ou falta em cada aluno de turmas diferentes, apenas nos dias que aconteceram as aulas. |
 |3  |Como Regular, quero poder visualizar e editar o relatório de aulas e lista de frequência dos últimos 3 meses. |
@@ -42,9 +42,14 @@ O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONG
 
 ## ⚙️ Tecnologias Utilizadas
 
+### Front-end
 ![Angular](https://img.shields.io/badge/angular-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white) 
+
+### Back-end
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+
+### Databases
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
@@ -54,7 +59,7 @@ O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONG
 ## 👥 Equipe
 
 | Foto | Nome | RA | Link para GitHub |
-| :---: | :--- | :--- | :--- |
+| :---: | :---: | :---: | :---: |
 | <img src="https://github.com/arthurlosano.png" alt="Foto de Arthur Losano" height="64" width="64"> | *Arthur Losano* | *168498* | *https://github.com/arthurlosano* |
 | <img src="https://github.com/arthurtuts152.png" alt="Foto de Arthur Romano" height="64" width="64"> | *Arthur Romano* | *163564* | *https://github.com/arthurtuts152* |
 | <img src="https://github.com/brunoabreuco.png" alt="Foto de Bruno Abreu" height="64" width="64"> | *Bruno Abreu* | *168522* | *https://github.com/brunoabreuco* |
