@@ -60,8 +60,8 @@ O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONG
 
 | Foto | Nome | RA | Link para GitHub |
 | :---: | :---: | :---: | :---: |
-| <img src="https://github.com/arthurlosano.png" alt="Foto de Arthur Losano" height="64" width="64"> | *Arthur Losano* | *168498* | *https://github.com/arthurlosano* |
-| <img src="https://github.com/arthurtuts152.png" alt="Foto de Arthur Romano" height="64" width="64"> | *Arthur Romano* | *163564* | *https://github.com/arthurtuts152* |
+| <img src="https://github.com/arthurlosano.png" alt="Foto de Arthur Losano" height="64" width="64"> | *Arthur Losano* | *163564* | *https://github.com/arthurlosano* |
+| <img src="https://github.com/arthurtuts152.png" alt="Foto de Arthur Romano" height="64" width="64"> | *Arthur Romano* | *168498* | *https://github.com/arthurtuts152* |
 | <img src="https://github.com/brunoabreuco.png" alt="Foto de Bruno Abreu" height="64" width="64"> | *Bruno Abreu* | *168522* | *https://github.com/brunoabreuco* |
 | <img src="https://github.com/Luismitidieri.png" alt="Foto de Luís Felipe" height="64" width="64"> | *Luís Felipe* | *158555* | *https://github.com/Luismitidieri* |
 | <img src="https://github.com/Apolinari0.png" alt="Foto de Lucas Apolinario" height="64" width="64"> | *Lucas Apolinario* | *163913* | *https://github.com/Apolinari0* |
