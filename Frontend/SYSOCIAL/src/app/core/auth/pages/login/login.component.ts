@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LoginFacadeService } from '../../facades/login-facade.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { isEmpty } from 'rxjs';
+import { toast } from 'ngx-sonner';
+import { ZardToastComponent } from '@shared/components/toast/toast.component';
 
 
 
@@ -67,12 +68,16 @@ export class LoginComponent {
         this.router.navigate(['/contato']);
       },
       error: (response: HttpErrorResponse) =>{
-        if (response.status === 401){
+       // if (response.status === 401){
           this.spinner.hide();
+          toast.error(`Erro ao realizar o login!`, {
+          duration: 5000,
+          position: 'bottom-center',
+        });
           this.form.setErrors({
             wrongCredentials: true
           })
-        }
+//        }
       }
     })
 
