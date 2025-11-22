@@ -15,4 +15,9 @@ export const routes: Routes = [
         loadChildren: () => import('./features/administration/routes'), // módulo filho
         canActivate: [isAuthenticatedGuard],
     },
+    {
+        path: 'cadastros',
+        loadChildren: () => import('./features/cadastros/routes'), // módulo filho
+        canActivate: [isAuthenticatedGuard],
+    }
 ];
