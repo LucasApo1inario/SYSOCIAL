@@ -1,0 +1,188 @@
+<div class="flex justify-center p-6">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-1xl">
+
+    <form class="space-y-6" (ngSubmit)="onSubmit()" #createCourseForm="ngForm" autocomplete="off" novalidate>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idNome }}">Nome do Curso</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="text" 
+              [id]="idNome" 
+              placeholder="Digite o nome do curso"
+              [(ngModel)]="model.nome"
+              name="nome"
+              required 
+              minlength="3" />
+          </z-form-control>
+
+          @if (createCourseForm.submitted && !model.nome) {
+            <z-form-message>Nome do curso é obrigatório.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idInstrutor }}">Instrutor</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="text"
+              [id]="idInstrutor" 
+              placeholder="Nome do instrutor"
+              [(ngModel)]="model.instrutor"
+              name="instrutor"
+              required />
+          </z-form-control>
+
+          @if (createCourseForm.submitted && !model.instrutor) {
+            <z-form-message>Instrutor é obrigatório.</z-form-message>
+          }
+        </z-form-field>
+
+      </div>
+
+      <z-form-field>
+        <label z-form-label zRequired for="{{ idDescricao }}">Descrição</label>
+        <z-form-control>
+          <textarea 
+            z-input 
+            [id]="idDescricao"
+            placeholder="Descreva o curso"
+            [(ngModel)]="model.descricao"
+            name="descricao"
+            required
+            rows="4"></textarea>
+        </z-form-control>
+
+        @if (createCourseForm.submitted && !model.descricao) {
+          <z-form-message>Descrição é obrigatória.</z-form-message>
+        }
+      </z-form-field>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idCargaHoraria }}">Carga Horária (h)</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="number" 
+              [id]="idCargaHoraria"
+              placeholder="40"
+              [(ngModel)]="model.cargaHoraria"
+              name="cargaHoraria"
+              required
+              min="1" />
+          </z-form-control>
+
+          @if (createCourseForm.submitted && model.cargaHoraria <= 0) {
+            <z-form-message>Carga horária deve ser maior que zero.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label for="{{ idModalidade }}">Modalidade</label>
+          <z-form-control>
+            <select z-input [id]="idModalidade" [(ngModel)]="model.modalidade" name="modalidade">
+              <option value="Presencial">Presencial</option>
+              <option value="Online">Online</option>
+              <option value="Híbrido">Híbrido</option>
+            </select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idVagas }}">Vagas</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="number" 
+              [id]="idVagas"
+              placeholder="30"
+              [(ngModel)]="model.vagas"
+              name="vagas"
+              required
+              min="1" />
+          </z-form-control>
+
+          @if (createCourseForm.submitted && model.vagas <= 0) {
+            <z-form-message>Número de vagas deve ser maior que zero.</z-form-message>
+          }
+        </z-form-field>
+
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idDataInicio }}">Data de Início</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="date" 
+              [id]="idDataInicio"
+              [(ngModel)]="model.dataInicio"
+              name="dataInicio"
+              required />
+          </z-form-control>
+
+          @if (createCourseForm.submitted && !model.dataInicio) {
+            <z-form-message>Data de início é obrigatória.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label for="{{ idDataTermino }}">Data de Término</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="date" 
+              [id]="idDataTermino"
+              [(ngModel)]="model.dataTermino"
+              name="dataTermino" />
+          </z-form-control>
+          <z-form-message>Data estimada de término.</z-form-message>
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label for="{{ idStatus }}">Status</label>
+          <z-form-control>
+            <select z-input [id]="idStatus" [(ngModel)]="model.status" name="status">
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </z-form-control>
+        </z-form-field>
+
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button z-button zType="default" type="submit" [disabled]="loading">
+          Criar curso
+        </button>
+
+        <button z-button zType="ghost" type="button" (click)="reset()" [disabled]="loading">
+          Limpar
+        </button>
+
+        <button 
+            z-button 
+            zType="ghost" 
+            type="button" 
+            (click)="return()"
+            class="ml-auto"
+            >
+            Voltar
+        </button>
+
+        @if (loading) {
+          <span class="ml-2">Enviando...</span>
+        }
+      </div>
+    </form>
+
+  </div>
+</div>
