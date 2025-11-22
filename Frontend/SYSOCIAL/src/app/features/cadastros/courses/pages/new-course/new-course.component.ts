@@ -7,6 +7,9 @@ import { ZardInputDirective } from '@shared/components/input/input.directive';
 import { ZardFormModule } from '@shared/components/form/form.module';
 import { toast } from 'ngx-sonner';
 import { Router } from '@angular/router';
+import { ZardDialogService } from '@shared/components/dialog/dialog.service';
+import { TurmaDialogComponent, TurmaDialogData } from './turma-dialog.component';
+import { TurmaCreateRequest } from '../../interfaces/TurmaCreateRequest.interface';
 
 @Component({
   selector: 'app-new-course',
@@ -23,41 +26,69 @@ import { Router } from '@angular/router';
 export class NewCourseComponent {
   private router = inject(Router);
   private courseService = inject(CoursesService);
+  private dialog = inject(ZardDialogService);
 
   idNome = 'nome';
-  idDescricao = 'descricao';
-  idCargaHoraria = 'cargaHoraria';
-  idDataInicio = 'dataInicio';
-  idDataTermino = 'dataTermino';
-  idModalidade = 'modalidade';
   idStatus = 'status';
-  idInstrutor = 'instrutor';
   idVagas = 'vagas';
 
   model: CourseCreateRequest = {
     nome: '',
-    descricao: '',
-    cargaHoraria: 0,
-    dataInicio: '',
-    dataTermino: '',
-    modalidade: 'Online',
     status: 'Ativo',
-    instrutor: '',
-    vagas: 0
+    vagas: 0,
+    turmas: []
   };
 
   loading = false;
 
-  onSubmit() {
-    if (!this.model.nome || !this.model.descricao || !this.model.instrutor || !this.model.dataInicio) {
-      toast.error('Preencha os campos obrigatórios.', {
-        position: 'bottom-center',
-      });
-      return;
-    }
+  // --------------------------
+  //   GERENCIAMENTO DE TURMAS
+  // --------------------------
 
-    if (this.model.cargaHoraria <= 0) {
-      toast.error('Carga horária deve ser maior que zero.', {
+  addTurma() {
+    this.dialog.create({
+      zTitle: 'Nova Turma',
+      zDescription: 'Preencha os dados da nova turma.',
+      zContent: TurmaDialogComponent,
+      zData: {
+        dia_semana: '',
+        horario_inicio: '',
+        horario_fim: '',
+        vagas_turma: 0
+      } as TurmaDialogData,
+      zOkText: 'Salvar',
+      zOnOk: instance => {
+        const turma = instance.form.value as TurmaCreateRequest;
+        this.model.turmas!.push(turma);
+      },
+      zWidth: '450px',
+    });
+  }
+
+  editTurma(turma: TurmaCreateRequest, index: number) {
+    this.dialog.create({
+      zTitle: 'Editar Turma',
+      zDescription: 'Atualize as informações da turma.',
+      zContent: TurmaDialogComponent,
+      zData: turma,
+      zOkText: 'Atualizar',
+      zOnOk: instance => {
+        this.model.turmas![index] = instance.form.value as TurmaCreateRequest;
+      },
+      zWidth: '450px',
+    });
+  }
+
+  deleteTurma(index: number) {
+    this.model.turmas!.splice(index, 1);
+  }
+
+  // --------------------------
+  //     SUBMIT DO CURSO
+  // --------------------------
+  onSubmit() {
+    if (!this.model.nome || !this.model.vagas || !this.model.status) {
+      toast.error('Preencha os campos obrigatórios.', {
         position: 'bottom-center',
       });
       return;
@@ -83,17 +114,12 @@ export class NewCourseComponent {
 
         this.model = {
           nome: '',
-          descricao: '',
-          cargaHoraria: 0,
-          dataInicio: '',
-          dataTermino: '',
-          modalidade: 'Online',
           status: 'Ativo',
-          instrutor: '',
-          vagas: 0
+          vagas: 0,
+          turmas: []
         };
 
-        this.router.navigate(['administration/courses']);
+        this.router.navigate(['cadastros/courses']);
       },
       error: (err: any) => {
         this.loading = false;
@@ -109,14 +135,9 @@ export class NewCourseComponent {
   reset() {
     this.model = {
       nome: '',
-      descricao: '',
-      cargaHoraria: 0,
-      dataInicio: '',
-      dataTermino: '',
-      modalidade: 'Online',
       status: 'Ativo',
-      instrutor: '',
-      vagas: 0
+      vagas: 0,
+      turmas: []
     };
 
     toast('Formulário limpo!', {
@@ -125,6 +146,6 @@ export class NewCourseComponent {
   }
 
   return() {
-    this.router.navigate(['administration/courses']);
+    this.router.navigate(['cadastros/courses']);
   }
 }

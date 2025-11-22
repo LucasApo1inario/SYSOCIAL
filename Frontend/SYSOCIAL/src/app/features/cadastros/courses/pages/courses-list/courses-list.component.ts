@@ -21,8 +21,7 @@ export class CoursesListComponent {
 
   displayedCourses = computed(() =>
     this.courses().filter(c =>
-      c.nome.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
-      c.instrutor.toLowerCase().includes(this.searchQuery().toLowerCase())
+      c.nome.toLowerCase().includes(this.searchQuery().toLowerCase()) 
     )
   );
 
@@ -49,23 +48,24 @@ export class CoursesListComponent {
     window.addEventListener('resize', () => this.checkScreen());
 
     this.courses.set([
-      { id: '1', nome: 'Desenvolvimento Web com Angular', modalidade: 'Online', cargaHoraria: 80, dataInicio: '2025-01-15', status: 'Ativo', instrutor: 'João Silva' },
-      { id: '2', nome: 'Python para Iniciantes', modalidade: 'Presencial', cargaHoraria: 40, dataInicio: '2025-01-20', status: 'Ativo', instrutor: 'Maria Santos' },
-      { id: '3', nome: 'Design Thinking', modalidade: 'Híbrido', cargaHoraria: 60, dataInicio: '2025-02-01', status: 'Ativo', instrutor: 'Carlos Oliveira' },
-      { id: '4', nome: 'Marketing Digital', modalidade: 'Online', cargaHoraria: 50, dataInicio: '2025-02-10', status: 'Ativo', instrutor: 'Ana Costa' },
-      { id: '5', nome: 'Gestão de Projetos', modalidade: 'Presencial', cargaHoraria: 120, dataInicio: '2024-12-01', status: 'Inativo', instrutor: 'Pedro Lima' },
-      { id: '6', nome: 'Excel Avançado', modalidade: 'Online', cargaHoraria: 30, dataInicio: '2025-01-25', status: 'Ativo', instrutor: 'Beatriz Souza' },
-      { id: '7', nome: 'Empreendedorismo Social', modalidade: 'Híbrido', cargaHoraria: 70, dataInicio: '2025-02-15', status: 'Ativo', instrutor: 'Lucas Martins' },
-      { id: '8', nome: 'Fotografia Básica', modalidade: 'Presencial', cargaHoraria: 40, dataInicio: '2025-01-30', status: 'Ativo', instrutor: 'Fernanda Alves' },
-      { id: '9', nome: 'Inglês para Negócios', modalidade: 'Online', cargaHoraria: 90, dataInicio: '2025-02-05', status: 'Ativo', instrutor: 'Roberto Ferreira' },
-      { id: '10', nome: 'Redação e Oratória', modalidade: 'Presencial', cargaHoraria: 45, dataInicio: '2024-11-15', status: 'Inativo', instrutor: 'Juliana Rocha' },
-      { id: '11', nome: 'React Native', modalidade: 'Online', cargaHoraria: 100, dataInicio: '2025-02-20', status: 'Ativo', instrutor: 'Diego Nascimento' },
-      { id: '12', nome: 'UX/UI Design', modalidade: 'Híbrido', cargaHoraria: 85, dataInicio: '2025-01-28', status: 'Ativo', instrutor: 'Patrícia Gomes' },
-      { id: '13', nome: 'Contabilidade Básica', modalidade: 'Presencial', cargaHoraria: 60, dataInicio: '2025-02-12', status: 'Ativo', instrutor: 'Gustavo Pinto' },
-      { id: '14', nome: 'Finanças Pessoais', modalidade: 'Online', cargaHoraria: 25, dataInicio: '2025-01-22', status: 'Ativo', instrutor: 'Camila Dias' },
-      { id: '15', nome: 'Java Avançado', modalidade: 'Online', cargaHoraria: 110, dataInicio: '2024-12-10', status: 'Inativo', instrutor: 'Rafael Cardoso' },
+      { id: '1',  nome: 'Desenvolvimento Web com Angular', status: 'Ativo', vagas: 30 },
+      { id: '2',  nome: 'Python para Iniciantes',          status: 'Ativo', vagas: 25 },
+      { id: '3',  nome: 'Design Thinking',                 status: 'Ativo', vagas: 20 },
+      { id: '4',  nome: 'Marketing Digital',               status: 'Ativo', vagas: 40 },
+      { id: '5',  nome: 'Gestão de Projetos',              status: 'Inativo', vagas: 0 },
+      { id: '6',  nome: 'Excel Avançado',                  status: 'Ativo', vagas: 35 },
+      { id: '7',  nome: 'Empreendedorismo Social',         status: 'Ativo', vagas: 15 },
+      { id: '8',  nome: 'Fotografia Básica',               status: 'Ativo', vagas: 18 },
+      { id: '9',  nome: 'Inglês para Negócios',            status: 'Ativo', vagas: 22 },
+      { id: '10', nome: 'Redação e Oratória',              status: 'Inativo', vagas: 0 },
+      { id: '11', nome: 'React Native',                    status: 'Ativo', vagas: 28 },
+      { id: '12', nome: 'UX/UI Design',                    status: 'Ativo', vagas: 30 },
+      { id: '13', nome: 'Contabilidade Básica',            status: 'Ativo', vagas: 25 },
+      { id: '14', nome: 'Finanças Pessoais',               status: 'Ativo', vagas: 32 },
+      { id: '15', nome: 'Java Avançado',                   status: 'Inativo', vagas: 0 },
     ]);
   }
+
 
   addCourse() {
     this.router.navigate(['cadastros/new-course']);

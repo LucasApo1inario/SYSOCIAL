@@ -3,10 +3,7 @@
     <thead z-table-header>
       <tr z-table-row>
         <th z-table-head>Curso</th>
-        <th z-table-head>Modalidade</th>
-        <th z-table-head>Carga Horária</th>
-        <th z-table-head>Data Início</th>
-        <th z-table-head>Instrutor</th>
+        <th z-table-head>Vagas</th>
         <th z-table-head>Status</th>
         <th z-table-head class="w-36 text-right">Ações</th>
       </tr>
@@ -15,10 +12,7 @@
       @for (course of courses; track course.id) {
         <tr z-table-row>
           <td z-table-cell>{{ course.nome }}</td>
-          <td z-table-cell>{{ course.modalidade }}</td>
-          <td z-table-cell>{{ course.cargaHoraria }}h</td>
-          <td z-table-cell>{{ course.dataInicio }}</td>
-          <td z-table-cell>{{ course.instrutor }}</td>
+          <td z-table-cell>{{ course.vagas }}</td>
           <td z-table-cell>
             <z-badge [zType]="getBadgeType(course.status)">
               {{ course.status }}

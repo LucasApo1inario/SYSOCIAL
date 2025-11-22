@@ -1,9 +1,6 @@
 export interface Course {
   id: string;
   nome: string;
-  modalidade: 'Presencial' | 'Online' | 'Híbrido';
-  cargaHoraria: number;
-  dataInicio: string;
+  vagas: number;
   status: 'Ativo' | 'Inativo';
-  instrutor: string;
 }
