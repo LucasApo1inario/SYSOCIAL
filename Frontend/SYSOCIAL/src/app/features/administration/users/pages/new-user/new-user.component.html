@@ -1,0 +1,142 @@
+<div class="flex justify-center p-6">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-1xl">
+
+    <form class="space-y-6" (ngSubmit)="onSubmit()" #createUserForm="ngForm" autocomplete="off" novalidate>
+
+      <!-- Linha com Username + Nome -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idUsername }}">Username</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="text" 
+              [id]="idUsername" 
+              placeholder="Digite o username"
+              [(ngModel)]="model.username"
+              name="username"
+              required 
+              minlength="3" />
+          </z-form-control>
+
+          @if (createUserForm.submitted && !model.username) {
+            <z-form-message>Username é obrigatório.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label zRequired for="{{ idNome }}">Nome</label>
+          <z-form-control>
+            <input 
+              z-input 
+              type="text"
+              [id]="idNome" 
+              placeholder="Nome completo"
+              [(ngModel)]="model.nome"
+              name="nome"
+              required />
+          </z-form-control>
+
+          @if (createUserForm.submitted && !model.nome) {
+            <z-form-message>Nome é obrigatório.</z-form-message>
+          }
+        </z-form-field>
+
+      </div>
+
+      <!-- Telefone -->
+      <z-form-field>
+        <label z-form-label for="{{ idTelefone }}">Telefone</label>
+        <z-form-control>
+          <input 
+            z-input 
+            type="tel" 
+            [id]="idTelefone"
+            placeholder="11999999999"
+            [(ngModel)]="model.telefone"
+            name="telefone"
+            pattern="^[0-9]{10,13}$" />
+        </z-form-control>
+        <z-form-message>Formato: apenas números, DDD + número.</z-form-message>
+      </z-form-field>
+
+      <!-- Email -->
+      <z-form-field>
+        <label z-form-label zRequired for="{{ idEmail }}">Email</label>
+        <z-form-control>
+          <input 
+            z-input 
+            type="email" 
+            [id]="idEmail"
+            placeholder="email@exemplo.com"
+            [(ngModel)]="model.email"
+            name="email"
+            required />
+        </z-form-control>
+
+        @if (createUserForm.submitted && !model.email) {
+          <z-form-message>Email é obrigatório.</z-form-message>
+        }
+      </z-form-field>
+
+      <!-- Senha -->
+      <z-form-field>
+        <label z-form-label zRequired for="{{ idSenha }}">Senha</label>
+        <z-form-control>
+          <input 
+            z-input 
+            type="password"
+            [id]="idSenha"
+            placeholder="Senha"
+            [(ngModel)]="model.senha"
+            name="senha"
+            required minlength="6" />
+        </z-form-control>
+
+        @if (createUserForm.submitted && (!model.senha || model.senha.length < 6)) {
+          <z-form-message>Senha mínima 6 caracteres.</z-form-message>
+        }
+      </z-form-field>
+
+      <!-- Tipo -->
+      <z-form-field>
+        <label z-form-label for="{{ idTipo }}">Tipo</label>
+        <z-form-control>
+         <select z-input [id]="idTipo" [(ngModel)]="model.tipo" name="tipo">
+            <option value="U">User</option>
+            <option value="A">Admin</option>
+        </select>
+
+        </z-form-control>
+        <z-form-message>Escolha o tipo de conta.</z-form-message>
+      </z-form-field>
+
+      <!-- Botões -->
+      <div class="flex items-center gap-2">
+        <button z-button zType="default" type="submit" [disabled]="loading">
+          Criar usuário
+        </button>
+
+        <button z-button zType="ghost" type="button" (click)="reset()" [disabled]="loading">
+          Limpar
+        </button>
+
+        <button 
+            z-button 
+            zType="ghost" 
+            type="button" 
+            (click)="return()"
+            class="ml-auto"
+            >
+            Voltar
+        </button>
+
+        @if (loading) {
+          <span class="ml-2">Enviando...</span>
+        }
+      </div>
+    </form>
+
+  </div>
+</div>

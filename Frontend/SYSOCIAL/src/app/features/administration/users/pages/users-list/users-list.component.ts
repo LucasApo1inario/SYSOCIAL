@@ -1,4 +1,4 @@
-import { Component, computed, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { User } from '../../interfaces/user.interface';
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { UserTableComponent } from '../../components/user-table/user-table.component';
@@ -6,6 +6,7 @@ import { UserPaginationComponent } from '../../components/user-pagination/user-p
 import { ZardInputDirective } from '@shared/components/input/input.directive';
 
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users-list',
@@ -14,6 +15,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './users-list.component.css'
 })
 export class UsersListComponent {
+  private router = inject(Router)
+
   searchQuery = signal(''); // signal 
   users: WritableSignal<User[]> = signal([]); 
 
@@ -75,7 +78,7 @@ export class UsersListComponent {
 
 
   addUser() {
-    console.log('Adicionar novo usuário');
+    this.router.navigate(['administration/new-user'])
   }
 
   editUser(user: User) {

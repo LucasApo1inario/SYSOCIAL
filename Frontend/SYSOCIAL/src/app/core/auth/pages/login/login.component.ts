@@ -65,7 +65,7 @@ export class LoginComponent {
     .subscribe({
       next: () => {
         this.spinner.hide();
-        this.router.navigate(['/contato']);
+        this.router.navigate(['/home']);
       },
       error: (response: HttpErrorResponse) =>{
        // if (response.status === 401){
