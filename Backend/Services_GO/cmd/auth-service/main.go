@@ -5,11 +5,12 @@ import (
 	"os"
 
 	"sysocial/internal/auth/handler"
-	"sysocial/internal/auth/repository"
+	authrepository "sysocial/internal/auth/repository"
 	"sysocial/internal/auth/service"
 	"sysocial/internal/shared/config"
 	"sysocial/internal/shared/database"
 	"sysocial/internal/shared/logger"
+	userrepository "sysocial/internal/user/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -17,8 +18,8 @@ import (
 
 func main() {
 	// Carregar variáveis de ambiente
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Aviso: Arquivo .env não encontrado: %v", err)
+	if err := godotenv.Load("../../config.env"); err != nil {
+		log.Printf("Aviso: Arquivo config.env não encontrado: %v", err)
 	}
 
 	// Configurar logger
@@ -34,10 +35,11 @@ func main() {
 	}
 
 	// Inicializar repositórios
-	authRepo := repository.NewAuthRepository(db)
+	authRepo := authrepository.NewAuthRepository(db)
+	userRepo := userrepository.NewUserRepository(db)
 
 	// Inicializar serviços
-	authService := service.NewAuthService(authRepo, logger)
+	authService := service.NewAuthService(authRepo, userRepo, logger)
 
 	// Inicializar handlers
 	authHandler := handler.NewAuthHandler(authService, logger)
@@ -56,8 +58,6 @@ func main() {
 		{
 			auth.POST("/login", authHandler.Login)
 			auth.POST("/register", authHandler.Register)
-			auth.POST("/refresh", authHandler.RefreshToken)
-			auth.POST("/logout", authHandler.Logout)
 			auth.POST("/validate", authHandler.ValidateToken)
 		}
 	}

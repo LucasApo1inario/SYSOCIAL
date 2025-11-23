@@ -7,6 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"sysocial/internal/shared/config"
+	"sysocial/internal/shared/jwt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,18 +33,22 @@ func Logger() gin.HandlerFunc {
 // CORS middleware para Cross-Origin Resource Sharing
 func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
+
+		//origin := c.Request.Header.Get("Origin")
 
 		// Lista de origens permitidas
-		allowedOrigins := []string{
+
+		/*allowedOrigins := []string{
 			"http://localhost:3000",
 			"http://localhost:3001",
+			"http://localhost:4200",
 			"http://127.0.0.1:3000",
 			"http://127.0.0.1:3001",
-		}
+			"http://127.0.0.1:4200",
+		}*/
 
 		// Verificar se a origem está permitida
-		allowed := false
+		/*allowed := false
 		for _, allowedOrigin := range allowedOrigins {
 			if origin == allowedOrigin {
 				allowed = true
@@ -51,8 +58,10 @@ func CORS() gin.HandlerFunc {
 
 		if allowed {
 			c.Header("Access-Control-Allow-Origin", origin)
-		}
+		}*/
 
+		// Permitir qualquer origem
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
@@ -107,11 +116,17 @@ func RateLimit(requestsPerMinute int) gin.HandlerFunc {
 // Auth middleware para autenticação JWT
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Permitir requisições OPTIONS (preflight) sem autenticação
+		if c.Request.Method == "OPTIONS" {
+			c.Next()
+			return
+		}
+
 		// Verificar se é uma rota pública
 		publicRoutes := []string{
 			"/health",
 			"/api/v1/auth/login",
-			"/api/v1/auth/register",
+			"/api/v1/auth/validate",
 		}
 
 		path := c.Request.URL.Path
@@ -124,40 +139,42 @@ func Auth() gin.HandlerFunc {
 
 		// Extrair token do header Authorization
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		tokenString, err := jwt.ExtractTokenFromHeader(authHeader)
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Authorization header required",
+				"error": err.Error(),
 			})
 			c.Abort()
 			return
 		}
 
-		// Verificar formato "Bearer <token>"
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid authorization header format",
-			})
-			c.Abort()
-			return
+		// Carregar configurações
+		cfg := config.Load()
+
+		// Parsear duração do token
+		tokenDuration, err := time.ParseDuration(cfg.JWT.Expiration)
+		if err != nil {
+			tokenDuration = 24 * time.Hour // Default 24h
 		}
 
-		token := parts[1]
+		// Criar JWT manager
+		jwtManager := jwt.NewJWTManager(cfg.JWT.Secret, tokenDuration)
 
-		// TODO: Validar token JWT
-		// Por enquanto, apenas verificar se não está vazio
-		if token == "" {
+		// Validar token
+		claims, err := jwtManager.ValidateToken(tokenString)
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Token is required",
+				"error": "Invalid token",
 			})
 			c.Abort()
 			return
 		}
 
 		// Adicionar informações do usuário ao contexto
-		// TODO: Extrair informações do token JWT
-		c.Set("user_id", "1")         // Placeholder
-		c.Set("username", "testuser") // Placeholder
+		c.Set("user_id", claims.UserID)
+		c.Set("username", claims.Username)
+		c.Set("email", claims.Email)
+		c.Set("tipo", claims.Tipo)
 
 		c.Next()
 	}

@@ -1,0 +1,9 @@
+FROM nginx:alpine
+
+# Copia os arquivos HTML para o diretório padrão do nginx
+COPY ./html /usr/share/nginx/html
+
+# Expõe a porta 80
+EXPOSE 80
+
+# O nginx já inicia automaticamente na imagem base
