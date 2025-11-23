@@ -4,13 +4,12 @@ import (
 	"log"
 	"os"
 
-	"sysocial/internal/auth/handler"
-	authrepository "sysocial/internal/auth/repository"
-	"sysocial/internal/auth/service"
+	"sysocial/internal/file/handler"
+	"sysocial/internal/file/repository"
+	"sysocial/internal/file/service"
 	"sysocial/internal/shared/config"
 	"sysocial/internal/shared/database"
 	"sysocial/internal/shared/logger"
-	userrepository "sysocial/internal/user/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -35,14 +34,13 @@ func main() {
 	}
 
 	// Inicializar repositórios
-	authRepo := authrepository.NewAuthRepository(db)
-	userRepo := userrepository.NewUserRepository(db)
+	fileRepo := repository.NewFileRepository(db)
 
 	// Inicializar serviços
-	authService := service.NewAuthService(authRepo, userRepo, logger)
+	fileService := service.NewFileService(fileRepo, logger)
 
 	// Inicializar handlers
-	authHandler := handler.NewAuthHandler(authService, logger)
+	fileHandler := handler.NewFileHandler(fileService)
 
 	// Configurar roteador
 	router := gin.Default()
@@ -54,27 +52,28 @@ func main() {
 	// Rotas
 	v1 := router.Group("/api/v1")
 	{
-		auth := v1.Group("/auth")
+		files := v1.Group("/files")
+		// Middleware JWT removido - validação feita no API Gateway
 		{
-			auth.POST("/login", authHandler.Login)
-			auth.POST("/register", authHandler.Register)
-			auth.POST("/validate", authHandler.ValidateToken)
+			files.POST("/", fileHandler.UploadFile)
+			files.GET("/:id", fileHandler.DownloadFile)
 		}
 	}
 
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "auth-service"})
+		c.JSON(200, gin.H{"status": "ok", "service": "file-service"})
 	})
 
 	// Iniciar servidor
-	port := os.Getenv("AUTH_SERVICE_PORT")
+	port := os.Getenv("FILE_SERVICE_PORT")
 	if port == "" {
-		port = "8082"
+		port = "8083"
 	}
 
-	logger.Infof("Auth Service iniciado na porta %s", port)
+	logger.Infof("File Service iniciado na porta %s", port)
 	if err := router.Run(":" + port); err != nil {
 		logger.Fatal("Erro ao iniciar servidor", err)
 	}
 }
+

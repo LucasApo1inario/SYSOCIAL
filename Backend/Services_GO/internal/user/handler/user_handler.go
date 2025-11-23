@@ -160,6 +160,20 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 	})
 }
 
+// ListAllUsers lista todos os usuários criados
+func (h *UserHandler) ListAllUsers(c *gin.Context) {
+	users, err := h.userService.ListAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    users,
+	})
+}
+
 // ValidatePassword valida senha do usuário
 func (h *UserHandler) ValidatePassword(c *gin.Context) {
 	var req struct {

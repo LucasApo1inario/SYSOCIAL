@@ -13,9 +13,10 @@ type UserRepository interface {
 	GetByID(id int) (*model.User, error)
 	GetByUsername(username string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
-	Update(user *model.User) error
+	Update(user *model.User, updateSenha bool) error
 	Delete(id int) error
 	List(limit, offset int) ([]*model.User, error)
+	ListAll() ([]*model.User, error)
 	Count() (int, error)
 }
 
@@ -32,8 +33,8 @@ func NewUserRepository(db *sql.DB) UserRepository {
 // Create cria um novo usuário
 func (r *userRepository) Create(user *model.User) error {
 	query := `
-		INSERT INTO users (username, nome, telefone, email, tipo, senha_hash, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+		INSERT INTO usuarios (username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
 		RETURNING id_usuario, created_at, updated_at`
 
 	err := r.db.QueryRow(
@@ -43,6 +44,7 @@ func (r *userRepository) Create(user *model.User) error {
 		user.Telefone,
 		user.Email,
 		user.Tipo,
+		user.TrocaSenha,
 		user.SenhaHash,
 	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 
@@ -56,8 +58,8 @@ func (r *userRepository) Create(user *model.User) error {
 // GetByID busca usuário por ID
 func (r *userRepository) GetByID(id int) (*model.User, error) {
 	query := `
-		SELECT id_usuario, username, nome, telefone, email, tipo, senha_hash, created_at, updated_at
-		FROM users WHERE id_usuario = $1`
+		SELECT id_usuario, username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at
+		FROM usuarios WHERE id_usuario = $1`
 
 	user := &model.User{}
 	err := r.db.QueryRow(query, id).Scan(
@@ -67,6 +69,7 @@ func (r *userRepository) GetByID(id int) (*model.User, error) {
 		&user.Telefone,
 		&user.Email,
 		&user.Tipo,
+		&user.TrocaSenha,
 		&user.SenhaHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -85,8 +88,8 @@ func (r *userRepository) GetByID(id int) (*model.User, error) {
 // GetByUsername busca usuário por username
 func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 	query := `
-		SELECT id_usuario, username, nome, telefone, email, tipo, senha_hash, created_at, updated_at
-		FROM users WHERE username = $1`
+		SELECT id_usuario, username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at
+		FROM usuarios WHERE username = $1`
 
 	user := &model.User{}
 	err := r.db.QueryRow(query, username).Scan(
@@ -96,6 +99,7 @@ func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 		&user.Telefone,
 		&user.Email,
 		&user.Tipo,
+		&user.TrocaSenha,
 		&user.SenhaHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -114,8 +118,8 @@ func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 // GetByEmail busca usuário por email
 func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 	query := `
-		SELECT id_usuario, username, nome, telefone, email, tipo, senha_hash, created_at, updated_at
-		FROM users WHERE email = $1`
+		SELECT id_usuario, username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at
+		FROM usuarios WHERE email = $1`
 
 	user := &model.User{}
 	err := r.db.QueryRow(query, email).Scan(
@@ -125,6 +129,7 @@ func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 		&user.Telefone,
 		&user.Email,
 		&user.Tipo,
+		&user.TrocaSenha,
 		&user.SenhaHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -141,13 +146,26 @@ func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 }
 
 // Update atualiza um usuário
-func (r *userRepository) Update(user *model.User) error {
-	query := `
-		UPDATE users 
-		SET username = $1, nome = $2, telefone = $3, email = $4, tipo = $5, updated_at = NOW()
-		WHERE id_usuario = $6`
+func (r *userRepository) Update(user *model.User, updateSenha bool) error {
+	var query string
+	var result sql.Result
+	var err error
 
-	result, err := r.db.Exec(query, user.Username, user.Nome, user.Telefone, user.Email, user.Tipo, user.ID)
+	if updateSenha {
+		// Atualizar incluindo senha
+		query = `
+			UPDATE usuarios 
+			SET username = $1, nome = $2, telefone = $3, email = $4, tipo = $5, troca_senha = $6, senha_hash = $7, updated_at = NOW()
+			WHERE id_usuario = $8`
+		result, err = r.db.Exec(query, user.Username, user.Nome, user.Telefone, user.Email, user.Tipo, user.TrocaSenha, user.SenhaHash, user.ID)
+	} else {
+		// Atualizar sem senha
+		query = `
+			UPDATE usuarios 
+			SET username = $1, nome = $2, telefone = $3, email = $4, tipo = $5, troca_senha = $6, updated_at = NOW()
+			WHERE id_usuario = $7`
+		result, err = r.db.Exec(query, user.Username, user.Nome, user.Telefone, user.Email, user.Tipo, user.TrocaSenha, user.ID)
+	}
 	if err != nil {
 		return fmt.Errorf("erro ao atualizar usuário: %w", err)
 	}
@@ -166,7 +184,7 @@ func (r *userRepository) Update(user *model.User) error {
 
 // Delete remove um usuário
 func (r *userRepository) Delete(id int) error {
-	query := `DELETE FROM users WHERE id_usuario = $1`
+	query := `DELETE FROM usuarios WHERE id_usuario = $1`
 
 	result, err := r.db.Exec(query, id)
 	if err != nil {
@@ -188,8 +206,8 @@ func (r *userRepository) Delete(id int) error {
 // List lista usuários com paginação
 func (r *userRepository) List(limit, offset int) ([]*model.User, error) {
 	query := `
-		SELECT id_usuario, username, nome, telefone, email, tipo, senha_hash, created_at, updated_at
-		FROM users 
+		SELECT id_usuario, username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at
+		FROM usuarios 
 		ORDER BY created_at DESC 
 		LIMIT $1 OFFSET $2`
 
@@ -209,6 +227,44 @@ func (r *userRepository) List(limit, offset int) ([]*model.User, error) {
 			&user.Telefone,
 			&user.Email,
 			&user.Tipo,
+			&user.TrocaSenha,
+			&user.SenhaHash,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao escanear usuário: %w", err)
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+// ListAll lista todos os usuários sem paginação
+func (r *userRepository) ListAll() ([]*model.User, error) {
+	query := `
+		SELECT id_usuario, username, nome, telefone, email, tipo, troca_senha, senha_hash, created_at, updated_at
+		FROM usuarios 
+		ORDER BY created_at DESC`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao listar usuários: %w", err)
+	}
+	defer rows.Close()
+
+	var users []*model.User
+	for rows.Next() {
+		user := &model.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Nome,
+			&user.Telefone,
+			&user.Email,
+			&user.Tipo,
+			&user.TrocaSenha,
 			&user.SenhaHash,
 			&user.CreatedAt,
 			&user.UpdatedAt,
@@ -224,7 +280,7 @@ func (r *userRepository) List(limit, offset int) ([]*model.User, error) {
 
 // Count retorna o total de usuários
 func (r *userRepository) Count() (int, error) {
-	query := `SELECT COUNT(*) FROM users`
+	query := `SELECT COUNT(*) FROM usuarios`
 
 	var count int
 	err := r.db.QueryRow(query).Scan(&count)

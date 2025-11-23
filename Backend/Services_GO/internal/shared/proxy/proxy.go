@@ -89,8 +89,8 @@ func (pm *ProxyManager) buildTargetURL(service *ServiceConfig, r *http.Request) 
 	// Remover o prefixo do gateway da URL
 	path := strings.TrimPrefix(r.URL.Path, "/api/v1")
 
-	// Construir URL completa
-	targetURL := service.BaseURL + path
+	// Construir URL completa - manter o prefixo /api/v1 para os serviços
+	targetURL := service.BaseURL + "/api/v1" + path
 	if r.URL.RawQuery != "" {
 		targetURL += "?" + r.URL.RawQuery
 	}
@@ -173,4 +173,3 @@ func (pm *ProxyManager) HealthCheck(serviceName string) (bool, error) {
 func (pm *ProxyManager) GetAllServices() map[string]*ServiceConfig {
 	return pm.services
 }
-

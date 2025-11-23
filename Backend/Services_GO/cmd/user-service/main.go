@@ -17,8 +17,8 @@ import (
 
 func main() {
 	// Carregar variáveis de ambiente
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Aviso: Arquivo .env não encontrado: %v", err)
+	if err := godotenv.Load("../../config.env"); err != nil {
+		log.Printf("Aviso: Arquivo config.env não encontrado: %v", err)
 	}
 
 	// Configurar logger
@@ -53,8 +53,10 @@ func main() {
 	v1 := router.Group("/api/v1")
 	{
 		users := v1.Group("/users")
+		// Middleware JWT removido - validação feita no API Gateway
 		{
 			users.POST("/", userHandler.CreateUser)
+			users.GET("/all", userHandler.ListAllUsers)
 			users.GET("/:id", userHandler.GetUser)
 			users.PUT("/:id", userHandler.UpdateUser)
 			users.DELETE("/:id", userHandler.DeleteUser)

@@ -10,12 +10,13 @@ type LoginRequest struct {
 
 // RegisterRequest representa a requisição de registro
 type RegisterRequest struct {
-	Username string `json:"username" validate:"required,min=3,max=20"`
-	Nome     string `json:"nome" validate:"required,min=2,max=50"`
-	Telefone string `json:"telefone" validate:"omitempty,min=10,max=15"`
-	Email    string `json:"email" validate:"required,email"`
-	Senha    string `json:"senha" validate:"required,min=6"`
-	Tipo     string `json:"tipo" validate:"required,oneof=admin user moderator"`
+	Username   string `json:"username" validate:"required,min=3,max=20"`
+	Nome       string `json:"nome" validate:"required,min=2,max=50"`
+	Telefone   string `json:"telefone" validate:"omitempty,min=10,max=15"`
+	Email      string `json:"email" validate:"required,email"`
+	Senha      string `json:"senha" validate:"required,min=6"`
+	Tipo       string `json:"tipo" validate:"required,oneof=A U M P R"`
+	TrocaSenha bool   `json:"troca_senha"`
 }
 
 // AuthResponse representa a resposta de autenticação
@@ -27,21 +28,12 @@ type AuthResponse struct {
 
 // UserInfo representa informações básicas do usuário
 type UserInfo struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Nome     string `json:"nome"`
-	Email    string `json:"email"`
-	Tipo     string `json:"tipo"`
-}
-
-// RefreshTokenRequest representa a requisição de refresh token
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
-}
-
-// LogoutRequest representa a requisição de logout
-type LogoutRequest struct {
-	Token string `json:"token" validate:"required"`
+	ID         int    `json:"id"`
+	Username   string `json:"username"`
+	Nome       string `json:"nome"`
+	Email      string `json:"email"`
+	Tipo       string `json:"tipo"`
+	TrocaSenha bool   `json:"troca_senha"`
 }
 
 // ValidateTokenRequest representa a requisição de validação de token
@@ -56,4 +48,3 @@ type TokenInfo struct {
 	Username  string    `json:"username,omitempty"`
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
 }
-
