@@ -4,22 +4,20 @@ import { LoggedInUserStoreService } from '../stores/logged-in-user-store.ts/logg
 import { AuthTokenStorageService } from '../services/auth/auth-token-storage.service';
 
 export const setAuthTokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const loggedInUserStoreService = inject(LoggedInUserStoreService)
+  const loggedInUserStoreService = inject(LoggedInUserStoreService);
 
-  if(!loggedInUserStoreService.isLoggdIn){
+  if (!loggedInUserStoreService.isLoggdIn) {
     return next(req);
   }
 
-  const authTokenStorageService = inject(AuthTokenStorageService)
+  const authTokenStorageService = inject(AuthTokenStorageService);
+  const token = authTokenStorageService.get();
 
-  const token = authTokenStorageService.get()
-
-  req.clone({
+  const authReq = req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`
     }
-  })
+  });
 
-
-  return next(req);
+  return next(authReq); // ✅ agora vai o clone com auth!
 };

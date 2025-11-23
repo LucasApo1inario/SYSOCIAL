@@ -1,0 +1,88 @@
+<div class="bg-[#246A73] text-white">
+  <div class="max-w-7xl mx-auto px-4">
+    <nav class="flex flex-wrap items-center justify-between py-4">
+      <div class="flex flex-wrap items-center gap-6">
+        
+        <!-- Cadastros -->
+        <div class="relative">
+          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="cadastrosMenu">
+            Cadastros
+            <i class="icon-chevron-down ml-1"></i>
+          </button>
+          <ng-template #cadastrosMenu>
+            <div z-menu-content class="w-48">
+              <button z-menu-item (click)="log('alunos')">Alunos</button>
+              <button z-menu-item (click)="log('responsaveis')">Responsáveis</button>
+              <button z-menu-item (click)="log('professores')">Professores</button>
+              <button z-menu-item (click)="navigateTo('/cadastros/courses')">Cursos</button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Matrículas -->
+        <div class="relative">
+          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="matriculasMenu">
+            Matrículas
+            <i class="icon-chevron-down ml-1"></i>
+          </button>
+          <ng-template #matriculasMenu>
+            <div z-menu-content class="w-56">
+              <button z-menu-item (click)="log('nova-matricula')">Nova matrícula</button>
+              <button z-menu-item (click)="log('controle')">Controle de matrículas</button>
+              <button z-menu-item (click)="log('cancelamentos')">Cancelamentos</button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Relatórios -->
+        <div class="relative">
+          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="relatoriosMenu">
+            Relatórios
+            <i class="icon-chevron-down ml-1"></i>
+          </button>
+          <ng-template #relatoriosMenu>
+            <div z-menu-content class="w-64">
+              <button z-menu-item (click)="log('frequencia')">Frequência dos alunos</button>
+              <button z-menu-item (click)="log('relatorios-professores')">Relatórios dos professores</button>
+              <button z-menu-item (click)="log('vagas')">Vagas disponíveis</button>
+              <button z-menu-item (click)="log('estatisticas')">Estatísticas</button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Administração (visível apenas se admin) -->
+        @if(userType() === 'admin'){
+        <div class="relative">
+          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="adminMenu">
+            Administração
+            <i class="icon-chevron-down ml-1"></i>
+          </button>
+          <ng-template #adminMenu>
+            <div z-menu-content class="w-48">
+              <button z-menu-item (click)="navigateTo('/administration/users')">Usuários do sistema</button>
+              <button z-menu-item (click)="navigateTo('/administration/config')">Configurações</button>
+            </div>
+          </ng-template>
+        </div>
+        }
+
+        <!-- Ajuda -->
+        <div class="relative">
+          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="ajudaMenu">
+            Ajuda
+            <i class="icon-chevron-down ml-1"></i>
+          </button>
+          <ng-template #ajudaMenu>
+            <div z-menu-content class="w-48">
+              <button z-menu-item (click)="log('docs')">Documentação</button>
+              <button z-menu-item (click)="log('tutoriais')">Tutoriais</button>
+              <button z-menu-item (click)="log('suporte')">Contato / Suporte</button>
+              <button z-menu-item (click)="logout()">Desconectar</button>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+    </nav>
+  </div>
+</div>

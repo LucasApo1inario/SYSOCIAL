@@ -15,6 +15,10 @@ export class ContactComponent {
   protected readonly idNome = '';
   protected readonly idMessage = '';
 
+  protected sendEmail(): void {
+    const email = (document.getElementById(this.idEmail) as HTMLInputElement).value;
+    const nome = (document.getElementById(this.idNome) as HTMLInputElement).value;
+    const message = (document.getElementById(this.idMessage) as HTMLInputElement).value;
 
-
+ }
 }

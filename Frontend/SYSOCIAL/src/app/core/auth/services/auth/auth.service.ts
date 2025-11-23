@@ -1,56 +1,47 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { environment } from 'src/environments/enviroment';
 import { UserCredentials } from '../../interfaces/user-credentials';
 import { AuthTokenResponse } from '../../interfaces/auth-token-response';
 import { User } from '../../interfaces/user';
-
-
-// utils/jwt.util.ts
-export function generateFakeJwt(length: number = 20): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  let token = '';
-
-  for (let i = 0; i < length; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  return token;
-}
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  
+  
+
+  constructor(private http: HttpClient) {}
 
 
-  login(payload: UserCredentials): Observable<AuthTokenResponse>{
-    if(payload.email === 'admin' && payload.password === '123'){
-      return of({token: generateFakeJwt()});
-    }
-    return throwError((()=> new HttpErrorResponse({
-      status: 401,
-      statusText: 'Unauthorized'
-    })))
-  }   
+  
+  private apiUrl = environment.apiUrl;
 
+  login(payload: UserCredentials): Observable<AuthTokenResponse> {
+    return this.http.post<AuthTokenResponse>(`${this.apiUrl}/auth/login`, {
+      username: payload.user,
+      senha: payload.password
+    });
+  }
 
-
+ 
   getCurrentUser(token: string): Observable<User>{
+
     return of({
-      username: 'admin'
+      username: 'admin',
+      type: 'admin'
     });
   }
 
 
 
   refreshToken(token: string){
-    return of({token: generateFakeJwt()})
+    return of({token: 'nao implementado' })
   }
 
   logout(){
     return of({})
   }
-
 }
