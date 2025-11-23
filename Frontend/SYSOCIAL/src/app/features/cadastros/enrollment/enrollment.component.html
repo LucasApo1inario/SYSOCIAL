@@ -1,0 +1,267 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4 font-sans">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Título da Página -->
+    <h1 class="text-2xl font-bold text-gray-900 mb-8">Nova matrícula</h1>
+
+    <form (ngSubmit)="onSubmit()">
+      
+      <!-- SEÇÃO 1: INFORMAÇÕES DO ALUNO -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" [formGroup]="studentForm">
+        
+        <!-- Cabeçalho da Seção Aluno -->
+        <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+          <h2 class="text-lg font-semibold text-gray-800">Informações do aluno</h2>
+        </div>
+
+        <!-- Linha 1: Dados Pessoais -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+          <div class="md:col-span-6">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Nome completo</label>
+            <input type="text" formControlName="fullName" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Data de nascimento</label>
+            <input type="date" formControlName="birthDate" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-600">
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Idade</label>
+            <input type="text" [value]="studentAge" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-100 text-gray-600 cursor-default focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Linha 2: Documentos e Contato -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">CPF</label>
+            <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Telefone Celular</label>
+            <input type="tel" formControlName="phone" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          </div>
+
+          <!-- Sexo do Aluno -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Sexo</label>
+            <div class="flex items-center gap-4 mt-2">
+              <label class="flex items-center cursor-pointer relative">
+                <input type="radio" formControlName="gender" value="F" class="peer sr-only">
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-900 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-900 after:opacity-0 after:transition-all peer-checked:after:opacity-100"></div>
+                <span class="ml-2 text-sm text-gray-600">Feminino</span>
+              </label>
+              <label class="flex items-center cursor-pointer relative">
+                <input type="radio" formControlName="gender" value="M" class="peer sr-only">
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-900 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-900 after:opacity-0 after:transition-all peer-checked:after:opacity-100"></div>
+                <span class="ml-2 text-sm text-gray-600">Masculino</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-6">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Endereço do Aluno</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">CEP</label>
+            <input type="text" formControlName="zipCode" maxlength="9" (input)="formatZipCode($event)" placeholder="00000-000" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          <div class="md:col-span-5">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Logradouro</label>
+            <input type="text" formControlName="street" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Número</label>
+            <input type="text" formControlName="number" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Bairro</label>
+            <input type="text" formControlName="neighborhood" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-6">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Dados Escolares</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Instituição de ensino atual</label>
+            <input type="text" formControlName="currentSchool" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Ano letivo atual</label>
+            <select formControlName="series" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+               <option value="">Selecione...</option>
+               <option value="1">1º Ensino Fundamental</option>
+               <option value="2">2º Ensino Fundamental</option>
+               <option value="3">3º Ensino Fundamental</option>
+               <option value="3">4º Ensino Fundamental</option>
+               <option value="3">5º Ensino Fundamental</option>
+               <option value="3">6º Ensino Fundamental</option>
+               <option value="3">7º Ensino Fundamental</option>
+               <option value="9">8º Ensino Fundamental</option>
+               <option value="9">9º Ensino Fundamental</option>
+               <option value="9">1º Ensino Médio</option>
+               <option value="9">2º Ensino Médio</option>
+               <option value="9">3º Ensino Médio</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Turno escolar</label>
+            <select formControlName="schoolShift" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+               <option value="">Selecione...</option>
+               <option value="manha">Matutino</option>
+               <option value="tarde">Vespertino</option>
+               <option value="integral">Integral</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: INFORMAÇÕES DO RESPONSÁVEL -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" [formGroup]="guardianForm">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-semibold text-gray-800">Dados do Responsável</h2>
+            <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md border border-blue-100">Principal</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Linha 1: Nome e Parentesco -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div class="md:col-span-8">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Nome Completo</label>
+                <input type="text" formControlName="fullName" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div class="md:col-span-4">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Parentesco</label>
+                <select formControlName="relationship" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Selecione...</option>
+                  <option value="pai">Pai</option>
+                  <option value="mae">Mãe</option>
+                  <option value="avo">Avô/Avó</option>
+                  <option value="tio">Tio/Tia</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Linha 2: CPF, Telefone Principal e Contato -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div class="md:col-span-3">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">CPF</label>
+                <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div class="md:col-span-3">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Telefone Principal</label>
+                <input type="tel" formControlName="phone" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div class="md:col-span-3">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Contato (Nome)</label>
+                <input type="text" formControlName="phoneContact" placeholder="Ex: Próprio, Trabalho..." class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div class="md:col-span-3 flex items-end pb-3">
+                <label class="flex items-center p-3 border border-blue-100 bg-blue-50 rounded-lg w-full cursor-pointer hover:bg-blue-100 transition-colors">
+                  <input type="checkbox" formControlName="isPrincipal" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <div class="ml-3">
+                    <span class="text-sm font-medium text-blue-900">Responsável Principal</span>
+                    <p class="text-xs text-blue-700">Assinará o contrato</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Contatos de Emergência -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M12 12h.01M12 6h.01M12 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Contatos de Emergência / Recados (Opcional)
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Telefone</label>
+                    <input type="tel" formControlName="messagePhone1" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Falar com (Nome)</label>
+                    <input type="text" formControlName="messagePhone1Contact" placeholder="Nome do contato" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                  </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Telefone</label>
+                    <input type="tel" formControlName="messagePhone2" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Falar com (Nome)</label>
+                    <input type="text" formControlName="messagePhone2Contact" placeholder="Nome do contato" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 3: CURSOS E TURMAS (NOVA) -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" [formGroup]="coursesForm">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+          <h2 class="text-lg font-semibold text-gray-800">Cursos e Turmas</h2>
+          <button type="button" (click)="addCourse()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-medium transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Adicionar Curso
+          </button>
+        </div>
+
+        <div formArrayName="enrollments">
+          <div *ngFor="let enrollment of enrollmentControls; let i = index" [formGroupName]="i" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 relative group">
+            
+            <!-- Botão Remover (Aparece apenas se houver mais de 1 ou se quiser permitir 0) -->
+            <button *ngIf="enrollmentControls.length > 1" type="button" (click)="removeCourse(i)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Seleção de Curso -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Curso</label>
+                <select formControlName="courseId" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Selecione o curso...</option>
+                  <option *ngFor="let course of availableCourses" [value]="course.id">{{ course.name }}</option>
+                </select>
+              </div>
+
+              <!-- Seleção de Turma (Dependente) -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Turma</label>
+                <select formControlName="classId" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400">
+                  <option value="">Selecione a turma...</option>
+                  <option *ngFor="let classItem of getClassesForCourse(i)" [value]="classItem.id">{{ classItem.name }}</option>
+                </select>
+                <p *ngIf="!enrollment.get('courseId')?.value" class="text-xs text-gray-400 mt-1 italic">Selecione um curso primeiro</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <p *ngIf="enrollmentControls.length === 0" class="text-sm text-gray-500 text-center italic py-4">Nenhum curso selecionado.</p>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
+        <button type="button" class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button type="submit" [disabled]="!studentForm.valid || !guardianForm.valid || !coursesForm.valid" class="px-8 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
+          Salvar Matrícula
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
