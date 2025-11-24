@@ -4,6 +4,7 @@ export interface UserCreateRequest {
   telefone?: string;
   email: string;
   senha: string;
+  troca_senha: boolean;
   tipo?: 'user' | 'admin' | string;
 }
 

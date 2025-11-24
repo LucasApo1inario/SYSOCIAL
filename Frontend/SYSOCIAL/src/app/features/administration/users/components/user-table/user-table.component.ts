@@ -15,9 +15,8 @@ import { ZardBadgeComponent } from '@shared/components/badge/badge.component';
     ZardTableRowComponent,
     ZardTableHeadComponent,
     ZardTableCellComponent,
-    ZardBadgeComponent,
-    ZardButtonComponent,
-  ],
+    ZardButtonComponent
+],
   templateUrl: './user-table.component.html',
 })
 export class UserTableComponent {
@@ -38,7 +37,7 @@ export class UserTableComponent {
     this.delete.emit(user);
   }
 
-  getBadgeType(status: User['status']) {
-    return status === 'Ativo' ? 'default' : 'destructive';
+  getBadgeType(status: User['tipo']) {
+    return status === 'A' ? 'default' : 'destructive';
   }
 }

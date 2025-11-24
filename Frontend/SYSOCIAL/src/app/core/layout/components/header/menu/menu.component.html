@@ -51,7 +51,7 @@
         </div>
 
         <!-- Administração (visível apenas se admin) -->
-        @if(userType() === 'admin'){
+        @if(userType() === 'A'){
         <div class="relative">
           <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="adminMenu">
             Administração
