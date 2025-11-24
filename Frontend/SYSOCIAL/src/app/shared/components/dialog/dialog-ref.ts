@@ -16,6 +16,7 @@ export class ZardDialogRef<T = any, R = any, U = any> {
   private isClosing = false;
   protected result?: R;
   componentInstance: T | null = null;
+  afterClosed: any;
 
   constructor(
     private overlayRef: OverlayRef,

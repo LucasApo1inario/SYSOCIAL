@@ -20,17 +20,20 @@ export class LoginFacadeService {
   }
 
   refreshToken(token: string){
-    return this.authService.refreshToken(token).pipe(this.createUserSection())
-  }
+  return this.authService.refreshToken(token).pipe(
+    tap(res => this.authTokenService.set(res.token))
+  );
+}
 
 
-  private createUserSection(){
+
+  private createUserSection() {
     return pipe(
-      tap((res : AuthTokenResponse) => this.authTokenService.set(res.token)
-          ),
-          switchMap((res) => this.authService.getCurrentUser(res.token)),
-          tap(user => this.loggedInUserStoreService.setUser(user))
-    )
+      tap((res: AuthTokenResponse) => this.authTokenService.set(res.token)),
+      switchMap((res) => this.authService.getCurrentUser(res)),
+      tap(user => this.loggedInUserStoreService.setUser(user))
+    );
   }
+
   
 }
