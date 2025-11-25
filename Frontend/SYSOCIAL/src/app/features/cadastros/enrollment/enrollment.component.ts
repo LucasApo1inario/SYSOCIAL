@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-enrollment',
   standalone: true,
   imports: [
+    RouterModule,
     CommonModule, 
     ReactiveFormsModule,
   ],
@@ -23,7 +25,6 @@ export class EnrollmentComponent {
   guardianOpenState: boolean[] = [true];
 
   // --- DADOS MOCKADOS ---
-  // Dados fictícios pra gente simular o banco de dados e testar o front
   availableCourses = [
     { id: '1', name: 'Ensino Fundamental I' },
     { id: '2', name: 'Ensino Fundamental II' },
@@ -50,7 +51,9 @@ export class EnrollmentComponent {
     'RG do Responsável',
     'CPF do Responsável',
     'Comprovante de Residência',
-    'Declaração de Matrícula Escolar',
+    'Histórico Escolar',
+    'Carteira de Vacinação',
+    'Declaração de Transferência'
   ];
 
   relationshipOptions = [
@@ -62,7 +65,7 @@ export class EnrollmentComponent {
   ];
 
   constructor() {
-    // Configuração do formulário do aluno com as validações básicas
+    // 1. Student Form
     this.studentForm = this.fb.group({
       fullName: ['', Validators.required],
       birthDate: ['', Validators.required],
@@ -79,27 +82,25 @@ export class EnrollmentComponent {
       gender: ['']
     });
 
-    // Inicializa a lista de responsáveis já com um item (o principal)
+    // 2. Guardian Form Array
     this.guardians = this.fb.array([
-      this.createGuardianGroup()
+      this.createGuardianGroup(true) 
     ]);
 
-    // Formulário para gerenciar a lista dinâmica de cursos
+    // 3. Courses Form
     this.coursesForm = this.fb.group({
       enrollments: this.fb.array([])
     });
 
-    // Formulário para os documentos anexados
+    // 4. Documents Form
     this.documentsForm = this.fb.group({
       docs: this.fb.array([])
     });
 
-    // Já adiciona uma linha de curso pra não ficar vazio de cara
     this.addCourse();
   }
 
-  // Cria um grupo de dados para um novo responsável
-  createGuardianGroup(): FormGroup {
+  createGuardianGroup(isPrincipal: boolean = false): FormGroup {
     return this.fb.group({
       fullName: ['', Validators.required],
       cpf: ['', Validators.required],
@@ -110,41 +111,56 @@ export class EnrollmentComponent {
       messagePhone1Contact: [''], 
       messagePhone2: [''],                     
       messagePhone2Contact: [''], 
-      isPrincipal: [false]
+      isPrincipal: [isPrincipal]
     });
   }
 
-  // Helpers marotos pra facilitar o acesso no HTML
-  get guardianControls() {
-    return this.guardians.controls;
-  }
-
-  asFormGroup(control: AbstractControl): FormGroup {
-    return control as FormGroup;
-  }
-
-  // Adiciona um novo responsável na lista e já abre o acordeão dele
+  get guardianControls() { return this.guardians.controls; }
+  asFormGroup(control: AbstractControl): FormGroup { return control as FormGroup; }
+  
   addGuardian() {
-    this.guardians.push(this.createGuardianGroup());
+    this.guardians.push(this.createGuardianGroup(false));
     this.guardianOpenState.push(true);
   }
 
   removeGuardian(index: number) {
+    if (this.guardians.length <= 1) {
+      alert('É necessário manter pelo menos um responsável.');
+      return;
+    }
     this.guardians.removeAt(index);
     this.guardianOpenState.splice(index, 1);
+    
+    const hasPrincipal = this.guardians.controls.some(g => g.get('isPrincipal')?.value);
+    if (!hasPrincipal && this.guardians.length > 0) {
+        this.guardians.at(0).get('isPrincipal')?.setValue(true);
+    }
   }
 
-  // Abre e fecha o acordeão dos responsáveis extras
   toggleGuardian(index: number) {
     this.guardianOpenState[index] = !this.guardianOpenState[index];
   }
 
-  // Garante que só exista UM responsável financeiro marcado
   onPrincipalChange(index: number) {
-    const isChecked = this.guardians.at(index).get('isPrincipal')?.value;
-    
+    const currentGuardian = this.guardians.at(index);
+    const isChecked = currentGuardian.get('isPrincipal')?.value;
+
+    // Se tentar desmarcar
+    if (!isChecked) {
+      // Verifica se existe outro principal
+      const hasAnotherPrincipal = this.guardians.controls.some((g, i) => i !== index && g.get('isPrincipal')?.value);
+      
+      // Se não houver outro principal, impede a desmarcação
+      if (!hasAnotherPrincipal) {
+        // Reverte para true
+        currentGuardian.get('isPrincipal')?.setValue(true, { emitEvent: false });
+        alert('É obrigatório ter um responsável financeiro/principal selecionado.');
+        return;
+      }
+    }
+
+    // Se marcou este, desmarca os outros
     if (isChecked) {
-      // Se marcou esse cara, desmarca todo o resto da galera
       this.guardians.controls.forEach((control, i) => {
         if (i !== index) {
           control.get('isPrincipal')?.setValue(false, { emitEvent: false });
@@ -153,17 +169,14 @@ export class EnrollmentComponent {
     }
   }
 
-  // Traduz aquele valor feio tipo 'mae' pra 'Mãe' bonitinho na tela
   getRelationshipLabel(value: string): string {
     const option = this.relationshipOptions.find(o => o.value === value);
     return option ? option.label : '';
   }
 
-  // --- Lógica dos Documentos ---
-  get documentControls() {
-    return (this.documentsForm.get('docs') as FormArray).controls;
-  }
-
+  // --- DOCUMENT ACTIONS ---
+  get documentControls() { return (this.documentsForm.get('docs') as FormArray).controls; }
+  
   addDocument() {
     const docs = this.documentsForm.get('docs') as FormArray;
     docs.push(this.fb.group({
@@ -178,7 +191,6 @@ export class EnrollmentComponent {
     docs.removeAt(index);
   }
 
-  // Pega o arquivo selecionado e guarda no formulário
   onDocumentFileSelected(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -186,18 +198,12 @@ export class EnrollmentComponent {
       const docs = this.documentsForm.get('docs') as FormArray;
       const docGroup = docs.at(index) as FormGroup;
       
-      // Atualiza o nome pra mostrar no botão e guarda o arquivo real
-      docGroup.patchValue({
-        fileName: file.name,
-        file: file
-      });
+      docGroup.patchValue({ fileName: file.name, file: file });
     }
   }
 
-  // --- Lógica dos Cursos ---
-  get enrollmentControls() {
-    return (this.coursesForm.get('enrollments') as FormArray).controls;
-  }
+  // --- COURSE ACTIONS ---
+  get enrollmentControls() { return (this.coursesForm.get('enrollments') as FormArray).controls; }
 
   addCourse() {
     const enrollments = this.coursesForm.get('enrollments') as FormArray;
@@ -212,7 +218,6 @@ export class EnrollmentComponent {
     enrollments.removeAt(index);
   }
 
-  // Filtra as turmas pra mostrar só as que pertencem ao curso escolhido
   getClassesForCourse(index: number) {
     const enrollments = this.coursesForm.get('enrollments') as FormArray;
     const courseId = enrollments.at(index).get('courseId')?.value;
@@ -220,17 +225,16 @@ export class EnrollmentComponent {
     return this.allClasses.filter(c => c.courseId === courseId);
   }
 
-  // --- Getters e Máscaras de formatação ---
-  get studentAge(): string {
+  // --- GETTERS & MASKS ---
+  get studentAge(): number {
     const birthDate = this.studentForm.get('birthDate')?.value;
-    if (!birthDate) return '';
+    if (!birthDate) return -1;
     const today = new Date();
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
-    // Se ainda não fez aniversário este ano, diminui 1
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age + ' anos';
+    return age;
   }
 
   formatZipCode(event: any): void {
@@ -260,7 +264,6 @@ export class EnrollmentComponent {
     input.value = value;
   }
 
-  // Envia tudo pro console (ou backend num mundo real)
   onSubmit(): void {
     if (this.studentForm.valid && this.guardians.valid && this.coursesForm.valid && this.documentsForm.valid) {
       const fullData = {
@@ -272,7 +275,6 @@ export class EnrollmentComponent {
       console.log('Dados completos para envio:', fullData);
       alert('Matrícula criada com sucesso!');
     } else {
-      // Marca tudo como tocado pra mostrar os erros em vermelho pro usuário se ligar
       this.studentForm.markAllAsTouched();
       this.guardians.markAllAsTouched();
       this.coursesForm.markAllAsTouched();

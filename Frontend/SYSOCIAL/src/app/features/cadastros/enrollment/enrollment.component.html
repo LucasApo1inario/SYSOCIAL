@@ -1,9 +1,7 @@
-<!-- 
-  Container principal.
--->
+<!-- Container Principal -->
 <div class="min-h-screen bg-gray-50 py-10 px-4 font-sans flex justify-center items-start">
   
-  <!-- Wrapper com largura fixa pra manter o design responsivo -->
+  <!-- Wrapper centralizado -->
   <div class="w-full max-w-5xl">
     
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Nova matrícula</h1>
@@ -34,7 +32,7 @@
 
           <div class="md:col-span-3">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Idade</label>
-            <input type="text" [value]="studentAge" readonly class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none">
+            <input type="text" [value]="studentAge" readonly [class.text-transparent]="studentAge === null || studentAge < 0 || studentAge > 100" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" >
           </div>
         </div>
 
@@ -53,16 +51,16 @@
           <!-- Radio Buttons de Sexo -->
           <div>
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Sexo</label>
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-6 pt-2">
               <label class="flex items-center cursor-pointer relative group">
                 <input type="radio" formControlName="gender" value="F" class="peer sr-only">
-                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100"></div>
-                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Feminino</span>
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100 group-hover:border-gray-200"></div>
+                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-400 transition-colors">Feminino</span>
               </label>
               <label class="flex items-center cursor-pointer relative group">
                 <input type="radio" formControlName="gender" value="M" class="peer sr-only">
-                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100"></div>
-                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Masculino</span>
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100 group-hover:border-gray-200"></div>
+                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-400 transition-colors">Masculino</span>
               </label>
             </div>
           </div>
@@ -71,7 +69,6 @@
         <hr class="border-gray-100 my-8">
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6">Endereço do Aluno</h3>
 
-        <!-- Campos de Endereço -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
           <div class="md:col-span-2">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">CEP</label>
@@ -94,18 +91,18 @@
         <hr class="border-gray-100 my-8">
         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6">Dados Escolares</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-          <div>
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-6 mb-4">
+          <div class="md:col-span-3">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Instituição de ensino atual</label>
             <input type="text" formControlName="currentSchool" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
           </div>
-          <div>
+          <div class="md:col-span-2">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Ano letivo atual</label>
             <select formControlName="series" 
                     [class.text-gray-300]="!studentForm.get('series')?.value"
                     [class.text-gray-700]="studentForm.get('series')?.value"
                     class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-               <option value="" class="text-gray-300">Selecione...</option>
+               <option value="" disabled selected class="text-gray-300">Selecione...</option>
                <option value="1" class="text-gray-900">1º Ensino Fundamental</option>
                <option value="2" class="text-gray-900">2º Ensino Fundamental</option>
                <option value="3" class="text-gray-900">3º Ensino Fundamental</option>
@@ -120,13 +117,13 @@
                <option value="12" class="text-gray-900">3º Ensino Médio</option>
             </select>
           </div>
-          <div>
+          <div class="md:col-span-2">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Turno escolar</label>
             <select formControlName="schoolShift" 
                     [class.text-gray-300]="!studentForm.get('schoolShift')?.value"
                     [class.text-gray-700]="studentForm.get('schoolShift')?.value"
                     class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-               <option value="" class="text-gray-300">Selecione...</option>
+               <option value="" disabled selected class="text-gray-300">Selecione...</option>
                <option value="manha" class="text-gray-900">Matutino</option>
                <option value="tarde" class="text-gray-900">Vespertino</option>
                <option value="integral" class="text-gray-900">Integral</option>
@@ -143,8 +140,11 @@
             <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
               <div class="flex items-center gap-3">
                 <h2 class="text-xl font-bold text-gray-800">Dados do Responsável</h2>
-                <span class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-md border border-blue-100">Principal</span>
               </div>
+              <!-- Botão remover APENAS se houver > 1 -->
+              <button *ngIf="guardianControls.length > 1" type="button" (click)="removeGuardian(i)" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors" title="Remover">
+                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
             </div>
             <ng-container *ngTemplateOutlet="guardianFormTemplate; context: { form: asFormGroup(guardian), i: i }"></ng-container>
         </div>
@@ -164,7 +164,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button type="button" (click)="removeGuardian(i); $event.stopPropagation()" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors">
+                    <button *ngIf="guardianControls.length > 1" type="button" (click)="removeGuardian(i); $event.stopPropagation()" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                     <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" [class.rotate-180]="guardianOpenState[i]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +199,7 @@
                         [class.text-gray-300]="!form.get('relationship')?.value"
                         [class.text-gray-700]="form.get('relationship')?.value"
                         class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="" class="text-gray-300">Selecione...</option>
+                  <option value="" disabled selected class="text-gray-300">Selecione...</option>
                   <option *ngFor="let rel of relationshipOptions" [value]="rel.value" class="text-gray-900">{{ rel.label }}</option>
                 </select>
               </div>
@@ -231,8 +231,8 @@
 
             <div class="mt-4 pt-6 border-t border-gray-100">
               <h3 class="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M12 12h.01M12 6h.01M12 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Contatos de Emergência / Recados
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Contatos de Emergência / Recados (Opcional)
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
@@ -263,8 +263,8 @@
       <!-- SEÇÃO 3: CURSOS E TURMAS -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="coursesForm">
         <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
-          <h2 class="text-xl font-bold text-gray-800">Cursos e Turmas</h2>
-          <button type="button" (click)="addCourse()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          <h2 class="text-xl font-bold text-gray-800">Matrícula Acadêmica</h2>
+          <button type="button" (click)="addCourse()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors border border-gray-200">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Adicionar Curso
           </button>
@@ -284,7 +284,7 @@
                         [class.text-gray-300]="!enrollment.get('courseId')?.value"
                         [class.text-gray-700]="enrollment.get('courseId')?.value"
                         class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="" class="text-gray-300">Selecione o curso...</option>
+                  <option value="" disabled selected class="text-gray-300">Selecione o curso...</option>
                   <option *ngFor="let course of availableCourses" [value]="course.id" class="text-gray-900">{{ course.name }}</option>
                 </select>
               </div>
@@ -295,7 +295,7 @@
                         [class.text-gray-300]="!enrollment.get('classId')?.value"
                         [class.text-gray-700]="enrollment.get('classId')?.value"
                         class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400">
-                  <option value="" class="text-gray-300">Selecione a turma...</option>
+                  <option value="" disabled selected class="text-gray-300">Selecione a turma...</option>
                   <option *ngFor="let classItem of getClassesForCourse(i)" [value]="classItem.id" class="text-gray-900">{{ classItem.name }}</option>
                 </select>
                 <p *ngIf="!enrollment.get('courseId')?.value" class="text-xs text-gray-400 mt-2 font-medium flex items-center gap-1">
@@ -314,7 +314,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="documentsForm">
         <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
           <h2 class="text-xl font-bold text-gray-800">Documentos</h2>
-          <button type="button" (click)="addDocument()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          <button type="button" (click)="addDocument()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors border border-gray-200 shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Adicionar Documento
           </button>
@@ -330,7 +330,7 @@
                         [class.text-gray-300]="!doc.get('type')?.value"
                         [class.text-gray-700]="doc.get('type')?.value"
                         class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="" class="text-gray-300">Selecione...</option>
+                  <option value="" disabled selected class="text-gray-300">Selecione...</option>
                   <option *ngFor="let type of documentTypes" [value]="type" class="text-gray-900">{{ type }}</option>
                 </select>
               </div>
@@ -357,10 +357,10 @@
 
       <!-- Botões de Ação -->
       <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
-        <button type="button" class="px-8 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm">
+        <button type="button" class="px-8 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" routerLink="/">
           Cancelar
         </button>
-        <button type="submit" [disabled]="!studentForm.valid || !guardians.valid || !coursesForm.valid || !documentsForm.valid" class="px-10 py-3 bg-gray-900 text-white font-bold rounded-lg hover:bg-black transition-all shadow-lg shadow-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transform hover:-translate-y-0.5">
+        <button type="submit" [disabled]="!studentForm.valid || !guardians.valid || !coursesForm.valid || !documentsForm.valid" class="px-10 py-3 bg-[#246A73] text-white font-bold rounded-lg hover:bg-blue transition-all shadow-lg shadow-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transform hover:-translate-y-0.5">
           Salvar Matrícula
         </button>
       </div>
