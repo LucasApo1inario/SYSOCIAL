@@ -27,18 +27,20 @@ export class AuthService {
   }
 
  
-  getCurrentUser(token: string): Observable<User>{
+  getCurrentUser(res: AuthTokenResponse): Observable<User> {
+  return of({
+    id: res.user.id,
+    username: res.user.username,
+    type: 'A',
+    troca_senha: res.user.troca_senha
+  });
+}
 
-    return of({
-      username: 'admin',
-      type: 'admin'
-    });
-  }
 
 
 
   refreshToken(token: string){
-    return of({token: 'nao implementado' })
+    return of({token: token })
   }
 
   logout(){

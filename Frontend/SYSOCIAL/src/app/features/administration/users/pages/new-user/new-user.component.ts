@@ -45,6 +45,7 @@ export class NewUserComponent {
     telefone: '',
     email: '',
     senha: '',
+    troca_senha: true,
     tipo: 'user'
   };
 
@@ -76,6 +77,7 @@ export class NewUserComponent {
           telefone: '',
           email: '',
           senha: '',
+          troca_senha: true,
           tipo: 'user'
         };
 
@@ -99,6 +101,7 @@ export class NewUserComponent {
       telefone: '',
       email: '',
       senha: '',
+      troca_senha: true,
       tipo: 'user'
     };
 

@@ -1,41 +1,73 @@
-import { Component, computed, inject, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal } from '@angular/core';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
 import { User } from '../../interfaces/user.interface';
+import { UsersService } from '../../services/new-user.service';
+
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { UserTableComponent } from '../../components/user-table/user-table.component';
 import { UserPaginationComponent } from '../../components/user-pagination/user-pagination.component';
 import { ZardInputDirective } from '@shared/components/input/input.directive';
+import { ZardDialogService } from '@shared/components/dialog/dialog.service';
+import { UserViewDialogComponent } from '../dialogs/UserViewDialog.component';
 
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users-list',
-  imports: [ZardButtonComponent, ZardInputDirective, UserTableComponent, FormsModule, UserPaginationComponent],
+  imports: [
+    ZardButtonComponent,
+    ZardInputDirective,
+    UserTableComponent,
+    FormsModule,
+    UserPaginationComponent
+  ],
   templateUrl: './users-list.component.html',
   styleUrl: './users-list.component.css'
 })
 export class UsersListComponent {
-  private router = inject(Router)
+  private router = inject(Router);
+  private usersService = inject(UsersService);
+  private dialog = inject(ZardDialogService);
 
-  searchQuery = signal(''); // signal 
-  users: WritableSignal<User[]> = signal([]); 
 
-  // computed -> faz filtrar usuários automaticamente, sem precisar montar funcao para recalcular a tabela e tal
+  searchQuery = signal('');
+  users: WritableSignal<User[]> = signal([]);
+
   displayedUsers = computed(() =>
     this.users().filter(u =>
       u.username.toLowerCase().includes(this.searchQuery().toLowerCase())
     )
   );
 
-  pageSize = signal(7); // itens por página
+  pageSize = signal(7);
   currentPage = signal(1);
-  isMobile= signal(false);
+  isMobile = signal(false);
 
+  constructor() {
+    this.checkScreen();
+    window.addEventListener('resize', () => this.checkScreen());
+
+    this.loadUsers();
+  }
 
   private checkScreen() {
-    this.isMobile.set(window.innerWidth < 768); // breakpoint para mobile
-    // ajustar pageSize para mobile:
+    this.isMobile.set(window.innerWidth < 768);
     this.pageSize.set(this.isMobile() ? 5 : 7);
+  }
+
+  private loadUsers() {
+    this.usersService.getUsers(50, 0).subscribe({
+      next: (response) => {
+        this.users.set(
+          response.data.map(user => ({
+            ...user,
+            id: user.id.toString() // garantir string
+          }))
+        );
+      },
+      error: (err) => console.error('Erro ao carregar usuários:', err)
+    });
   }
 
   totalPages = computed(() =>
@@ -47,43 +79,30 @@ export class UsersListComponent {
     return this.displayedUsers().slice(start, start + this.pageSize());
   });
 
-  constructor() {
-    this.checkScreen();
-    window.addEventListener('resize', () => this.checkScreen());
-    
-    // inicializar usuários
-    this.users.set([
-      { id: '1', username: 'Lucas', type: 'Admin', status: 'Ativo' },
-      { id: '2', username: 'Zezinho', type: 'Estudante', status: 'Desativado' },
-      { id: '3', username: 'Zezinha', type: 'Professor', status: 'Ativo' },
-      { id: '4', username: 'Ana', type: 'Estudante', status: 'Ativo' },
-      { id: '5', username: 'Carlos', type: 'Admin', status: 'Desativado' },
-      { id: '6', username: 'Beatriz', type: 'Professor', status: 'Ativo' },
-      { id: '7', username: 'Diego', type: 'Estudante', status: 'Ativo' },
-      { id: '8', username: 'Fernanda', type: 'Admin', status: 'Desativado' },
-      { id: '9', username: 'Gustavo', type: 'Professor', status: 'Ativo' },
-      { id: '10', username: 'Helena', type: 'Estudante', status: 'Ativo' },
-      { id: '11', username: 'Igor', type: 'Admin', status: 'Desativado' },
-      { id: '12', username: 'Júlia', type: 'Professor', status: 'Ativo' },
-      { id: '13', username: 'Kleber', type: 'Estudante', status: 'Ativo' },
-      { id: '14', username: 'Larissa', type: 'Admin', status: 'Desativado' },
-      { id: '15', username: 'Marcos', type: 'Professor', status: 'Ativo' },
-      { id: '16', username: 'Natália', type: 'Estudante', status: 'Ativo' },
-      { id: '17', username: 'Otávio', type: 'Admin', status: 'Desativado' },
-      { id: '18', username: 'Patrícia', type: 'Professor', status: 'Ativo' },
-      { id: '19', username: 'Bruno', type: 'Estudante', status: 'Ativo' },
-      { id: '20', username: 'Rafaela', type: 'Admin', status: 'Desativado' },
-    ]);
-  }
-
-
   addUser() {
-    this.router.navigate(['administration/new-user'])
+    this.router.navigate(['administration/new-user']);
   }
 
   editUser(user: User) {
-    console.log('Editar', user);
+    const ref = this.dialog.create({
+      zTitle: 'Editar Usuário',
+      zWidth: '600px',
+      zContent: UserViewDialogComponent,
+      zData: user,
+      zOkText: "Salvar",
+      zCancelText: "Cancelar",
+      zOnOk: async (componentInstance) => {
+        const updated = await componentInstance.save();
+        if (updated) {
+          this.loadUsers();
+        }
+      }
+
+    });
   }
+
+
+
 
   deleteUser(user: User) {
     this.users.set(this.users().filter(u => u.id !== user.id));
@@ -95,6 +114,7 @@ export class UsersListComponent {
 
   set search(value: string) {
     this.searchQuery.set(value);
+    this.currentPage.set(1);
   }
 
 }

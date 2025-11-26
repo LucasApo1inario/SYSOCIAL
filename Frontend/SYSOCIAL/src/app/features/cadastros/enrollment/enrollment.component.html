@@ -1,0 +1,370 @@
+<!-- Container Principal -->
+<div class="min-h-screen bg-gray-50 py-10 px-4 font-sans flex justify-center items-start">
+  
+  <!-- Wrapper centralizado -->
+  <div class="w-full max-w-5xl">
+    
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Nova matrícula</h1>
+
+    <form (ngSubmit)="onSubmit()">
+      
+      <!-- CARD DO ALUNO -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="studentForm">
+        
+        <div class="flex justify-between items-start mb-8 border-b border-gray-100 pb-4">
+          <h2 class="text-xl font-bold text-gray-800">Informações do aluno</h2>
+        </div>
+
+        <!-- Dados Pessoais -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+          <div class="md:col-span-6">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Nome completo</label>
+            <input type="text" formControlName="fullName" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-300" placeholder="Digite o nome completo">
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Data de nascimento</label>
+            <input type="date" formControlName="birthDate" 
+                   [class.text-gray-300]="!studentForm.get('birthDate')?.value"
+                   [class.text-gray-700]="studentForm.get('birthDate')?.value"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Idade</label>
+            <input type="text" [value]="studentAge" readonly [class.text-transparent]="studentAge === null || studentAge < 0 || studentAge > 100" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" >
+          </div>
+        </div>
+
+        <!-- Documentos e Contato -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">CPF</label>
+            <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Telefone</label>
+            <input type="tel" formControlName="phone" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white placeholder:text-gray-300">
+          </div>
+
+          <!-- Radio Buttons de Sexo -->
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Sexo</label>
+            <div class="flex items-center gap-6 pt-2">
+              <label class="flex items-center cursor-pointer relative group">
+                <input type="radio" formControlName="gender" value="F" class="peer sr-only">
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100 group-hover:border-gray-200"></div>
+                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-400 transition-colors">Feminino</span>
+              </label>
+              <label class="flex items-center cursor-pointer relative group">
+                <input type="radio" formControlName="gender" value="M" class="peer sr-only">
+                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-all peer-checked:border-gray-800 after:content-[''] after:w-2.5 after:h-2.5 after:rounded-full after:bg-gray-800 after:opacity-0 after:transition-all peer-checked:after:opacity-100 group-hover:border-gray-200"></div>
+                <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-400 transition-colors">Masculino</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-8">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6">Endereço do Aluno</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">CEP</label>
+            <input type="text" formControlName="zipCode" maxlength="9" (input)="formatZipCode($event)" placeholder="00000-000" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+          <div class="md:col-span-5">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Logradouro</label>
+            <input type="text" formControlName="street" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Número</label>
+            <input type="text" formControlName="number" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Bairro</label>
+            <input type="text" formControlName="neighborhood" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-8">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6">Dados Escolares</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-6 mb-4">
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Instituição de ensino atual</label>
+            <input type="text" formControlName="currentSchool" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Ano letivo atual</label>
+            <select formControlName="series" 
+                    [class.text-gray-300]="!studentForm.get('series')?.value"
+                    [class.text-gray-700]="studentForm.get('series')?.value"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+               <option value="" disabled selected class="text-gray-300">Selecione...</option>
+               <option value="1" class="text-gray-900">1º Ensino Fundamental</option>
+               <option value="2" class="text-gray-900">2º Ensino Fundamental</option>
+               <option value="3" class="text-gray-900">3º Ensino Fundamental</option>
+               <option value="4" class="text-gray-900">4º Ensino Fundamental</option>
+               <option value="5" class="text-gray-900">5º Ensino Fundamental</option>
+               <option value="6" class="text-gray-900">6º Ensino Fundamental</option>
+               <option value="7" class="text-gray-900">7º Ensino Fundamental</option>
+               <option value="8" class="text-gray-900">8º Ensino Fundamental</option>
+               <option value="9" class="text-gray-900">9º Ensino Fundamental</option>
+               <option value="10" class="text-gray-900">1º Ensino Médio</option>
+               <option value="11" class="text-gray-900">2º Ensino Médio</option>
+               <option value="12" class="text-gray-900">3º Ensino Médio</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Turno escolar</label>
+            <select formControlName="schoolShift" 
+                    [class.text-gray-300]="!studentForm.get('schoolShift')?.value"
+                    [class.text-gray-700]="studentForm.get('schoolShift')?.value"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+               <option value="" disabled selected class="text-gray-300">Selecione...</option>
+               <option value="manha" class="text-gray-900">Matutino</option>
+               <option value="tarde" class="text-gray-900">Vespertino</option>
+               <option value="integral" class="text-gray-900">Integral</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA DE RESPONSÁVEIS -->
+      <ng-container *ngFor="let guardian of guardianControls; let i = index">
+        
+        <!-- Card do Responsável Principal -->
+        <div *ngIf="i === 0" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="asFormGroup(guardian)">
+            <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+              <div class="flex items-center gap-3">
+                <h2 class="text-xl font-bold text-gray-800">Dados do Responsável</h2>
+              </div>
+              <!-- Botão remover APENAS se houver > 1 -->
+              <button *ngIf="guardianControls.length > 1" type="button" (click)="removeGuardian(i)" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors" title="Remover">
+                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+            <ng-container *ngTemplateOutlet="guardianFormTemplate; context: { form: asFormGroup(guardian), i: i }"></ng-container>
+        </div>
+
+        <!-- Acordeão para Responsáveis Adicionais -->
+        <div *ngIf="i > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden" [formGroup]="asFormGroup(guardian)">
+            <div class="flex justify-between items-center p-5 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" (click)="toggleGuardian(i)">
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs shadow-sm">
+                        {{ i + 1 }}
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800">
+                            {{ asFormGroup(guardian).get('fullName')?.value || 'Novo Responsável' }}
+                        </h3>
+                        <p class="text-xs text-gray-500 font-medium">{{ getRelationshipLabel(asFormGroup(guardian).get('relationship')?.value) || 'Parentesco não informado' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button *ngIf="guardianControls.length > 1" type="button" (click)="removeGuardian(i); $event.stopPropagation()" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" [class.rotate-180]="guardianOpenState[i]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="p-8 border-t border-gray-100" [class.hidden]="!guardianOpenState[i]">
+                <ng-container *ngTemplateOutlet="guardianFormTemplate; context: { form: asFormGroup(guardian), i: i }"></ng-container>
+            </div>
+        </div>
+      </ng-container>
+
+      <div class="flex justify-center mb-10">
+        <button type="button" (click)="addGuardian()" class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-semibold transition-all shadow-sm hover:shadow border border-gray-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Adicionar outro responsável
+        </button>
+      </div>
+
+      <!-- TEMPLATE REUTILIZÁVEL (Formulário do Responsável) -->
+      <ng-template #guardianFormTemplate let-form="form" let-i="i">
+        <div [formGroup]="form" class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div class="md:col-span-8">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Nome Completo</label>
+                <input type="text" formControlName="fullName" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+              </div>
+              <div class="md:col-span-4">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Parentesco</label>
+                <select formControlName="relationship" 
+                        [class.text-gray-300]="!form.get('relationship')?.value"
+                        [class.text-gray-700]="form.get('relationship')?.value"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="" disabled selected class="text-gray-300">Selecione...</option>
+                  <option *ngFor="let rel of relationshipOptions" [value]="rel.value" class="text-gray-900">{{ rel.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              <div class="md:col-span-3">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">CPF</label>
+                <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+              </div>
+              <div class="md:col-span-3">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Telefone Principal</label>
+                <input type="tel" formControlName="phone" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+              </div>
+              <div class="md:col-span-3">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Contato (Nome)</label>
+                <input type="text" formControlName="phoneContact" placeholder="Ex: Próprio, Trabalho..." class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+              </div>
+              <div class="md:col-span-3 flex items-end pb-4">
+                <label class="flex items-center p-3 border border-blue-100 bg-blue-50 rounded-lg w-full cursor-pointer hover:bg-blue-100 transition-colors">
+                  <input type="checkbox" formControlName="isPrincipal" (change)="onPrincipalChange(i)" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <div class="ml-3">
+                    <span class="text-sm font-semibold text-blue-900">Responsável principal</span>
+                    <p class="text-xs text-blue-600">Assinará a matrícula</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-6 border-t border-gray-100">
+              <h3 class="text-sm font-bold text-gray-600 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Contatos de Emergência / Recados (Opcional)
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Telefone</label>
+                    <input type="tel" formControlName="messagePhone1" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white placeholder:text-gray-300">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Falar com (Nome)</label>
+                    <input type="text" formControlName="messagePhone1Contact" placeholder="Nome do contato" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white placeholder:text-gray-300">
+                  </div>
+                </div>
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                  <div class="mb-3">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Telefone</label>
+                    <input type="tel" formControlName="messagePhone2" maxlength="15" (input)="formatPhone($event)" placeholder="(00) 00000-0000" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white placeholder:text-gray-300">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Falar com (Nome)</label>
+                    <input type="text" formControlName="messagePhone2Contact" placeholder="Nome do contato" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white placeholder:text-gray-300">
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </ng-template>
+
+      <!-- SEÇÃO 3: CURSOS E TURMAS -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="coursesForm">
+        <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+          <h2 class="text-xl font-bold text-gray-800">Matrícula Acadêmica</h2>
+          <button type="button" (click)="addCourse()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors border border-gray-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Adicionar Curso
+          </button>
+        </div>
+
+        <div formArrayName="enrollments">
+          <div *ngFor="let enrollment of enrollmentControls; let i = index" [formGroupName]="i" class="mb-4 p-6 bg-gray-50 rounded-lg border border-gray-200 relative group hover:border-gray-300 transition-colors">
+            
+            <button *ngIf="enrollmentControls.length > 1" type="button" (click)="removeCourse(i)" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 p-1.5 rounded-md hover:bg-white transition-all shadow-sm" title="Remover Curso">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Curso</label>
+                <select formControlName="courseId" 
+                        [class.text-gray-300]="!enrollment.get('courseId')?.value"
+                        [class.text-gray-700]="enrollment.get('courseId')?.value"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="" disabled selected class="text-gray-300">Selecione o curso...</option>
+                  <option *ngFor="let course of availableCourses" [value]="course.id" class="text-gray-900">{{ course.name }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Turma</label>
+                <select formControlName="classId" 
+                        [class.text-gray-300]="!enrollment.get('classId')?.value"
+                        [class.text-gray-700]="enrollment.get('classId')?.value"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400">
+                  <option value="" disabled selected class="text-gray-300">Selecione a turma...</option>
+                  <option *ngFor="let classItem of getClassesForCourse(i)" [value]="classItem.id" class="text-gray-900">{{ classItem.name }}</option>
+                </select>
+                <p *ngIf="!enrollment.get('courseId')?.value" class="text-xs text-gray-400 mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Selecione um curso primeiro
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <p *ngIf="enrollmentControls.length === 0" class="text-sm text-gray-500 text-center italic py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">Nenhum curso selecionado.</p>
+      </div>
+
+      <!-- SEÇÃO 4: DOCUMENTOS -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8" [formGroup]="documentsForm">
+        <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+          <h2 class="text-xl font-bold text-gray-800">Documentos</h2>
+          <button type="button" (click)="addDocument()" class="flex items-center gap-2 px-3.5 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold transition-colors border border-gray-200 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Adicionar Documento
+          </button>
+        </div>
+
+        <div formArrayName="docs">
+          <div *ngFor="let doc of documentControls; let i = index" [formGroupName]="i" class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-6 relative group hover:border-gray-300 transition-colors">
+            
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tipo de Documento</label>
+                <select formControlName="type" 
+                        [class.text-gray-300]="!doc.get('type')?.value"
+                        [class.text-gray-700]="doc.get('type')?.value"
+                        class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="" disabled selected class="text-gray-300">Selecione...</option>
+                  <option *ngFor="let type of documentTypes" [value]="type" class="text-gray-900">{{ type }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Arquivo</label>
+                <div class="flex items-center">
+                  <input type="file" #fileInput class="hidden" (change)="onDocumentFileSelected($event, i)">
+                  <button type="button" (click)="fileInput.click()" class="px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-white hover:border-blue-400 hover:text-blue-600 focus:ring-2 focus:ring-blue-100 transition-all flex items-center gap-3 w-full group-hover:shadow-sm">
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    <span class="truncate font-medium" [class.text-gray-300]="!doc.get('fileName')?.value" [class.text-gray-700]="doc.get('fileName')?.value">{{ doc.get('fileName')?.value || 'Escolher arquivo...' }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" (click)="removeDocument(i)" class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-white transition-all self-center shadow-sm border border-transparent hover:border-gray-100">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+        </div>
+        <p *ngIf="documentControls.length === 0" class="text-sm text-gray-500 text-center italic py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">Nenhum documento anexado.</p>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+        <button type="button" class="px-8 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" routerLink="/">
+          Cancelar
+        </button>
+        <button type="submit" [disabled]="!studentForm.valid || !guardians.valid || !coursesForm.valid || !documentsForm.valid" class="px-10 py-3 bg-[#246A73] text-white font-bold rounded-lg hover:bg-blue transition-all shadow-lg shadow-gray-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transform hover:-translate-y-0.5">
+          Salvar Matrícula
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

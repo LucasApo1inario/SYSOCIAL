@@ -1,4 +1,6 @@
 export interface User {
-    username: string;
-    type: string;
-}
+  id: number;              
+  username: string;
+  type: string;
+  troca_senha: boolean;
+}    
