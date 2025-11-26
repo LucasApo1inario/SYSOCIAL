@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormArray, FormGroup } from '@angular/forms';
-import { Course, ClassItem } from '../interfaces/enrollment.model';
+import { CourseOption, ClassOption } from '../interfaces/enrollment.model';
 
 @Component({
   selector: 'app-academic-form',
@@ -32,7 +32,9 @@ import { Course, ClassItem } from '../interfaces/enrollment.model';
                       [class.text-gray-700]="enrollment.get('courseId')?.value"
                       class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="" disabled selected class="text-gray-300">Selecione o curso...</option>
-                <option *ngFor="let course of availableCourses" [value]="course.id" class="text-gray-900">{{ course.name }}</option>
+                <option *ngFor="let course of availableCourses" [value]="course.id.toString()" class="text-gray-900">
+                  {{ course.name }} ({{ course.availableSpots }} vagas)
+                </option>
               </select>
             </div>
 
@@ -43,7 +45,10 @@ import { Course, ClassItem } from '../interfaces/enrollment.model';
                       [class.text-gray-700]="enrollment.get('classId')?.value"
                       class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400">
                 <option value="" disabled selected class="text-gray-300">Selecione a turma...</option>
-                <option *ngFor="let classItem of getClassesFor(enrollment.get('courseId')?.value)" [value]="classItem.id" class="text-gray-900">{{ classItem.name }}</option>
+                <option *ngFor="let classItem of getClassesFor(enrollment.get('courseId')?.value)" [value]="classItem.id.toString()" class="text-gray-900">
+                  <!-- AQUI APLICAMOS A FORMATAÇÃO -->
+                  {{ classItem.name }} - {{ classItem.dayOfWeek }} ({{ formatTime(classItem.startTime) }} às {{ formatTime(classItem.endTime) }})
+                </option>
               </select>
               <p *ngIf="!enrollment.get('courseId')?.value" class="text-xs text-gray-400 mt-2 font-medium flex items-center gap-1">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -55,13 +60,13 @@ import { Course, ClassItem } from '../interfaces/enrollment.model';
       </div>
       
       <p *ngIf="enrollments.length === 0" class="text-sm text-gray-500 text-center italic py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">Nenhum curso selecionado.</p>
+      <p *ngIf="availableCourses.length === 0" class="text-xs text-red-400 mt-2 text-center">Selecione o "Turno escolar" nos dados do aluno para carregar os cursos.</p>
     </div>
   `
 })
 export class AcademicFormComponent {
   @Input({required: true}) parentForm!: FormGroup;
-  @Input() availableCourses: Course[] = [];
-  @Input() allClasses: ClassItem[] = [];
+  @Input() availableCourses: CourseOption[] = [];
 
   @Output() add = new EventEmitter<void>();
   @Output() remove = new EventEmitter<number>();
@@ -70,8 +75,24 @@ export class AcademicFormComponent {
     return this.parentForm.get('enrollments') as FormArray;
   }
 
-  getClassesFor(courseId: string): ClassItem[] {
+  getClassesFor(courseId: string | null): ClassOption[] {
     if (!courseId) return [];
-    return this.allClasses.filter(c => c.courseId === courseId);
+    const idNum = parseInt(courseId, 10);
+    const course = this.availableCourses.find(c => c.id === idNum);
+    return course ? course.classes : [];
+  }
+
+  // --- Função para limpar o horário ---
+  formatTime(rawTime: string): string {
+    if (!rawTime) return '';
+    
+    // Caso 1: Formato ISO do Go (0000-01-01T08:00:00Z)
+    if (rawTime.includes('T')) {
+      const timePart = rawTime.split('T')[1]; // Pega o que vem depois do T
+      return timePart.substring(0, 5);        // Pega os 5 primeiros chars (08:00)
+    }
+
+    // Caso 2: Formato SQL simples (08:00:00)
+    return rawTime.substring(0, 5);
   }
 }
