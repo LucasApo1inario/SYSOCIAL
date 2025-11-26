@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { CoursesListComponent } from './courses/pages/courses-list/courses-list.component';
 import { NewCourseComponent } from './courses/pages/new-course/new-course.component';
-import { EnrollmentComponent } from './enrollment/enrollment.component';
+import { EnrollmentPage } from './enrollment/pages/enrollment.page';
 
 export default [
   {
@@ -14,6 +14,6 @@ export default [
   },
   {
     path: 'enrollment',
-    component: EnrollmentComponent
+    component: EnrollmentPage
   }
 ] as Routes;
