@@ -26,7 +26,6 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 		return 0, fmt.Errorf("falha ao iniciar transação: %w", err)
 	}
 	
-	// Garante rollback em caso de erro não tratado
 	defer func() {
 		if p := recover(); p != nil {
 			tx.Rollback()
@@ -52,7 +51,8 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	// Conversões de tipo necessárias
 	numeroEndereco, _ := strconv.Atoi(payload.Student.Number)
 	serieAtual, _ := strconv.Atoi(payload.Student.Series)
-	observacoes := "" // Valor padrão vazio para evitar erro de NOT NULL
+	
+	observacoes := payload.Student.Observation
 
 	err = tx.QueryRowContext(ctx, studentSQL,
 		payload.Student.FullName,      // $1
@@ -66,16 +66,16 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 		payload.Student.Street,        // $9
 		numeroEndereco,                // $10
 		payload.Student.Neighborhood,  // $11
-		payload.Student.ZipCode,       // $12 (Ajustado ordem para bater com query)
+		payload.Student.ZipCode,       // $12
 		time.Now(),                    // $13
-		observacoes,                   // $14
+		observacoes,                   // $14 
 	).Scan(&studentID)
 
 	if err != nil {
 		return 0, fmt.Errorf("erro ao inserir aluno: %w", err)
 	}
 
-	// 2. INSERIR RESPONSÁVEIS (Tabelas 'responsavel' e 'responsavel_aluno')
+	// 2. INSERIR RESPONSÁVEIS
 	guardianSQL := `
 	INSERT INTO responsavel (
 		nome_completo, cpf, telefone, telefone_recado1, telefone_recado2, parentesco
@@ -89,34 +89,26 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	for _, g := range payload.Guardians {
 		var guardianID int
 
-		// A. Inserir dados do responsável
 		err = tx.QueryRowContext(ctx, guardianSQL,
-			g.FullName,
-			g.CPF,
-			g.Phone,
-			g.MessagePhone1,
-			g.MessagePhone2,
-			g.Relationship,
+			g.FullName, g.CPF, g.Phone, g.MessagePhone1, g.MessagePhone2, g.Relationship,
 		).Scan(&guardianID)
 
 		if err != nil {
 			return 0, fmt.Errorf("erro ao inserir responsável %s: %w", g.FullName, err)
 		}
 
-		// B. Definir vínculo (Principal, secundário)
 		tipoVinculo := "Secundário"
 		if g.IsPrincipal {
 			tipoVinculo = "Principal"
 		}
 
-		// C. Criar vínculo na tabela pivô
 		_, err = tx.ExecContext(ctx, pivotSQL, guardianID, studentID, tipoVinculo)
 		if err != nil {
 			return 0, fmt.Errorf("erro ao vincular responsável: %w", err)
 		}
 	}
 
-	// 3. INSERIR MATRÍCULA EM CURSOS (Tabela 'matricula')
+	// 3. INSERIR MATRÍCULA EM CURSOS
 	matriculaSQL := `
 	INSERT INTO matricula (
 		aluno_id_aluno, turmas_id_turma, status, data_matricula
@@ -127,13 +119,7 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 		turmaID, _ := strconv.Atoi(c.ClassID)
 		statusInicial := "ATIVO"
 
-		_, err = tx.ExecContext(ctx, matriculaSQL,
-			studentID,     // $1
-			turmaID,       // $2
-			statusInicial, // $3
-			time.Now(),    // $4
-		)
-
+		_, err = tx.ExecContext(ctx, matriculaSQL, studentID, turmaID, statusInicial, time.Now())
 		if err != nil {
 			return 0, fmt.Errorf("erro ao inserir matrícula na turma %d: %w", turmaID, err)
 		}
@@ -146,11 +132,8 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	return studentID, nil
 }
 
-// GetAvailableCourses busca cursos e turmas compatíveis com o turno escolar
 func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolShift string) ([]model.CourseOption, error) {
 	var timeCondition string
-
-	// Lógica de Contraturno
 	switch schoolShift {
 	case "manha":
 		timeCondition = "t.hora_inicio >= '12:00:00'"
@@ -162,7 +145,6 @@ func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolSh
 		timeCondition = "1=1"
 	}
 
-	// Query ajustada
 	query := fmt.Sprintf(`
 		SELECT 
 			c.id_curso, c.nome, c.vagas_totais, c.vagas_restantes,
@@ -188,36 +170,21 @@ func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolSh
 		var (
 			cID, cVagasTotal, cVagasRest, tID, tVagas int
 			cNome, tNome, tDia, tInicio, tFim       string
-			tDesc                                   sql.NullString // CORREÇÃO: Usar NullString
+			tDesc                                   sql.NullString
 		)
-
-		err := rows.Scan(
-			&cID, &cNome, &cVagasTotal, &cVagasRest,
-			&tID, &tNome, &tDia, &tInicio, &tFim, &tVagas, &tDesc, // CORREÇÃO: Ler para tDesc
-		)
+		err := rows.Scan(&cID, &cNome, &cVagasTotal, &cVagasRest, &tID, &tNome, &tDia, &tInicio, &tFim, &tVagas, &tDesc)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear linha: %w", err)
 		}
 
 		if _, exists := coursesMap[cID]; !exists {
 			coursesMap[cID] = &model.CourseOption{
-				ID:             cID,
-				Name:           cNome,
-				TotalSpots:     cVagasTotal,
-				AvailableSpots: cVagasRest,
-				Classes:        []model.ClassOption{},
+				ID: cID, Name: cNome, TotalSpots: cVagasTotal, AvailableSpots: cVagasRest, Classes: []model.ClassOption{},
 			}
 			coursesOrder = append(coursesOrder, cID)
 		}
-
 		coursesMap[cID].Classes = append(coursesMap[cID].Classes, model.ClassOption{
-			ID:          tID,
-			Name:        tNome,
-			DayOfWeek:   tDia,
-			StartTime:   tInicio,
-			EndTime:     tFim,
-			Spots:       tVagas,
-			Description: tDesc.String, 
+			ID: tID, Name: tNome, DayOfWeek: tDia, StartTime: tInicio, EndTime: tFim, Spots: tVagas, Description: tDesc.String,
 		})
 	}
 
@@ -225,11 +192,9 @@ func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolSh
 	for _, id := range coursesOrder {
 		result = append(result, *coursesMap[id])
 	}
-
 	return result, nil
 }
 
-// Método mock mantido para compatibilidade se necessário, mas o GetAvailableCourses é o principal
 func (r *EnrollmentRepository) GetInitialCourseData(ctx context.Context) (map[string]interface{}, error) {
 	return map[string]interface{}{}, nil
 }

@@ -19,10 +19,12 @@ type StudentPayload struct {
 	Street        string `json:"street"`
 	Number        string `json:"number"`
 	Neighborhood  string `json:"neighborhood"`
-	// Escolaridade (Dados anteriores/atuais para histórico)
+	// Escolaridade
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
+	// NOVO CAMPO
+	Observation   string `json:"observation"`
 }
 
 // GuardianPayload mapeia os dados de cada responsável
@@ -42,13 +44,14 @@ type GuardianPayload struct {
 // CourseEnrollmentPayload mapeia a seleção de curso e turma
 type CourseEnrollmentPayload struct {
 	CourseID string `json:"courseId"`
-	ClassID  string `json:"classId"` // ID da Turma
+	ClassID  string `json:"classId"`
 }
 
-// DocumentPayload mapeia os metadados dos documentos (upload real é separado)
+// DocumentPayload mapeia os metadados dos documentos
 type DocumentPayload struct {
-	Type     string `json:"type"`
-	FileName string `json:"fileName"`
+	Type        string `json:"type"`
+	FileName    string `json:"fileName"`
+	Observation string `json:"observation"`
 }
 
 // NewEnrollmentPayload é o objeto raiz recebido no POST
@@ -59,7 +62,7 @@ type NewEnrollmentPayload struct {
 	Documents []DocumentPayload         `json:"documents"`
 }
 
-// --- Entidades do Banco de Dados (Supabase) ---
+// --- Entidades do Banco de Dados ---
 
 // Tabela: aluno
 type Student struct {
@@ -80,7 +83,6 @@ type Student struct {
 	CEP             sql.NullString `db:"cep"`
 }
 
-// Tabela: responsavel
 type Guardian struct {
 	ID               int            `db:"id_responsavel"`
 	NomeCompleto     string         `db:"nome_completo"`
@@ -91,14 +93,12 @@ type Guardian struct {
 	Parentesco       string         `db:"parentesco"` 
 }
 
-// Tabela: responsavel_aluno (Pivô)
 type StudentGuardianPivot struct {
 	ResponsavelID int    `db:"responsavel_id_responsavel"`
 	AlunoID       int    `db:"aluno_id_aluno"`
 	Tipo          string `db:"tipo"`
 }
 
-// Tabela: matricula (Ligação Aluno <-> Turma)
 type Matricula struct {
 	ID            int       `db:"id_matricula"`
 	AlunoID       int       `db:"aluno_id_aluno"`
@@ -107,9 +107,6 @@ type Matricula struct {
 	DataMatricula time.Time `db:"data_matricula"`
 }
 
-// --- Structs para Listagem de Cursos (GET) ---
-
-// CourseOption representa um curso disponível para seleção no frontend
 type CourseOption struct {
 	ID             int            `json:"id" db:"id_curso"`
 	Name           string         `json:"name" db:"nome"`
@@ -118,7 +115,6 @@ type CourseOption struct {
 	Classes        []ClassOption  `json:"classes"`
 }
 
-// ClassOption representa uma turma disponível
 type ClassOption struct {
 	ID          int    `json:"id" db:"id_turma"`
 	Name        string `json:"name" db:"nome_turma"`

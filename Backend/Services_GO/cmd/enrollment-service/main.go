@@ -16,17 +16,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Porta padrão do serviço caso não esteja no .env
-const DEFAULT_PORT = "8084"
+const DEFAULT_PORT = "8083"
 
 func main() {
 	// 1. Carregar variáveis de ambiente
-	envFiles := []string{"config.env", "../../config.env", "../config.env"}
-	for _, file := range envFiles {
-		if err := godotenv.Load(file); err == nil {
-			log.Printf("Configuração carregada de: %s", file)
-			break
-		}
+	if err := godotenv.Load("../../config.env"); err != nil {
+		log.Printf("Aviso: Arquivo config.env não encontrado: %v", err)
 	}
 
 	// 2. Configurar logger
@@ -48,7 +43,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Erro crítico ao conectar com o banco de dados:", err)
 	}
-	// Fechar a conexão quando a main encerrar (opcional, dependendo de como o servidor roda)
+	// Fechar a conexão quando a main encerrar
 	defer db.Close()
 
 	logger.Info("Conexão com o banco de dados estabelecida com sucesso!")

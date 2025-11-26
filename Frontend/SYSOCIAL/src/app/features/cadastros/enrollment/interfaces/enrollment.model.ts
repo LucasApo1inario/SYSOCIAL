@@ -33,6 +33,7 @@ export interface StudentPayload {
   currentSchool: string;
   series: string;
   schoolShift: string;
+  observation?: string; 
 }
 
 export interface GuardianPayload {
@@ -69,9 +70,9 @@ export interface EnrollmentPayload {
 // --- ENVIO PARA O BACKEND DE ARQUIVOS (Porta 8083) ---
 
 export interface FileUploadRequest {
-  entidade_pai: string;    // Ex: "matricula"
-  id_entidade_pai: string; // O ID retornado do serviço de matrícula
-  arquivo_base64: string;  // Base64 puro (sem data:image/...)
+  entidade_pai: string;
+  id_entidade_pai: string;
+  arquivo_base64: string;
   nome_arquivo: string;
   extensao: string;
   observacao: string;

@@ -105,6 +105,7 @@ export class EnrollmentPage implements OnInit {
         currentSchool: [''],
         series: [''],
         schoolShift: ['', Validators.required],
+        observation: [''], // Inicialização do novo campo
       }),
       guardians: this.fb.array([ this.createGuardianGroup(true) ]),
       enrollments: this.fb.array([ this.createCourseGroup() ]),
@@ -140,13 +141,11 @@ export class EnrollmentPage implements OnInit {
     });
   }
 
-  // Getters
   getGroup(name: string): FormGroup { return this.mainForm.get(name) as FormGroup; }
   get guardiansArray(): FormArray { return this.mainForm.get('guardians') as FormArray; }
   get enrollmentsArray(): FormArray { return this.mainForm.get('enrollments') as FormArray; }
   get docsArray(): FormArray { return this.mainForm.get('docs') as FormArray; }
 
-  // Helpers de Formulário
   createGuardianGroup(isPrincipal: boolean = false): FormGroup {
     return this.fb.group({
       fullName: ['', Validators.required],
@@ -215,7 +214,6 @@ export class EnrollmentPage implements OnInit {
     }
   }
 
-  // --- SUBMISSÃO ORQUESTRADA ---
   async onSubmit() {
     if (this.mainForm.invalid) {
       this.mainForm.markAllAsTouched();
@@ -229,7 +227,6 @@ export class EnrollmentPage implements OnInit {
     try {
       const rawValue = this.mainForm.getRawValue();
       
-      // 1. Criar Payload da Matrícula (apenas metadados dos docs)
       const enrollmentPayload: EnrollmentPayload = {
         student: rawValue.student,
         guardians: rawValue.guardians,
@@ -241,17 +238,12 @@ export class EnrollmentPage implements OnInit {
         courses: rawValue.enrollments
       };
 
-      // 2. Enviar Matrícula (Service 8084)
       const enrollmentResponse = await lastValueFrom(this.service.createEnrollment(enrollmentPayload));
       const enrollmentId = enrollmentResponse.enrollmentId;
 
-      console.log('Matrícula criada com ID:', enrollmentId);
-
-      // 3. Upload dos Arquivos (Service 8083)
       if (rawValue.docs && rawValue.docs.length > 0) {
         this.submittingMessage = `Enviando ${rawValue.docs.length} documentos...`;
         
-        // Itera sobre os documentos e envia um por um
         for (const doc of rawValue.docs) {
           if (doc.file) {
             const base64 = await this.service.convertFileToBase64(doc.file);
@@ -270,7 +262,6 @@ export class EnrollmentPage implements OnInit {
       }
 
       alert(`Sucesso! Matrícula e documentos salvos. ID: ${enrollmentId}`);
-      // Aqui você poderia resetar o form ou redirecionar
       
     } catch (error) {
       console.error('Erro no processo:', error);

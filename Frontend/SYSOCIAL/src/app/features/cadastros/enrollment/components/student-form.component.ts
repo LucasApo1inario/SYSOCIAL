@@ -128,6 +128,16 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
             </select>
           </div>
         </div>
+
+        <hr class="border-gray-100 my-8">
+        <!-- NOVO CAMPO: Observações Gerais -->
+        <div class="grid grid-cols-1 gap-6 mb-4">
+           <div>
+             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Observações Gerais</label>
+             <textarea formControlName="observation" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300" placeholder="Informe alergias, condições médicas ou outras informações importantes..."></textarea>
+           </div>
+        </div>
+
       </div>
   `
 })
@@ -135,7 +145,6 @@ export class StudentFormComponent {
   @Input({required: true}) parentForm!: FormGroup;
   @Input() age: number = -1;
 
-  // Funções de formatação revertidas para o comportamento original (sem setValue manual)
   formatCPF(event: any): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.replace(/\D/g, ''); 

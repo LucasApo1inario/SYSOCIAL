@@ -16,9 +16,9 @@ export class EnrollmentService {
   private readonly FILE_API_URL = 'http://localhost:8083/api/v1/files';
 
   public documentTypes = [
-    'RG do Aluno', 'CPF do Aluno', 'Certidão de Nascimento',
-    'RG do Responsável', 'CPF do Responsável', 'Comprovante de Residência',
-    'Histórico Escolar', 'Carteira de Vacinação', 'Declaração de Transferência'
+    'Documento com foto do Aluno', 'CPF do Aluno', 'Certidão de Nascimento',
+    'Documento com foto do Responsável', 'CPF do Responsável', 'Comprovante de Residência',
+    'Declaração de matrícula escolar', 'Outros'
   ];
 
   public relationshipOptions = [
