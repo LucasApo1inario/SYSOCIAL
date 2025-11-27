@@ -1,17 +1,12 @@
 .container {
     display: flex;
     justify-content: center;
-    margin-top: 24px;
-    margin-bottom: 24px;
-    padding-left: 24px;
-    padding-right: 24px;
-    padding-bottom: 24px;
-    
+    margin: 24px auto; /* centraliza o container */
+    padding: 24px 0;   /* remove padding lateral */
 }
 
 .container-content {
-    width: 100%;
     max-width: 1200px;
-
+    width: 100%;
 }
 
