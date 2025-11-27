@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, timer, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 import { EnrollmentService } from '../services/enrollment.service';
 import { StudentFormComponent } from '../components/student-form.component';
@@ -95,7 +96,7 @@ export class EnrollmentPage implements OnInit {
       student: this.fb.group({
         fullName: ['', Validators.required],
         birthDate: ['', Validators.required],
-        cpf: ['', Validators.required],
+        cpf: ['', [Validators.required]], 
         phone: [''],
         gender: [''],
         zipCode: ['', Validators.required],
@@ -105,7 +106,7 @@ export class EnrollmentPage implements OnInit {
         currentSchool: [''],
         series: [''],
         schoolShift: ['', Validators.required],
-        observation: [''], // Inicialização do novo campo
+        observation: [''],
       }),
       guardians: this.fb.array([ this.createGuardianGroup(true) ]),
       enrollments: this.fb.array([ this.createCourseGroup() ]),
@@ -127,17 +128,11 @@ export class EnrollmentPage implements OnInit {
 
   loadCourses(shift: string) {
     const enrollments = this.enrollmentsArray;
-    while (enrollments.length !== 0) {
-      enrollments.removeAt(0);
-    }
+    while (enrollments.length !== 0) { enrollments.removeAt(0); }
     this.addCourse();
-
     this.service.getAvailableCourses(shift).subscribe({
       next: (data) => this.availableCourses = data,
-      error: (err) => {
-        console.error(err);
-        alert('Erro ao carregar cursos.');
-      }
+      error: (err) => { console.error(err); alert('Erro ao carregar cursos.'); }
     });
   }
 
@@ -152,20 +147,14 @@ export class EnrollmentPage implements OnInit {
       cpf: ['', Validators.required],
       relationship: ['', Validators.required], 
       phone: ['', Validators.required],        
-      phoneContact: [''], 
-      messagePhone1: [''], messagePhone1Contact: [''], 
-      messagePhone2: [''], messagePhone2Contact: [''], 
+      phoneContact: [''], messagePhone1: [''], messagePhone1Contact: [''], messagePhone2: [''], messagePhone2Contact: [''], 
       isPrincipal: [isPrincipal]
     });
   }
 
   addGuardian() { this.guardiansArray.push(this.createGuardianGroup()); }
-  
   removeGuardian(index: number) {
-    if (this.guardiansArray.length <= 1) {
-      alert('É necessário manter pelo menos um responsável.');
-      return;
-    }
+    if (this.guardiansArray.length <= 1) { alert('É necessário manter pelo menos um responsável.'); return; }
     this.guardiansArray.removeAt(index);
     const hasPrincipal = this.guardiansArray.controls.some(g => g.get('isPrincipal')?.value);
     if (!hasPrincipal) this.guardiansArray.at(0).get('isPrincipal')?.setValue(true);
@@ -187,24 +176,12 @@ export class EnrollmentPage implements OnInit {
     }
   }
 
-  createCourseGroup(): FormGroup {
-    return this.fb.group({ courseId: ['', Validators.required], classId: ['', Validators.required] });
-  }
-  
+  createCourseGroup(): FormGroup { return this.fb.group({ courseId: ['', Validators.required], classId: ['', Validators.required] }); }
   addCourse() { this.enrollmentsArray.push(this.createCourseGroup()); }
   removeCourse(index: number) { this.enrollmentsArray.removeAt(index); }
 
-  addDocument() {
-    this.docsArray.push(this.fb.group({
-      type: ['', Validators.required],
-      fileName: ['', Validators.required],
-      observation: [''], 
-      file: [null]
-    }));
-  }
-
+  addDocument() { this.docsArray.push(this.fb.group({ type: ['', Validators.required], fileName: ['', Validators.required], observation: [''], file: [null] })); }
   removeDocument(index: number) { this.docsArray.removeAt(index); }
-
   onDocumentFileSelected(data: {event: Event, index: number}) {
     const input = data.event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -214,10 +191,15 @@ export class EnrollmentPage implements OnInit {
     }
   }
 
+  // --- FUNÇÃO DE LIMPEZA (Remove tudo que não for número) ---
+  cleanNumber(value: string): string {
+    return value ? value.replace(/\D/g, '') : '';
+  }
+
   async onSubmit() {
     if (this.mainForm.invalid) {
       this.mainForm.markAllAsTouched();
-      alert('Por favor, preencha todos os campos obrigatórios.');
+      alert('Por favor, verifique os campos. Pode haver um CPF duplicado ou campos obrigatórios vazios.');
       return;
     }
 
@@ -227,14 +209,24 @@ export class EnrollmentPage implements OnInit {
     try {
       const rawValue = this.mainForm.getRawValue();
       
+      // --- AQUI APLICAMOS A LIMPEZA NO PAYLOAD ---
       const enrollmentPayload: EnrollmentPayload = {
-        student: rawValue.student,
-        guardians: rawValue.guardians,
-        documents: rawValue.docs.map((d: any) => ({ 
-          type: d.type, 
-          fileName: d.fileName,
-          observation: d.observation 
-        })), 
+        student: {
+          ...rawValue.student,
+          // Limpa campos do aluno
+          cpf: this.cleanNumber(rawValue.student.cpf),
+          phone: this.cleanNumber(rawValue.student.phone),
+          zipCode: this.cleanNumber(rawValue.student.zipCode)
+        },
+        guardians: rawValue.guardians.map((g: any) => ({
+          ...g,
+          // Limpa campos do responsável
+          cpf: this.cleanNumber(g.cpf),
+          phone: this.cleanNumber(g.phone),
+          messagePhone1: this.cleanNumber(g.messagePhone1),
+          messagePhone2: this.cleanNumber(g.messagePhone2),
+        })),
+        documents: rawValue.docs.map((d: any) => ({ type: d.type, fileName: d.fileName, observation: d.observation })), 
         courses: rawValue.enrollments
       };
 
@@ -243,29 +235,20 @@ export class EnrollmentPage implements OnInit {
 
       if (rawValue.docs && rawValue.docs.length > 0) {
         this.submittingMessage = `Enviando ${rawValue.docs.length} documentos...`;
-        
         for (const doc of rawValue.docs) {
           if (doc.file) {
             const base64 = await this.service.convertFileToBase64(doc.file);
             const filePayload: FileUploadRequest = {
-              entidade_pai: 'matricula',
-              id_entidade_pai: enrollmentId.toString(),
-              arquivo_base64: base64,
-              nome_arquivo: doc.fileName,
-              extensao: doc.fileName.split('.').pop() || '',
-              observacao: doc.observation || ''
+              entidade_pai: 'matricula', id_entidade_pai: enrollmentId.toString(), arquivo_base64: base64, nome_arquivo: doc.fileName, extensao: doc.fileName.split('.').pop() || '', observacao: doc.observation || ''
             };
-            
             await lastValueFrom(this.service.uploadFile(filePayload));
           }
         }
       }
-
       alert(`Sucesso! Matrícula e documentos salvos. ID: ${enrollmentId}`);
-      
     } catch (error) {
       console.error('Erro no processo:', error);
-      alert('Ocorreu um erro. Verifique o console para detalhes.');
+      alert('Ocorreu um erro. Verifique o console.');
     } finally {
       this.isSubmitting = false;
       this.submittingMessage = 'Salvar Matrícula';
