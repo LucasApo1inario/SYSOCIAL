@@ -1,0 +1,12 @@
+.titulo {
+    text-align: center;
+    font-size: 20px;
+    font-style: manrope;
+}
+.letra {
+    font-style: manrope;
+    font-size: 16px;
+}
+.centralizar {
+    text-align: center;
+}

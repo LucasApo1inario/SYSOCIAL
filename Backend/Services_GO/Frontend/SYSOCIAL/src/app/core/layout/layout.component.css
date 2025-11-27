@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+    justify-content: center;
+    margin: 24px auto; /* centraliza o container */
+    padding: 24px 0;   /* remove padding lateral */
+}
+
+.container-content {
+    max-width: 1200px;
+    width: 100%;
+}
+
