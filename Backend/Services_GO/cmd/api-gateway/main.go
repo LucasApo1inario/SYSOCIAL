@@ -146,9 +146,9 @@ func main() {
 			"status":  "ok",
 			"service": "api-gateway",
 			"services": gin.H{
-				"user-service":      userHealth,
-				"auth-service":      authHealth,
-				"file-service":      fileHealth,
+				"user-service":       userHealth,
+				"auth-service":       authHealth,
+				"file-service":       fileHealth,
 				"enrollment-service": enrollmentHealth,
 			},
 		})
