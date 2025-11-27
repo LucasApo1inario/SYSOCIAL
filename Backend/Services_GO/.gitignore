@@ -1,6 +1,0 @@
-# Dependencies
-node_modules/
-
-# Other common ignores
-*.log
-.env
