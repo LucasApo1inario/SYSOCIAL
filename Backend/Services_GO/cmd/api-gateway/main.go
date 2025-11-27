@@ -59,6 +59,11 @@ func main() {
 		enrollmentServiceURL = "http://enrollment-service:8084" // Docker
 	}
 
+	cursosturmasServiceURL := os.Getenv("CURSOSTURMAS_SERVICE_URL")
+	if cursosturmasServiceURL == "" {
+		cursosturmasServiceURL = "http://cursosturmas-service:8085" // Docker
+	}
+
 	// Registrar serviços
 	proxyManager.RegisterService("user-service", &proxy.ServiceConfig{
 		Name:    "user-service",
@@ -84,6 +89,13 @@ func main() {
 	proxyManager.RegisterService("enrollment-service", &proxy.ServiceConfig{
 		Name:    "enrollment-service",
 		BaseURL: enrollmentServiceURL,
+		Health:  "/health",
+		Timeout: 30 * time.Second,
+	})
+
+	proxyManager.RegisterService("cursosturmas-service", &proxy.ServiceConfig{
+		Name:    "cursosturmas-service",
+		BaseURL: cursosturmasServiceURL,
 		Health:  "/health",
 		Timeout: 30 * time.Second,
 	})
@@ -132,6 +144,25 @@ func main() {
 				}
 			})
 		}
+
+		// Proxy para cursosturmas-service (rotas públicas - cursos e turmas)
+		cursos := v1.Group("/cursos")
+		{
+			cursos.Any("/*path", func(c *gin.Context) {
+				if err := proxyManager.ProxyRequest("cursosturmas-service", c.Writer, c.Request); err != nil {
+					logger.Error("Erro no proxy para cursosturmas-service", err)
+				}
+			})
+		}
+
+		turmas := v1.Group("/turmas")
+		{
+			turmas.Any("/*path", func(c *gin.Context) {
+				if err := proxyManager.ProxyRequest("cursosturmas-service", c.Writer, c.Request); err != nil {
+					logger.Error("Erro no proxy para cursosturmas-service", err)
+				}
+			})
+		}
 	}
 
 	// Health check
@@ -141,15 +172,17 @@ func main() {
 		authHealth, _ := proxyManager.HealthCheck("auth-service")
 		fileHealth, _ := proxyManager.HealthCheck("file-service")
 		enrollmentHealth, _ := proxyManager.HealthCheck("enrollment-service")
+		cursosturmasHealth, _ := proxyManager.HealthCheck("cursosturmas-service")
 
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"service": "api-gateway",
 			"services": gin.H{
-				"user-service":       userHealth,
-				"auth-service":       authHealth,
-				"file-service":       fileHealth,
-				"enrollment-service": enrollmentHealth,
+				"user-service":         userHealth,
+				"auth-service":         authHealth,
+				"file-service":         fileHealth,
+				"enrollment-service":   enrollmentHealth,
+				"cursosturmas-service": cursosturmasHealth,
 			},
 		})
 	})
