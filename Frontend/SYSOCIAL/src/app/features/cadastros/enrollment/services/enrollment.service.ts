@@ -65,9 +65,8 @@ export class EnrollmentService {
 
     // MOCK DATA (Para testar o visual agora)
     const mockData: StudentSummary[] = [
-      { id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', courseName: 'Ensino Fundamental I', className: 'Turma A', shift: 'Manhã', status: 'ATIVO', enrollmentDate: '2024-01-15' },
-      { id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', courseName: 'Robótica', className: 'Turma B', shift: 'Tarde', status: 'ATIVO', enrollmentDate: '2024-02-10' },
-      { id: 3, fullName: 'Pedro Santos', cpf: '456.123.789-22', age: 15, gender: 'M', courseName: 'Ensino Médio', className: '1º Ano', shift: 'Integral', status: 'INATIVO', enrollmentDate: '2023-11-20' },
+      { id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', courseName: ['Ensino Fundamental I', 'Teste 1', 'Teste 2', 'Teste 3'], className: 'Turma A', shift: 'Manhã', status: 'ATIVO', enrollmentDate: '2024-01-15' },
+      { id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', courseName: ['Robótica'], className: 'Turma B', shift: 'Tarde', status: 'ATIVO', enrollmentDate: '2024-02-10' },
     ];
     
     // Filtra o mock baseado no nome para simular busca
