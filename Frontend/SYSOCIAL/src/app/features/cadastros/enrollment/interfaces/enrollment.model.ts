@@ -18,6 +18,30 @@ export interface CourseOption {
   classes: ClassOption[];
 }
 
+// --- DTOs PARA LISTAGEM DE ALUNOS ---
+
+export interface StudentSummary {
+  id: number;
+  fullName: string;
+  cpf: string;
+  age: number;
+  gender: string; // 'M' | 'F'
+  courseName: string;
+  className: string;
+  shift: string; // 'manha' | 'tarde' | 'integral'
+  status: string; // 'ATIVO' | 'INATIVO'
+  enrollmentDate: string;
+}
+
+export interface StudentFilter {
+  name?: string;
+  cpf?: string;
+  courseId?: string;
+  classId?: string;
+  shift?: string;
+  status?: string;
+}
+
 // --- ENVIOS PARA O BACKEND DE MATRÍCULA (Porta 8084) ---
 
 export interface StudentPayload {
@@ -77,3 +101,4 @@ export interface FileUploadRequest {
   extensao: string;
   observacao: string;
 }
+

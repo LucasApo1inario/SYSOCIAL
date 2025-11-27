@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, lastValueFrom } from 'rxjs'; // lastValueFrom para usar com Promise
-import { CourseOption, EnrollmentPayload, FileUploadRequest } from '../interfaces/enrollment.model';
+import { Observable, lastValueFrom, of } from 'rxjs'; // lastValueFrom para usar com Promise
+import { delay, map } from 'rxjs/operators';
+import { CourseOption, EnrollmentPayload, FileUploadRequest, StudentSummary, StudentFilter } from '../interfaces/enrollment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,30 @@ export class EnrollmentService {
 
   uploadFile(payload: FileUploadRequest): Observable<any> {
     return this.http.post<any>(this.FILE_API_URL + '/', payload);
+  }
+
+    // --- NOVO: Método de Busca de Alunos ---
+  searchStudents(filters: StudentFilter): Observable<StudentSummary[]> {
+    // TODO: Quando o backend tiver a rota, descomente abaixo:
+    // let params = new HttpParams();
+    // if (filters.name) params = params.set('name', filters.name);
+    // if (filters.cpf) params = params.set('cpf', filters.cpf);
+    // return this.http.get<StudentSummary[]>(`${this.ENROLLMENT_API_URL}/students`, { params });
+
+    // MOCK DATA (Para testar o visual agora)
+    const mockData: StudentSummary[] = [
+      { id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', courseName: 'Ensino Fundamental I', className: 'Turma A', shift: 'Manhã', status: 'ATIVO', enrollmentDate: '2024-01-15' },
+      { id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', courseName: 'Robótica', className: 'Turma B', shift: 'Tarde', status: 'ATIVO', enrollmentDate: '2024-02-10' },
+      { id: 3, fullName: 'Pedro Santos', cpf: '456.123.789-22', age: 15, gender: 'M', courseName: 'Ensino Médio', className: '1º Ano', shift: 'Integral', status: 'INATIVO', enrollmentDate: '2023-11-20' },
+    ];
+    
+    // Filtra o mock baseado no nome para simular busca
+    const filtered = mockData.filter(s => 
+      (!filters.name || s.fullName.toLowerCase().includes(filters.name.toLowerCase())) &&
+      (!filters.cpf || s.cpf.includes(filters.cpf))
+    );
+
+    return of(filtered).pipe(delay(500)); // Simula delay de rede
   }
 
   // --- Helpers ---
