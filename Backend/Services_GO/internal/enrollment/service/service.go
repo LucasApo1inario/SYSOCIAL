@@ -25,7 +25,7 @@ func (s *EnrollmentService) CreateEnrollment(ctx context.Context, payload model.
 	if payload.Student.CPF == "" {
 		return 0, fmt.Errorf("CPF do aluno é obrigatório")
 	}
-	
+
 	// Verifica se existe pelo menos 1 responsável principal
 	hasPrincipal := false
 	for _, g := range payload.Guardians {

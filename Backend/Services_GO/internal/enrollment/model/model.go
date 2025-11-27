@@ -9,22 +9,22 @@ import (
 
 // StudentPayload mapeia os dados do aluno vindos do formulário Angular
 type StudentPayload struct {
-	FullName      string `json:"fullName"`
-	BirthDate     string `json:"birthDate"` // Formato YYYY-MM-DD
-	CPF           string `json:"cpf"`
-	Phone         string `json:"phone"`
-	Gender        string `json:"gender"`
+	FullName  string `json:"fullName"`
+	BirthDate string `json:"birthDate"` // Formato YYYY-MM-DD
+	CPF       string `json:"cpf"`
+	Phone     string `json:"phone"`
+	Gender    string `json:"gender"`
 	// Endereço
-	ZipCode       string `json:"zipCode"`
-	Street        string `json:"street"`
-	Number        string `json:"number"`
-	Neighborhood  string `json:"neighborhood"`
+	ZipCode      string `json:"zipCode"`
+	Street       string `json:"street"`
+	Number       string `json:"number"`
+	Neighborhood string `json:"neighborhood"`
 	// Escolaridade
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
 	// NOVO CAMPO
-	Observation   string `json:"observation"`
+	Observation string `json:"observation"`
 }
 
 // GuardianPayload mapeia os dados de cada responsável
@@ -66,31 +66,31 @@ type NewEnrollmentPayload struct {
 
 // Tabela: aluno
 type Student struct {
-	ID              int            `db:"id_aluno"`
-	NomeCompleto    string         `db:"nome_completo"`
-	DataNascimento  time.Time      `db:"data_nascimento"`
-	Sexo            sql.NullString `db:"sexo"`
-	CPF             string         `db:"cpf"`
-	Telefone        sql.NullString `db:"telefone"`
-	EscolaAtual     sql.NullString `db:"escola_atual"`
-	SerieAtual      sql.NullInt64  `db:"serie_atual"`
-	PeriodoEscolar  sql.NullString `db:"periodo_escolar"`
-	NomeRua         sql.NullString `db:"nome_rua"`
-	NumeroEndereco  sql.NullInt64  `db:"numero_endereco"`
-	Bairro          sql.NullString `db:"bairro"`
-	DataMatricula   time.Time      `db:"data_matricula"`
-	Observacoes     sql.NullString `db:"observacoes"`
-	CEP             sql.NullString `db:"cep"`
+	ID             int            `db:"id_aluno"`
+	NomeCompleto   string         `db:"nome_completo"`
+	DataNascimento time.Time      `db:"data_nascimento"`
+	Sexo           sql.NullString `db:"sexo"`
+	CPF            string         `db:"cpf"`
+	Telefone       sql.NullString `db:"telefone"`
+	EscolaAtual    sql.NullString `db:"escola_atual"`
+	SerieAtual     sql.NullInt64  `db:"serie_atual"`
+	PeriodoEscolar sql.NullString `db:"periodo_escolar"`
+	NomeRua        sql.NullString `db:"nome_rua"`
+	NumeroEndereco sql.NullInt64  `db:"numero_endereco"`
+	Bairro         sql.NullString `db:"bairro"`
+	DataMatricula  time.Time      `db:"data_matricula"`
+	Observacoes    sql.NullString `db:"observacoes"`
+	CEP            sql.NullString `db:"cep"`
 }
 
 type Guardian struct {
-	ID               int            `db:"id_responsavel"`
-	NomeCompleto     string         `db:"nome_completo"`
-	CPF              string         `db:"cpf"`
-	Telefone         string         `db:"telefone"`
-	TelefoneRecado1  sql.NullString `db:"telefone_recado1"`
-	TelefoneRecado2  sql.NullString `db:"telefone_recado2"`
-	Parentesco       string         `db:"parentesco"` 
+	ID              int            `db:"id_responsavel"`
+	NomeCompleto    string         `db:"nome_completo"`
+	CPF             string         `db:"cpf"`
+	Telefone        string         `db:"telefone"`
+	TelefoneRecado1 sql.NullString `db:"telefone_recado1"`
+	TelefoneRecado2 sql.NullString `db:"telefone_recado2"`
+	Parentesco      string         `db:"parentesco"`
 }
 
 type StudentGuardianPivot struct {
@@ -108,11 +108,11 @@ type Matricula struct {
 }
 
 type CourseOption struct {
-	ID             int            `json:"id" db:"id_curso"`
-	Name           string         `json:"name" db:"nome"`
-	TotalSpots     int            `json:"totalSpots" db:"vagas_totais"`
-	AvailableSpots int            `json:"availableSpots" db:"vagas_restantes"`
-	Classes        []ClassOption  `json:"classes"`
+	ID             int           `json:"id" db:"id_curso"`
+	Name           string        `json:"name" db:"nome"`
+	TotalSpots     int           `json:"totalSpots" db:"vagas_totais"`
+	AvailableSpots int           `json:"availableSpots" db:"vagas_restantes"`
+	Classes        []ClassOption `json:"classes"`
 }
 
 type ClassOption struct {

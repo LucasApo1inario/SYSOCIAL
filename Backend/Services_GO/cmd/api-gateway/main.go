@@ -54,6 +54,11 @@ func main() {
 		fileServiceURL = "http://file-service:8083" // Docker
 	}
 
+	enrollmentServiceURL := os.Getenv("ENROLLMENT_SERVICE_URL")
+	if enrollmentServiceURL == "" {
+		enrollmentServiceURL = "http://enrollment-service:8084" // Docker
+	}
+
 	// Registrar serviços
 	proxyManager.RegisterService("user-service", &proxy.ServiceConfig{
 		Name:    "user-service",
@@ -72,6 +77,13 @@ func main() {
 	proxyManager.RegisterService("file-service", &proxy.ServiceConfig{
 		Name:    "file-service",
 		BaseURL: fileServiceURL,
+		Health:  "/health",
+		Timeout: 30 * time.Second,
+	})
+
+	proxyManager.RegisterService("enrollment-service", &proxy.ServiceConfig{
+		Name:    "enrollment-service",
+		BaseURL: enrollmentServiceURL,
 		Health:  "/health",
 		Timeout: 30 * time.Second,
 	})
@@ -110,6 +122,16 @@ func main() {
 				}
 			})
 		}
+
+		// Proxy para enrollment-service (rotas públicas - matrículas)
+		enrollments := v1.Group("/enrollments")
+		{
+			enrollments.Any("/*path", func(c *gin.Context) {
+				if err := proxyManager.ProxyRequest("enrollment-service", c.Writer, c.Request); err != nil {
+					logger.Error("Erro no proxy para enrollment-service", err)
+				}
+			})
+		}
 	}
 
 	// Health check
@@ -118,14 +140,16 @@ func main() {
 		userHealth, _ := proxyManager.HealthCheck("user-service")
 		authHealth, _ := proxyManager.HealthCheck("auth-service")
 		fileHealth, _ := proxyManager.HealthCheck("file-service")
+		enrollmentHealth, _ := proxyManager.HealthCheck("enrollment-service")
 
 		c.JSON(200, gin.H{
 			"status":  "ok",
 			"service": "api-gateway",
 			"services": gin.H{
-				"user-service": userHealth,
-				"auth-service": authHealth,
-				"file-service": fileHealth,
+				"user-service":       userHealth,
+				"auth-service":       authHealth,
+				"file-service":       fileHealth,
+				"enrollment-service": enrollmentHealth,
 			},
 		})
 	})

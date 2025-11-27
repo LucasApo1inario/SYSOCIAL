@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"time"
 	"sysocial/internal/enrollment/model"
+	"time"
 )
 
 type EnrollmentRepository struct {
@@ -25,7 +25,7 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	if err != nil {
 		return 0, fmt.Errorf("falha ao iniciar transação: %w", err)
 	}
-	
+
 	defer func() {
 		if p := recover(); p != nil {
 			tx.Rollback()
@@ -36,7 +36,7 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	}()
 
 	var studentID int
-	
+
 	// 1. INSERIR ALUNO (Tabela 'aluno')
 	studentSQL := `
 	INSERT INTO aluno (
@@ -51,7 +51,7 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	// Conversões de tipo necessárias
 	numeroEndereco, _ := strconv.Atoi(payload.Student.Number)
 	serieAtual, _ := strconv.Atoi(payload.Student.Series)
-	
+
 	observacoes := payload.Student.Observation
 
 	err = tx.QueryRowContext(ctx, studentSQL,
@@ -68,7 +68,7 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 		payload.Student.Neighborhood,  // $11
 		payload.Student.ZipCode,       // $12
 		time.Now(),                    // $13
-		observacoes,                   // $14 
+		observacoes,                   // $14
 	).Scan(&studentID)
 
 	if err != nil {
@@ -169,8 +169,8 @@ func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolSh
 	for rows.Next() {
 		var (
 			cID, cVagasTotal, cVagasRest, tID, tVagas int
-			cNome, tNome, tDia, tInicio, tFim       string
-			tDesc                                   sql.NullString
+			cNome, tNome, tDia, tInicio, tFim         string
+			tDesc                                     sql.NullString
 		)
 		err := rows.Scan(&cID, &cNome, &cVagasTotal, &cVagasRest, &tID, &tNome, &tDia, &tInicio, &tFim, &tVagas, &tDesc)
 		if err != nil {
