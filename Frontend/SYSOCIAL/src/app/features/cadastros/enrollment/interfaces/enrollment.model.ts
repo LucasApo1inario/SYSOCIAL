@@ -26,7 +26,7 @@ export interface StudentSummary {
   cpf: string;
   age: number;
   gender: string; // 'M' | 'F'
-  courseName: string;
+  courseName: string[];
   className: string;
   shift: string; // 'manha' | 'tarde' | 'integral'
   status: string; // 'ATIVO' | 'INATIVO'
