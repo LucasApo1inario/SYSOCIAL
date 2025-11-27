@@ -15,12 +15,12 @@ import { AuthService } from '../services/auth/auth.service';
 
       <div>
         <label class="text-sm font-medium">Nova Senha</label>
-        <input type="password" [(ngModel)]="password" class="input" />
+        <input type="password" [(ngModel)]="password" class="h-10 w-full rounded-md border px-3" />
       </div>
 
       <div>
         <label class="text-sm font-medium">Repetir Senha</label>
-        <input type="password" [(ngModel)]="repeat" class="input" />
+        <input type="password" [(ngModel)]="repeat" class="h-10 w-full rounded-md border px-3" />
       </div>
 
       <p class="text-xs text-gray-500">
@@ -28,12 +28,7 @@ import { AuthService } from '../services/auth/auth.service';
       </p>
 
     </div>
-  `,
-  styles: [`
-    .input {
-      @apply h-10 w-full rounded-md border px-3;
-    }
-  `]
+  `
 })
 export class ChangePasswordDialogComponent {
 
