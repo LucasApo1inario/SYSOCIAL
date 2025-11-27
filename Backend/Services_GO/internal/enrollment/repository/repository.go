@@ -18,6 +18,20 @@ func NewEnrollmentRepository(db *sql.DB) *EnrollmentRepository {
 	return &EnrollmentRepository{db: db}
 }
 
+// Verifica se o CPF existe (usado pelo validador assíncrono do frontend)
+func (r *EnrollmentRepository) CheckCpfExists(ctx context.Context, cpf string) (bool, error) {
+	var exists bool
+	// SELECT EXISTS é muito performático para essa checagem
+	query := "SELECT EXISTS(SELECT 1 FROM aluno WHERE cpf = $1)"
+	
+	err := r.db.QueryRowContext(ctx, query, cpf).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("erro ao verificar cpf: %w", err)
+	}
+	
+	return exists, nil
+}
+
 // CreateEnrollment realiza a inserção transacional completa da matrícula
 func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload model.NewEnrollmentPayload) (int, error) {
 	// Inicia a transação

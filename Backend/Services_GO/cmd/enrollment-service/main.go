@@ -57,6 +57,7 @@ func main() {
 			enrollments.POST("/", enrollmentHandler.CreateEnrollment)
 			enrollments.GET("/available-courses", enrollmentHandler.GetAvailableCourses)
 			enrollments.GET("/courses", enrollmentHandler.GetAvailableCourses)
+			enrollments.GET("/check-cpf", enrollmentHandler.CheckCpf)
 		}
 	}
 

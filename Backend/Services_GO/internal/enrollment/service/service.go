@@ -17,6 +17,11 @@ func NewEnrollmentService(repo *repository.EnrollmentRepository, logger logger.L
 	return &EnrollmentService{repo: repo, logger: logger}
 }
 
+func (s *EnrollmentService) CheckCpfAvailability(ctx context.Context, cpf string) (bool, error) {
+	// Assumindo que o repository faz a limpeza das strings ou recebe o dado bruto.
+	return s.repo.CheckCpfExists(ctx, cpf)
+}
+
 func (s *EnrollmentService) CreateEnrollment(ctx context.Context, payload model.NewEnrollmentPayload) (int, error) {
 	// Validações de negócio
 	if payload.Student.FullName == "" {

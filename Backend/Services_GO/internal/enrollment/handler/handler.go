@@ -16,6 +16,19 @@ func NewEnrollmentHandler(service *service.EnrollmentService) *EnrollmentHandler
 	return &EnrollmentHandler{service: service}
 }
 
+// GET /api/v1/enrollments/check-cpf?cpf=...
+func (h *EnrollmentHandler) CheckCpf(c *gin.Context) {
+	cpf := c.Query("cpf")
+	
+	exists, err := h.service.CheckCpfAvailability(c.Request.Context(), cpf)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao verificar CPF", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"exists": exists})
+}
+
 // POST /api/v1/enrollments
 func (h *EnrollmentHandler) CreateEnrollment(c *gin.Context) {
 	var payload model.NewEnrollmentPayload
