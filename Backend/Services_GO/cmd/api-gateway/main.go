@@ -137,6 +137,7 @@ func main() {
 
 		// Proxy para enrollment-service (rotas públicas - matrículas)
 		enrollments := v1.Group("/enrollments")
+		enrollments.Use(middleware.Auth()) // Aplicar middleware JWT
 		{
 			enrollments.Any("/*path", func(c *gin.Context) {
 				if err := proxyManager.ProxyRequest("enrollment-service", c.Writer, c.Request); err != nil {
@@ -147,6 +148,7 @@ func main() {
 
 		// Proxy para cursosturmas-service (rotas públicas - cursos e turmas)
 		cursos := v1.Group("/cursos")
+		cursos.Use(middleware.Auth()) // Aplicar middleware JWT
 		{
 			cursos.Any("/*path", func(c *gin.Context) {
 				if err := proxyManager.ProxyRequest("cursosturmas-service", c.Writer, c.Request); err != nil {
@@ -156,6 +158,7 @@ func main() {
 		}
 
 		turmas := v1.Group("/turmas")
+		turmas.Use(middleware.Auth()) // Aplicar middleware JWT
 		{
 			turmas.Any("/*path", func(c *gin.Context) {
 				if err := proxyManager.ProxyRequest("cursosturmas-service", c.Writer, c.Request); err != nil {
