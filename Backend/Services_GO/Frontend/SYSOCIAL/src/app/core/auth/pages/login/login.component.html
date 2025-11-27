@@ -1,0 +1,66 @@
+<div class="flex items-center justify-center ">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="w-full max-w-sm">
+    <z-card
+      class="w-full"
+      zTitle="Entrar na sua conta"
+      zDescription="Digite seu login e senha para continuar"
+    >
+      <div class="space-y-4">
+        <!-- User -->
+        <div class="space-y-2">
+          <label for="idUser" class="text-sm font-medium"> Usuário</label>
+          <input
+            id="idUser"
+            type="user"
+            formControlName="user"
+            placeholder="Digite seu usuario"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          @if (form.get('user')?.touched && form.get('user')?.invalid) {
+            <div class="text-red-500 text-xs">
+              Digite um usuário válido
+            </div>
+          }
+        </div>
+
+        <!-- Senha -->
+        <div class="space-y-2">
+          <div class="flex items-center">
+            <label for="idPassword" class="text-sm font-medium">Senha</label>
+            <a href="#" class="ml-auto text-sm underline-offset-4 hover:underline">
+              Esqueceu sua senha?
+            </a>
+          </div>
+          <input
+            id="idPassword"
+            type="password"
+            formControlName="password"
+            placeholder="Digite sua senha"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          @if (form.get('password')?.touched && form.get('password')?.invalid) {
+            <div class="text-red-500 text-xs">
+              A senha deve ter pelo menos 6 caracteres
+            </div>
+          }
+        </div>
+
+         @if (form.hasError('wrongCredentials')) {
+            <div class="text-red-500 text-xs">
+             Usuário ou senha inválidos!
+            </div>
+          }
+
+        <!-- Botões -->
+        <div class="space-y-2">
+          <z-button zType="default" class="w-full bg-[#368F8B]" type="button" (click)="submit()">
+            Entrar
+          </z-button>
+
+        </div>
+      </div>
+    </z-card>
+  </form>
+</div>
+
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-spin-clockwise" [fullScreen] = "true"><p style="color: white" > Aguarde... </p></ngx-spinner>
