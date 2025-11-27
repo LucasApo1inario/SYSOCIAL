@@ -62,3 +62,7 @@ func (s *EnrollmentService) GetCourseData(ctx context.Context) (map[string]inter
 func (s *EnrollmentService) GetAvailableCourses(ctx context.Context, schoolShift string) ([]model.CourseOption, error) {
 	return s.repo.GetAvailableCourses(ctx, schoolShift)
 }
+
+func (s *EnrollmentService) GetGuardianByCPF(ctx context.Context, cpf string) (*model.Guardian, error) {
+	return s.repo.GetGuardianByCPF(ctx, cpf)
+}

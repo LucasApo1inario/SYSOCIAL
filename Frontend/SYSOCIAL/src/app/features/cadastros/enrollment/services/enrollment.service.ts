@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, lastValueFrom, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
-import { CourseOption, EnrollmentPayload, FileUploadRequest } from '../interfaces/enrollment.model';
+import { catchError, map } from 'rxjs/operators';
+import { CourseOption, EnrollmentPayload, FileUploadRequest, GuardianPayload } from '../interfaces/enrollment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -80,5 +80,19 @@ export class EnrollmentService {
       };
       reader.onerror = error => reject(error);
     });
+  }
+
+  // Busca dados de responsável existente
+  getGuardianByCpf(cpf: string): Observable<GuardianPayload | null> {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const params = new HttpParams().set('cpf', cleanCpf);
+    
+    // Retorna null se der 404 (catchError)
+    return this.http.get<GuardianPayload>(`${this.ENROLLMENT_API_URL}/guardian`, { params }).pipe(
+      catchError(err => {
+        if (err.status === 404) return of(null); // Não achou
+        throw err;
+      })
+    );
   }
 }

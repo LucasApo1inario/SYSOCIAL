@@ -49,6 +49,23 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
+	// --- INÍCIO DO MIDDLEWARE CORS (ADICIONADO AQUI) ---
+	// Essencial para permitir que o Frontend (localhost:4200) acesse esta API
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+	// --- FIM DO MIDDLEWARE CORS ---
+
 	// Rotas
 	v1 := router.Group("/api/v1")
 	{
@@ -58,6 +75,7 @@ func main() {
 			enrollments.GET("/available-courses", enrollmentHandler.GetAvailableCourses)
 			enrollments.GET("/courses", enrollmentHandler.GetAvailableCourses)
 			enrollments.GET("/check-cpf", enrollmentHandler.CheckCpf)
+			enrollments.GET("/guardian", enrollmentHandler.GetGuardian)
 		}
 	}
 
