@@ -23,7 +23,7 @@ type StudentPayload struct {
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
-	Observation string `json:"observation"`
+	Observation   string `json:"observation"`
 }
 
 // GuardianPayload mapeia os dados de cada responsável
@@ -65,22 +65,22 @@ type NewEnrollmentPayload struct {
 
 // Tabela: aluno
 type Student struct {
-	ID             int            `db:"id_aluno"`
-	NomeCompleto   string         `db:"nome_completo"`
-	DataNascimento time.Time      `db:"data_nascimento"`
-	Sexo           sql.NullString `db:"sexo"`
-	CPF            string         `db:"cpf"`
-	Telefone       sql.NullString `db:"telefone"`
-	EscolaAtual    sql.NullString `db:"escola_atual"`
-	SerieAtual     sql.NullInt64  `db:"serie_atual"`
-	PeriodoEscolar sql.NullString `db:"periodo_escolar"`
-	NomeRua        sql.NullString `db:"nome_rua"`
-	NumeroEndereco sql.NullInt64  `db:"numero_endereco"`
-	Bairro         sql.NullString `db:"bairro"`
-	DataMatricula  time.Time      `db:"data_matricula"`
-	Observacoes    sql.NullString `db:"observacoes"`
-	CEP            sql.NullString `db:"cep"`
-	Ativo           bool           `db:"ativo"`
+	ID              int            `db:"id_aluno"`
+	NomeCompleto    string         `db:"nome_completo"`
+	DataNascimento  time.Time      `db:"data_nascimento"`
+	Sexo            sql.NullString `db:"sexo"`
+	CPF             string         `db:"cpf"`
+	Telefone        sql.NullString `db:"telefone"`
+	EscolaAtual     sql.NullString `db:"escola_atual"`
+	SerieAtual      sql.NullInt64  `db:"serie_atual"`
+	PeriodoEscolar  sql.NullString `db:"periodo_escolar"`
+	NomeRua         sql.NullString `db:"nome_rua"`
+	NumeroEndereco  sql.NullInt64  `db:"numero_endereco"`
+	Bairro          sql.NullString `db:"bairro"`
+	DataMatricula   time.Time      `db:"data_matricula"`
+	Observacoes     sql.NullString `db:"observacoes"`
+	CEP             sql.NullString `db:"cep"`
+	Ativo			bool           `db:"ativo"`
 }
 
 type Guardian struct {
