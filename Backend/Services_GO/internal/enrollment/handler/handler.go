@@ -27,6 +27,11 @@ func (h *EnrollmentHandler) CreateEnrollment(c *gin.Context) {
 
 	id, err := h.service.CreateEnrollment(c.Request.Context(), payload)
 	if err != nil {
+		if err.Error() == "CPF já cadastrado no sistema" {
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()}) // 409 Conflict
+			return
+		}
+		
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar matrícula", "details": err.Error()})
 		return
 	}

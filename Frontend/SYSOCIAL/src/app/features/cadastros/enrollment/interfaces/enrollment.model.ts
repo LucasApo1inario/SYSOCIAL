@@ -25,21 +25,29 @@ export interface StudentSummary {
   fullName: string;
   cpf: string;
   age: number;
-  gender: string; // 'M' | 'F'
-  courseName: string[];
-  className: string;
-  shift: string; // 'manha' | 'tarde' | 'integral'
-  status: string; // 'ATIVO' | 'INATIVO'
+  gender: string; 
+  school: string;       // <--- NOVO: Escola
+  schoolShift: string;  // <--- NOVO: Turno da Escola
+  courses: string[]; 
+  classes: string[]; 
+  shifts: string[];     // Turno dos Cursos
+  status: string; 
   enrollmentDate: string;
 }
 
 export interface StudentFilter {
   name?: string;
   cpf?: string;
-  courseId?: string;
-  classId?: string;
-  shift?: string;
   status?: string;
+  
+  // Novos Filtros
+  gender?: string;
+  age?: number;
+  school?: string;
+  schoolShift?: string;
+  course?: string;      // Busca por nome do curso
+  class?: string;       // Busca por nome da turma
+  courseShift?: string; // Busca por turno do curso
 }
 
 // --- ENVIOS PARA O BACKEND DE MATRÍCULA (Porta 8084) ---

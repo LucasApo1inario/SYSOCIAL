@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 	"sysocial/internal/enrollment/model"
 )
@@ -72,6 +73,10 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 	).Scan(&studentID)
 
 	if err != nil {
+		// Verifica se o erro contém a mensagem de violação unique do Postgres
+		if strings.Contains(err.Error(), "aluno_cpf_unique") || strings.Contains(err.Error(), "unique constraint") {
+			return 0, fmt.Errorf("CPF já cadastrado no sistema") 
+		}
 		return 0, fmt.Errorf("erro ao inserir aluno: %w", err)
 	}
 

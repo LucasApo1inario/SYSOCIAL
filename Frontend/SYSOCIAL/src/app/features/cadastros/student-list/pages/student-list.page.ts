@@ -20,7 +20,6 @@ import { StudentTableComponent } from '../components/student-table.component';
     <div class="min-h-screen bg-gray-50 py-10 px-4 font-sans flex justify-center items-start">
       <div class="w-full max-w-6xl">
         
-        <!-- Cabeçalho -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Gestão de Alunos</h1>
@@ -33,20 +32,21 @@ import { StudentTableComponent } from '../components/student-table.component';
           </button>
         </div>
 
-        <!-- Componente de Filtro -->
         <app-student-filter (search)="onSearch($event)"></app-student-filter>
 
-        <!-- Loading State -->
         <div *ngIf="isLoading" class="flex justify-center py-12">
           <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#246A73]"></div>
         </div>
 
-        <!-- Componente de Tabela -->
         <app-student-table 
           *ngIf="!isLoading"
-          [students]="students" 
+          [students]="paginatedStudents" 
+          [total]="totalStudents"
+          [currentPage]="currentPage"
+          [pageSize]="pageSize"
+          (pageChange)="onPageChange($event)"
           (edit)="onEdit($event)" 
-          (details)="onDetails($event)">
+          (cancel)="onCancel($event)">
         </app-student-table>
 
       </div>
@@ -57,23 +57,35 @@ export class StudentListPage implements OnInit {
   private service = inject(EnrollmentService);
   private router = inject(Router);
 
-  students: StudentSummary[] = [];
+  allFilteredStudents: StudentSummary[] = [];
+  paginatedStudents: StudentSummary[] = [];
+  
+  totalStudents = 0;
+  currentPage = 1;
+  pageSize = 10;
   isLoading = false;
 
   ngOnInit() {
-    // Carrega lista inicial sem filtros
-    this.loadStudents({});
+    this.loadStudents({ status: 'ATIVO' });
   }
 
   onSearch(filters: StudentFilter) {
     this.loadStudents(filters);
   }
 
+  onPageChange(newPage: number) {
+    this.currentPage = newPage;
+    this.updatePaginatedList();
+  }
+
   loadStudents(filters: StudentFilter) {
     this.isLoading = true;
     this.service.searchStudents(filters).subscribe({
       next: (data) => {
-        this.students = data;
+        this.allFilteredStudents = data;
+        this.totalStudents = data.length;
+        this.currentPage = 1;
+        this.updatePaginatedList();
         this.isLoading = false;
       },
       error: (err) => {
@@ -83,17 +95,25 @@ export class StudentListPage implements OnInit {
     });
   }
 
+  updatePaginatedList() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.paginatedStudents = this.allFilteredStudents.slice(start, end);
+  }
+
   goToNewEnrollment() {
-    // Ajuste a rota conforme seu arquivo de rotas (app.routes.ts)
     this.router.navigate(['/enrollment']); 
   }
 
   onEdit(id: number) {
     console.log('Editar aluno ID:', id);
-    // this.router.navigate(['/enrollment/edit', id]);
+    // Ex: this.router.navigate(['/enrollment/edit', id]);
   }
 
-  onDetails(id: number) {
-    console.log('Ver detalhes ID:', id);
+  onCancel(id: number) {
+    // Aqui faremos a lógica de cancelamento depois
+    console.log('Cancelar matrícula ID:', id);
+    // Exemplo de confirmação futura:
+    // if(confirm('Tem certeza?')) { ... }
   }
 }

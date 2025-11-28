@@ -47,28 +47,62 @@ export class EnrollmentService {
     return this.http.post<any>(this.FILE_API_URL + '/', payload);
   }
 
-    // --- NOVO: Método de Busca de Alunos ---
+    // Método de Busca de Alunos ---
   searchStudents(filters: StudentFilter): Observable<StudentSummary[]> {
-    // TODO: Quando o backend tiver a rota, descomente abaixo:
-    // let params = new HttpParams();
-    // if (filters.name) params = params.set('name', filters.name);
-    // if (filters.cpf) params = params.set('cpf', filters.cpf);
-    // return this.http.get<StudentSummary[]>(`${this.ENROLLMENT_API_URL}/students`, { params });
-
-    // MOCK DATA (Para testar o visual agora)
+    // MOCK DATA ENRIQUECIDO
     const mockData: StudentSummary[] = [
-      { id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', courseName: ['Ensino Fundamental I', 'Teste 1', 'Teste 2', 'Teste 3'], className: 'Turma A', shift: 'Manhã', status: 'ATIVO', enrollmentDate: '2024-01-15' },
-      { id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', courseName: ['Robótica'], className: 'Turma B', shift: 'Tarde', status: 'ATIVO', enrollmentDate: '2024-02-10' },
+      { 
+        id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', 
+        school: 'Escola Municipal Central', schoolShift: 'manha', // Dados da Escola
+        courses: ['Ensino Fundamental I'], classes: ['Turma A'], shifts: ['Manhã'], 
+        status: 'ATIVO', enrollmentDate: '2024-01-15' 
+      },
+      { 
+        id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', 
+        school: 'Colégio Estrela do Saber', schoolShift: 'tarde',
+        courses: ['Robótica', 'Ballet', 'Futsal'], classes: ['Turma B', 'Baby Class', 'Sub-12'], 
+        shifts: ['Tarde', 'Tarde', 'Noite'], 
+        status: 'ATIVO', enrollmentDate: '2024-02-10' 
+      },
+      { 
+        id: 3, fullName: 'Pedro Santos', cpf: '456.123.789-22', age: 15, gender: 'M', 
+        school: 'Escola Estadual Norte', schoolShift: 'integral',
+        courses: ['Ensino Médio', 'Robótica'], classes: ['1º Ano', 'Avançado'], shifts: ['Integral', 'Tarde'], 
+        status: 'INATIVO', 
+        enrollmentDate: '2023-11-20' 
+      },
     ];
     
-    // Filtra o mock baseado no nome para simular busca
-    const filtered = mockData.filter(s => 
-      (!filters.name || s.fullName.toLowerCase().includes(filters.name.toLowerCase())) &&
-      (!filters.cpf || s.cpf.includes(filters.cpf))
-    );
+    const filtered = mockData.filter(s => {
+      // Helper para ignorar case e acentos
+      const normalize = (text: string) => text ? text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
 
-    return of(filtered).pipe(delay(500)); // Simula delay de rede
+      // 1. Nome e CPF
+      const matchName = !filters.name || normalize(s.fullName).includes(normalize(filters.name));
+      const matchCpf = !filters.cpf || s.cpf.includes(filters.cpf);
+      
+      // 2. Status
+      const matchStatus = !filters.status || s.status === filters.status;
+
+      // 3. Novos Filtros
+      const matchGender = !filters.gender || s.gender === filters.gender;
+      const matchAge = !filters.age || s.age === Number(filters.age); // Convertendo string do input para numero
+      
+      // Escola e Turno Escolar
+      const matchSchool = !filters.school || normalize(s.school).includes(normalize(filters.school));
+      const matchSchoolShift = !filters.schoolShift || s.schoolShift === filters.schoolShift;
+
+      // Cursos (Arrays - Verifica se ALGUM item do array bate com a busca)
+      const matchCourse = !filters.course || s.courses.some(c => normalize(c).includes(normalize(filters.course!)));
+      const matchClass = !filters.class || s.classes.some(c => normalize(c).includes(normalize(filters.class!)));
+      const matchCourseShift = !filters.courseShift || s.shifts.some(sh => normalize(sh) === normalize(filters.courseShift!));
+
+      return matchName && matchCpf && matchStatus && matchGender && matchAge && matchSchool && matchSchoolShift && matchCourse && matchClass && matchCourseShift;
+    });
+
+    return of(filtered).pipe(delay(500));
   }
+
 
   // --- Helpers ---
 

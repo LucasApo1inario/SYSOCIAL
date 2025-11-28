@@ -23,7 +23,6 @@ type StudentPayload struct {
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
-	// NOVO CAMPO
 	Observation   string `json:"observation"`
 }
 
@@ -81,6 +80,7 @@ type Student struct {
 	DataMatricula   time.Time      `db:"data_matricula"`
 	Observacoes     sql.NullString `db:"observacoes"`
 	CEP             sql.NullString `db:"cep"`
+	Ativo			bool           `db:"ativo"`
 }
 
 type Guardian struct {
