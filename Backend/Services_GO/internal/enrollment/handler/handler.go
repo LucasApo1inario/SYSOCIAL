@@ -16,6 +16,19 @@ func NewEnrollmentHandler(service *service.EnrollmentService) *EnrollmentHandler
 	return &EnrollmentHandler{service: service}
 }
 
+// GET /api/v1/enrollments/check-cpf?cpf=...
+func (h *EnrollmentHandler) CheckCpf(c *gin.Context) {
+	cpf := c.Query("cpf")
+	
+	exists, err := h.service.CheckCpfAvailability(c.Request.Context(), cpf)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao verificar CPF", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"exists": exists})
+}
+
 // POST /api/v1/enrollments
 func (h *EnrollmentHandler) CreateEnrollment(c *gin.Context) {
 	var payload model.NewEnrollmentPayload
@@ -63,4 +76,39 @@ func (h *EnrollmentHandler) GetAvailableCourses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, courses)
+}
+
+// GET /api/v1/enrollments/guardian?cpf=...
+func (h *EnrollmentHandler) GetGuardian(c *gin.Context) {
+	cpf := c.Query("cpf")
+	if cpf == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "CPF é obrigatório"})
+		return
+	}
+
+	guardian, err := h.service.GetGuardianByCPF(c.Request.Context(), cpf)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar responsável", "details": err.Error()})
+		return
+	}
+
+	if guardian == nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Responsável não encontrado"})
+		return
+	}
+
+	response := gin.H{
+		"id":            guardian.ID,
+		"fullName":      guardian.NomeCompleto,
+		"cpf":           guardian.CPF,
+		"phone":         guardian.Telefone,
+		"relationship":  guardian.Parentesco,
+		"messagePhone1": guardian.TelefoneRecado1.String,
+		"messagePhone2": guardian.TelefoneRecado2.String,
+		"phoneContact":         guardian.ContatoTelefone.String,
+		"messagePhone1Contact": guardian.ContatoRecado1.String,
+		"messagePhone2Contact": guardian.ContatoRecado2.String,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

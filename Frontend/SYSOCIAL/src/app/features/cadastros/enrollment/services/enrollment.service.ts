@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, lastValueFrom } from 'rxjs'; // lastValueFrom para usar com Promise
-import { CourseOption, EnrollmentPayload, FileUploadRequest } from '../interfaces/enrollment.model';
+import { Observable, lastValueFrom, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { CourseOption, EnrollmentPayload, FileUploadRequest, GuardianPayload } from '../interfaces/enrollment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,14 @@ export class EnrollmentService {
     return this.http.post<any>(this.ENROLLMENT_API_URL + '/', payload);
   }
 
+  checkCpfExists(cpf: string): Observable<boolean> {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const params = new HttpParams().set('cpf', cleanCpf);
+    
+    return this.http.get<{exists: boolean}>(`${this.ENROLLMENT_API_URL}/check-cpf`, { params })
+      .pipe(map(response => response.exists));
+  }
+
   // --- File API (8083) ---
 
   uploadFile(payload: FileUploadRequest): Observable<any> {
@@ -71,5 +80,19 @@ export class EnrollmentService {
       };
       reader.onerror = error => reject(error);
     });
+  }
+
+  // Busca dados de responsável existente
+  getGuardianByCpf(cpf: string): Observable<GuardianPayload | null> {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const params = new HttpParams().set('cpf', cleanCpf);
+    
+    // Retorna null se der 404 (catchError)
+    return this.http.get<GuardianPayload>(`${this.ENROLLMENT_API_URL}/guardian`, { params }).pipe(
+      catchError(err => {
+        if (err.status === 404) return of(null); // Não achou
+        throw err;
+      })
+    );
   }
 }

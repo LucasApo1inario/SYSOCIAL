@@ -23,7 +23,6 @@ type StudentPayload struct {
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
-	// NOVO CAMPO
 	Observation string `json:"observation"`
 }
 
@@ -81,16 +80,20 @@ type Student struct {
 	DataMatricula  time.Time      `db:"data_matricula"`
 	Observacoes    sql.NullString `db:"observacoes"`
 	CEP            sql.NullString `db:"cep"`
+	Ativo           bool           `db:"ativo"`
 }
 
 type Guardian struct {
-	ID              int            `db:"id_responsavel"`
-	NomeCompleto    string         `db:"nome_completo"`
-	CPF             string         `db:"cpf"`
-	Telefone        string         `db:"telefone"`
-	TelefoneRecado1 sql.NullString `db:"telefone_recado1"`
-	TelefoneRecado2 sql.NullString `db:"telefone_recado2"`
-	Parentesco      string         `db:"parentesco"`
+	ID              int            `db:"id_responsavel" json:"id"`
+	NomeCompleto    string         `db:"nome_completo" json:"fullName"`
+	CPF             string         `db:"cpf" json:"cpf"`
+	Telefone        string         `db:"telefone" json:"phone"`
+	TelefoneRecado1 sql.NullString `db:"telefone_recado1" json:"messagePhone1"`
+	TelefoneRecado2 sql.NullString `db:"telefone_recado2" json:"messagePhone2"`
+	Parentesco      string         `db:"parentesco" json:"relationship"`
+	ContatoTelefone sql.NullString `db:"contato_telefone"`
+	ContatoRecado1  sql.NullString `db:"contato_recado1"`
+	ContatoRecado2  sql.NullString `db:"contato_recado2"`
 }
 
 type StudentGuardianPivot struct {

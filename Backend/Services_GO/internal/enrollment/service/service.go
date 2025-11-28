@@ -17,6 +17,11 @@ func NewEnrollmentService(repo *repository.EnrollmentRepository, logger logger.L
 	return &EnrollmentService{repo: repo, logger: logger}
 }
 
+func (s *EnrollmentService) CheckCpfAvailability(ctx context.Context, cpf string) (bool, error) {
+	// Assumindo que o repository faz a limpeza das strings ou recebe o dado bruto.
+	return s.repo.CheckCpfExists(ctx, cpf)
+}
+
 func (s *EnrollmentService) CreateEnrollment(ctx context.Context, payload model.NewEnrollmentPayload) (int, error) {
 	// Validações de negócio
 	if payload.Student.FullName == "" {
@@ -56,4 +61,8 @@ func (s *EnrollmentService) GetCourseData(ctx context.Context) (map[string]inter
 // GetAvailableCourses chama o repositório para buscar cursos compatíveis com o turno
 func (s *EnrollmentService) GetAvailableCourses(ctx context.Context, schoolShift string) ([]model.CourseOption, error) {
 	return s.repo.GetAvailableCourses(ctx, schoolShift)
+}
+
+func (s *EnrollmentService) GetGuardianByCPF(ctx context.Context, cpf string) (*model.Guardian, error) {
+	return s.repo.GetGuardianByCPF(ctx, cpf)
 }

@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { EnrollmentService } from '../services/enrollment.service';
 import { StudentFormComponent } from '../components/student-form.component';
@@ -95,7 +96,7 @@ export class EnrollmentPage implements OnInit {
       student: this.fb.group({
         fullName: ['', Validators.required],
         birthDate: ['', Validators.required],
-        cpf: ['', Validators.required],
+        cpf: ['', [Validators.required], [this.cpfAvailabilityValidator()]],
         phone: [''],
         gender: [''],
         zipCode: ['', Validators.required],
@@ -123,6 +124,26 @@ export class EnrollmentPage implements OnInit {
         this.loadCourses(shift);
       }
     });
+  }
+
+  cleanNumber(value: string | null | undefined): string {
+    if (!value) return '';
+    return value.replace(/\D/g, ''); // Remove tudo que não é dígito
+  }
+
+  // --- Validador Assíncrono: CPF ---
+  cpfAvailabilityValidator(): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      if (!control.value || control.value.length < 14) {
+        return of(null);
+      }
+      
+      const cleanValue = this.cleanNumber(control.value);
+
+      return this.service.checkCpfExists(cleanValue).pipe(
+        map(exists => (exists ? { cpfTaken: true } : null))
+      );
+    };
   }
 
   loadCourses(shift: string) {
@@ -228,13 +249,20 @@ export class EnrollmentPage implements OnInit {
       const rawValue = this.mainForm.getRawValue();
       
       const enrollmentPayload: EnrollmentPayload = {
-        student: rawValue.student,
-        guardians: rawValue.guardians,
-        documents: rawValue.docs.map((d: any) => ({ 
-          type: d.type, 
-          fileName: d.fileName,
-          observation: d.observation 
-        })), 
+        student: {
+          ...rawValue.student,
+          cpf: this.cleanNumber(rawValue.student.cpf),
+          phone: this.cleanNumber(rawValue.student.phone),
+          zipCode: this.cleanNumber(rawValue.student.zipCode)
+        },
+        guardians: rawValue.guardians.map((g: any) => ({
+          ...g,
+          cpf: this.cleanNumber(g.cpf),
+          phone: this.cleanNumber(g.phone),
+          messagePhone1: this.cleanNumber(g.messagePhone1),
+          messagePhone2: this.cleanNumber(g.messagePhone2),
+        })),
+        documents: rawValue.docs.map((d: any) => ({ type: d.type, fileName: d.fileName, observation: d.observation })), 
         courses: rawValue.enrollments
       };
 
