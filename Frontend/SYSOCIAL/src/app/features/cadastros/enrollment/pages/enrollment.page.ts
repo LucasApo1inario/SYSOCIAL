@@ -278,8 +278,8 @@ export class EnrollmentPage implements OnInit {
   }
 
   addGuardian() { this.guardiansArray.push(this.createGuardianGroup()); }
-  
   removeGuardian(index: number) {
+    if (this.guardiansArray.length <= 1) { alert('É necessário manter pelo menos um responsável.'); return; }
     if (this.guardiansArray.length <= 1) { alert('É necessário manter pelo menos um responsável.'); return; }
     this.guardiansArray.removeAt(index);
     const hasPrincipal = this.guardiansArray.controls.some(g => g.get('isPrincipal')?.value);

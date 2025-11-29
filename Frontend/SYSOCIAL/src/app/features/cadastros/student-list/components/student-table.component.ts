@@ -125,7 +125,11 @@ export class StudentTableComponent {
   @Input() pageSize: number = 10;
 
   @Output() edit = new EventEmitter<number>();
+<<<<<<< HEAD
   @Output() cancel = new EventEmitter<number>();
+=======
+  @Output() cancel = new EventEmitter<number>(); // Alterado de details para cancel
+>>>>>>> e7ed14d8cb37949247690a923f3b6e60b172af33
   @Output() pageChange = new EventEmitter<number>();
 
   getStartItemIndex(): number {
