@@ -25,11 +25,4 @@ export default [
     path: 'enrollment',
     component: EnrollmentPage
   },
-<<<<<<< HEAD
-=======
-  {
-    path: 'student-list',
-    component: StudentListPage
-  }
->>>>>>> e7ed14d8cb37949247690a923f3b6e60b172af33
 ] as Routes;
