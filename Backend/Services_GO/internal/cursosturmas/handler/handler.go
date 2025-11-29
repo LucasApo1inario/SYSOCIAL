@@ -258,7 +258,3 @@ func (h *CursosTurmasHandler) GetAlunosByTurmaID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, alunos)
 }
-
-
-
-
