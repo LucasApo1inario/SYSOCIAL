@@ -12,17 +12,27 @@
     <z-button zType="default" (click)="addCourse()">+ Novo Curso</z-button>
   </div>
 
-  <app-course-table
-    [courses]="pagedCourses()"
-    (edit)="editCourse($event)"
-    (delete)="deleteCourse($event)"
-  ></app-course-table>
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <div class="text-center">
+        <p class="text-gray-500">Carregando cursos...</p>
+      </div>
+    </div>
+  } @else {
+    <app-course-table
+      [courses]="pagedCourses()"
+      (edit)="editCourse($event)"
+      (delete)="deleteCourse($event)"
+    ></app-course-table>
 
-  <div class="flex justify-center mt-4">
-    <app-course-pagination
-      [totalPages]="totalPages()"
-      [currentPage]="currentPage()"
-      (pageChange)="currentPage.set($event)"
-    ></app-course-pagination>
-  </div>
+    @if (totalPages() > 1) {
+      <div class="flex justify-center mt-4">
+        <app-course-pagination
+          [totalPages]="totalPages()"
+          [currentPage]="currentPage()"
+          (pageChange)="currentPage.set($event)"
+        ></app-course-pagination>
+      </div>
+    }
+  }
 </div>

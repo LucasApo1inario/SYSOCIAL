@@ -1,16 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { CourseCreateRequest } from '../../interfaces/CourseCreateRequest.interface';
-import { CoursesService } from '../../services/course.service';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { TurmasService } from '../../services/turma.service';
 import { ZardButtonComponent } from '@shared/components/button/button.component';
 import { ZardInputDirective } from '@shared/components/input/input.directive';
 import { ZardFormModule } from '@shared/components/form/form.module';
 import { toast } from 'ngx-sonner';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-new-course',
+  selector: 'app-new-turma',
   standalone: true,
   imports: [
     CommonModule,
@@ -19,30 +18,34 @@ import { CommonModule } from '@angular/common';
     ZardInputDirective,
     ZardFormModule,
   ],
-  templateUrl: './new-course.component.html',
-  styleUrl: './new-course.component.css'
+  templateUrl: './new-turma.component.html',
+  styleUrl: './new-turma.component.css'
 })
-export class NewCourseComponent {
+export class NewTurmaComponent {
   private router = inject(Router);
-  private courseService = inject(CoursesService);
+  private turmasService = inject(TurmasService);
 
   loading = false;
 
-  model: CourseCreateRequest = {
+  model: any = {
     nome: '',
-    vagasTotais: 0,
+    curso_id: 0,
+    dias_semana: '',
+    horario_inicio: '',
+    horario_fim: '',
+    vagas_totais: 0,
     ativo: true,
   };
 
   onSubmit() {
-    if (!this.model.nome || !this.model.vagasTotais) {
-      toast.error('Preencha os campos obrigatórios: nome e vagas totais.', {
+    if (!this.model.nome || !this.model.curso_id || !this.model.vagas_totais) {
+      toast.error('Preencha os campos obrigatórios: nome, curso e vagas totais.', {
         position: 'bottom-center',
       });
       return;
     }
 
-    if (this.model.vagasTotais <= 0) {
+    if (this.model.vagas_totais <= 0) {
       toast.error('Número de vagas deve ser maior que zero.', {
         position: 'bottom-center',
       });
@@ -51,22 +54,22 @@ export class NewCourseComponent {
 
     this.loading = true;
 
-    this.courseService.createCourse(this.model).subscribe({
+    this.turmasService.createTurma(this.model).subscribe({
       next: (response) => {
         this.loading = false;
 
-        toast.success(`${response.message || 'Curso criado com sucesso!'}`, {
+        toast.success(`${response.message || 'Turma criada com sucesso!'}`, {
           duration: 4000,
           position: 'bottom-center',
         });
 
         this.reset();
-        this.router.navigate(['cadastros/courses']);
+        this.router.navigate(['cadastros/turmas']);
       },
       error: (err: any) => {
         this.loading = false;
 
-        const errorMsg = err?.error?.message || err?.error?.error || 'Erro ao criar curso.';
+        const errorMsg = err?.error?.message || err?.error?.error || 'Erro ao criar turma.';
         toast.error(errorMsg, {
           duration: 5000,
           position: 'bottom-center',
@@ -78,7 +81,11 @@ export class NewCourseComponent {
   reset() {
     this.model = {
       nome: '',
-      vagasTotais: 0,
+      curso_id: 0,
+      dias_semana: '',
+      horario_inicio: '',
+      horario_fim: '',
+      vagas_totais: 0,
       ativo: true,
     };
 
@@ -88,6 +95,6 @@ export class NewCourseComponent {
   }
 
   return() {
-    this.router.navigate(['cadastros/courses']);
+    this.router.navigate(['cadastros/turmas']);
   }
 }

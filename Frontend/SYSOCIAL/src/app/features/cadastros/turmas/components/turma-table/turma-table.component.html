@@ -1,0 +1,66 @@
+<div class="overflow-hidden rounded-md border">
+  <table z-table class="w-full">
+    <thead z-table-header>
+      <tr z-table-row>
+        <th z-table-head>Turma</th>
+        <th z-table-head>Horário</th>
+        <th z-table-head>Dias</th>
+        <th z-table-head>Vagas</th>
+        <th z-table-head>Ativo</th>
+        <th z-table-head class="w-48 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody z-table-body>
+      @for (turma of turmas; track turma.id) {
+        <tr z-table-row>
+          <td z-table-cell>{{ turma.nome }}</td>
+          <td z-table-cell>
+            @if (turma.horario_inicio && turma.horario_fim) {
+              {{ turma.horario_inicio }} - {{ turma.horario_fim }}
+            } @else {
+              -
+            }
+          </td>
+          <td z-table-cell>
+            @if (turma.dias_semana) {
+              {{ turma.dias_semana }}
+            } @else {
+              -
+            }
+          </td>
+          <td z-table-cell>
+            @if (turma.vagas_restantes !== undefined && turma.vagas_totais !== undefined) {
+              {{ turma.vagas_restantes }}/{{ turma.vagas_totais }}
+            } @else {
+              -
+            }
+          </td>
+          <td z-table-cell>
+            <z-badge [zType]="getBadgeType(turma.ativo)">
+              {{ turma.ativo ? 'Sim' : 'Não' }}
+            </z-badge>
+          </td>
+          <td z-table-cell>
+            <div class="flex justify-end gap-2">
+              <z-button zType="ghost" zSize="icon" (click)="onViewAlunos(turma)" title="Ver Alunos">
+                <div class="icon-users"></div>
+              </z-button>
+              <z-button zType="ghost" zSize="icon" (click)="onEdit(turma)" title="Editar">
+                <div class="icon-pencil"></div>
+              </z-button>
+              <z-button zType="ghost" zSize="icon" (click)="onDelete(turma)" title="Deletar">
+                <div class="icon-trash"></div>
+              </z-button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr z-table-row>
+          <td z-table-cell [attr.colspan]="6" class="h-24 text-center text-gray-500">
+            Nenhuma turma encontrada.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

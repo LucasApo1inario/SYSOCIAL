@@ -1,4 +1,4 @@
-export interface Course {
+export interface CursoBackend {
   id: number;
   nome: string;
   vagasTotais: number;

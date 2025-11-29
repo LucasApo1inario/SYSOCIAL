@@ -1,0 +1,39 @@
+<div class="user-list-container">
+  <h1 class="text-2xl font-bold mb-4">Turmas</h1>
+
+  <div class="flex flex-col md:flex-row gap-2 mb-6">
+    <input
+      z-input
+      [ngModel]="search"
+      (ngModelChange)="search = $event"
+      zSize="default"
+      placeholder="Pesquisar turmas..."
+    />
+    <z-button zType="default" (click)="addTurma()">+ Nova Turma</z-button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-48">
+      <p class="text-gray-500">Carregando turmas...</p>
+    </div>
+  } @else {
+    <app-turma-table
+      [turmas]="displayedTurmas()"
+      (edit)="editTurma($event)"
+      (delete)="deleteTurma($event)"
+      (viewAlunos)="viewTurmaAlunos($event)"
+    ></app-turma-table>
+  }
+
+  <!-- Modal de Alunos -->
+  @if (showAlunosModal() && selectedTurma()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+        <app-turma-alunos
+          [turma]="selectedTurma()!"
+          (close)="closeAlunosModal()"
+        ></app-turma-alunos>
+      </div>
+    </div>
+  }
+</div>

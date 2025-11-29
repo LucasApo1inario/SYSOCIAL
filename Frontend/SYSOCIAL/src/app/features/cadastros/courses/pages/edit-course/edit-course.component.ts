@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CourseCreateRequest } from '../../interfaces/CourseCreateRequest.interface';
 import { CoursesService } from '../../services/course.service';
 import { FormsModule } from '@angular/forms';
@@ -6,11 +6,11 @@ import { ZardButtonComponent } from '@shared/components/button/button.component'
 import { ZardInputDirective } from '@shared/components/input/input.directive';
 import { ZardFormModule } from '@shared/components/form/form.module';
 import { toast } from 'ngx-sonner';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-new-course',
+  selector: 'app-edit-course',
   standalone: true,
   imports: [
     CommonModule,
@@ -19,20 +19,58 @@ import { CommonModule } from '@angular/common';
     ZardInputDirective,
     ZardFormModule,
   ],
-  templateUrl: './new-course.component.html',
-  styleUrl: './new-course.component.css'
+  templateUrl: './edit-course.component.html',
+  styleUrl: './edit-course.component.css'
 })
-export class NewCourseComponent {
+export class EditCourseComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private courseService = inject(CoursesService);
 
   loading = false;
+  courseId: number | null = null;
 
   model: CourseCreateRequest = {
     nome: '',
     vagasTotais: 0,
     ativo: true,
   };
+
+  ngOnInit() {
+    this.courseId = Number(this.route.snapshot.paramMap.get('id'));
+    if (this.courseId) {
+      this.loadCourse();
+    }
+  }
+
+  /**
+   * Carrega os dados do curso para edição
+   */
+  loadCourse() {
+    if (!this.courseId) return;
+
+    this.loading = true;
+    this.courseService.getCourseById(this.courseId).subscribe({
+      next: (course) => {
+        this.model = {
+          nome: course.nome,
+          vagasTotais: course.vagasTotais,
+          ativo: course.ativo,
+          vagasRestantes: course.vagasRestantes,
+        };
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.loading = false;
+        const errorMsg = err?.error?.message || 'Erro ao carregar curso.';
+        toast.error(errorMsg, {
+          duration: 5000,
+          position: 'bottom-center',
+        });
+        this.router.navigate(['cadastros/courses']);
+      }
+    });
+  }
 
   onSubmit() {
     if (!this.model.nome || !this.model.vagasTotais) {
@@ -49,24 +87,30 @@ export class NewCourseComponent {
       return;
     }
 
+    if (!this.courseId) {
+      toast.error('ID do curso não encontrado.', {
+        position: 'bottom-center',
+      });
+      return;
+    }
+
     this.loading = true;
 
-    this.courseService.createCourse(this.model).subscribe({
+    this.courseService.updateCourse(this.courseId, this.model).subscribe({
       next: (response) => {
         this.loading = false;
 
-        toast.success(`${response.message || 'Curso criado com sucesso!'}`, {
+        toast.success(`${response.message || 'Curso atualizado com sucesso!'}`, {
           duration: 4000,
           position: 'bottom-center',
         });
 
-        this.reset();
         this.router.navigate(['cadastros/courses']);
       },
       error: (err: any) => {
         this.loading = false;
 
-        const errorMsg = err?.error?.message || err?.error?.error || 'Erro ao criar curso.';
+        const errorMsg = err?.error?.message || err?.error?.error || 'Erro ao atualizar curso.';
         toast.error(errorMsg, {
           duration: 5000,
           position: 'bottom-center',
@@ -76,13 +120,9 @@ export class NewCourseComponent {
   }
 
   reset() {
-    this.model = {
-      nome: '',
-      vagasTotais: 0,
-      ativo: true,
-    };
+    this.loadCourse();
 
-    toast('Formulário limpo!', {
+    toast('Formulário restaurado!', {
       position: 'bottom-center'
     });
   }
