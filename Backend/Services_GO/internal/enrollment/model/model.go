@@ -5,6 +5,38 @@ import (
 	"time"
 )
 
+// --- Structs de Resposta e Filtro ---
+
+// StudentSummary é o DTO usado na listagem de alunos
+type StudentSummary struct {
+	ID             int      `json:"id"`
+	FullName       string   `json:"fullName"`
+	CPF            string   `json:"cpf"`
+	Age            int      `json:"age"`
+	Gender         string   `json:"gender"`
+	School         string   `json:"school"`
+	SchoolShift    string   `json:"schoolShift"`
+	Courses        []string `json:"courses"`
+	Classes        []string `json:"classes"`
+	Shifts         []string `json:"shifts"` // Turnos dos cursos
+	Status         string   `json:"status"`
+	EnrollmentDate string   `json:"enrollmentDate"`
+}
+
+// StudentFilter mapeia os parâmetros de busca da URL
+type StudentFilter struct {
+	Name        string `form:"name"`
+	CPF         string `form:"cpf"`
+	Age         string `form:"age"` // Recebe como string para converter
+	Gender      string `form:"gender"`
+	School      string `form:"school"`
+	SchoolShift string `form:"schoolShift"`
+	Status      string `form:"status"` // "ATIVO", "INATIVO" ou ""
+	Course      string `form:"course"`
+	Class       string `form:"class"`
+	CourseShift string `form:"courseShift"`
+}
+
 // --- Payloads (JSON vindo do Frontend) ---
 
 // StudentPayload mapeia os dados do aluno vindos do formulário Angular
@@ -24,6 +56,7 @@ type StudentPayload struct {
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
 	Observation   string `json:"observation"`
+	IsActive      bool   `json:"isActive"`
 }
 
 // GuardianPayload mapeia os dados de cada responsável
@@ -48,7 +81,7 @@ type CourseEnrollmentPayload struct {
 
 // DocumentPayload mapeia os metadados dos documentos
 type DocumentPayload struct {
-	Type        string `json:"type"`
+	ID          int    `json:"id,omitempty"`
 	FileName    string `json:"fileName"`
 	Observation string `json:"observation"`
 }
