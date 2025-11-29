@@ -25,6 +25,7 @@ import { CourseOption, ClassOption } from '../interfaces/enrollment.model';
           </button>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- SELECT CURSO -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Curso</label>
               <select formControlName="courseId" 
@@ -32,12 +33,20 @@ import { CourseOption, ClassOption } from '../interfaces/enrollment.model';
                       [class.text-gray-700]="enrollment.get('courseId')?.value"
                       class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="" disabled selected class="text-gray-300">Selecione o curso...</option>
-                <option *ngFor="let course of availableCourses" [value]="course.id.toString()" class="text-gray-900">
-                  {{ course.name }} ({{ course.availableSpots }} vagas)
+                
+                <!-- LÓGICA DE VAGAS AQUI -->
+                <option *ngFor="let course of availableCourses" 
+                        [value]="course.id.toString()" 
+                        [disabled]="course.availableSpots <= 0"
+                        [class.text-red-400]="course.availableSpots <= 0"
+                        class="text-gray-900">
+                  {{ course.name }} 
+                  {{ course.availableSpots <= 0 ? ' - NÃO HÁ VAGAS' : '(' + course.availableSpots + ' vagas)' }}
                 </option>
               </select>
             </div>
 
+            <!-- SELECT TURMA -->
             <div>
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Turma</label>
               <select formControlName="classId" 
@@ -45,11 +54,19 @@ import { CourseOption, ClassOption } from '../interfaces/enrollment.model';
                       [class.text-gray-700]="enrollment.get('classId')?.value"
                       class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400">
                 <option value="" disabled selected class="text-gray-300">Selecione a turma...</option>
-                <option *ngFor="let classItem of getClassesFor(enrollment.get('courseId')?.value)" [value]="classItem.id.toString()" class="text-gray-900">
-                  <!-- AQUI APLICAMOS A FORMATAÇÃO -->
+                
+                <!-- LÓGICA DE VAGAS NA TURMA -->
+                <!-- Nota: Assume que 'spots' na ClassOption é a vaga restante da turma -->
+                <option *ngFor="let classItem of getClassesFor(enrollment.get('courseId')?.value)" 
+                        [value]="classItem.id.toString()"
+                        [disabled]="classItem.spots <= 0"
+                        [class.text-red-400]="classItem.spots <= 0"
+                        class="text-gray-900">
                   {{ classItem.name }} - {{ classItem.dayOfWeek }} ({{ formatTime(classItem.startTime) }} às {{ formatTime(classItem.endTime) }})
+                  {{ classItem.spots <= 0 ? ' - LOTADO' : '' }}
                 </option>
               </select>
+
               <p *ngIf="!enrollment.get('courseId')?.value" class="text-xs text-gray-400 mt-2 font-medium flex items-center gap-1">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Selecione um curso primeiro
@@ -82,17 +99,12 @@ export class AcademicFormComponent {
     return course ? course.classes : [];
   }
 
-  // --- Função para limpar o horário ---
   formatTime(rawTime: string): string {
     if (!rawTime) return '';
-    
-    // Caso 1: Formato ISO do Go (0000-01-01T08:00:00Z)
     if (rawTime.includes('T')) {
-      const timePart = rawTime.split('T')[1]; // Pega o que vem depois do T
-      return timePart.substring(0, 5);        // Pega os 5 primeiros chars (08:00)
+      const timePart = rawTime.split('T')[1]; 
+      return timePart.substring(0, 5);
     }
-
-    // Caso 2: Formato SQL simples (08:00:00)
     return rawTime.substring(0, 5);
   }
 }

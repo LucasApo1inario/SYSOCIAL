@@ -7,14 +7,13 @@ import { ZardInputDirective } from '@shared/components/input/input.directive';
 import { ZardFormModule } from '@shared/components/form/form.module';
 import { toast } from 'ngx-sonner';
 import { Router } from '@angular/router';
-import { ZardDialogService } from '@shared/components/dialog/dialog.service';
-import { TurmaDialogComponent, TurmaDialogData } from './turma-dialog.component';
-import { TurmaCreateRequest } from '../../interfaces/TurmaCreateRequest.interface';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-new-course',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     ZardButtonComponent,
     ZardInputDirective,
@@ -26,75 +25,24 @@ import { TurmaCreateRequest } from '../../interfaces/TurmaCreateRequest.interfac
 export class NewCourseComponent {
   private router = inject(Router);
   private courseService = inject(CoursesService);
-  private dialog = inject(ZardDialogService);
-
-  idNome = 'nome';
-  idStatus = 'status';
-  idVagas = 'vagas';
-
-  model: CourseCreateRequest = {
-    nome: '',
-    status: 'Ativo',
-    vagas: 0,
-    turmas: []
-  };
 
   loading = false;
 
-  // --------------------------
-  //   GERENCIAMENTO DE TURMAS
-  // --------------------------
+  model: CourseCreateRequest = {
+    nome: '',
+    vagasTotais: 0,
+    ativo: true,
+  };
 
-  addTurma() {
-    this.dialog.create({
-      zTitle: 'Nova Turma',
-      zDescription: 'Preencha os dados da nova turma.',
-      zContent: TurmaDialogComponent,
-      zData: {
-        dia_semana: '',
-        horario_inicio: '',
-        horario_fim: '',
-        vagas_turma: 0
-      } as TurmaDialogData,
-      zOkText: 'Salvar',
-      zOnOk: instance => {
-        const turma = instance.form.value as TurmaCreateRequest;
-        this.model.turmas!.push(turma);
-      },
-      zWidth: '450px',
-    });
-  }
-
-  editTurma(turma: TurmaCreateRequest, index: number) {
-    this.dialog.create({
-      zTitle: 'Editar Turma',
-      zDescription: 'Atualize as informações da turma.',
-      zContent: TurmaDialogComponent,
-      zData: turma,
-      zOkText: 'Atualizar',
-      zOnOk: instance => {
-        this.model.turmas![index] = instance.form.value as TurmaCreateRequest;
-      },
-      zWidth: '450px',
-    });
-  }
-
-  deleteTurma(index: number) {
-    this.model.turmas!.splice(index, 1);
-  }
-
-  // --------------------------
-  //     SUBMIT DO CURSO
-  // --------------------------
   onSubmit() {
-    if (!this.model.nome || !this.model.vagas || !this.model.status) {
-      toast.error('Preencha os campos obrigatórios.', {
+    if (!this.model.nome || !this.model.vagasTotais) {
+      toast.error('Preencha os campos obrigatórios: nome e vagas totais.', {
         position: 'bottom-center',
       });
       return;
     }
 
-    if (this.model.vagas <= 0) {
+    if (this.model.vagasTotais <= 0) {
       toast.error('Número de vagas deve ser maior que zero.', {
         position: 'bottom-center',
       });
@@ -104,27 +52,22 @@ export class NewCourseComponent {
     this.loading = true;
 
     this.courseService.createCourse(this.model).subscribe({
-      next: () => {
+      next: (response) => {
         this.loading = false;
 
-        toast.success('Curso criado com sucesso!', {
+        toast.success(`${response.message || 'Curso criado com sucesso!'}`, {
           duration: 4000,
           position: 'bottom-center',
         });
 
-        this.model = {
-          nome: '',
-          status: 'Ativo',
-          vagas: 0,
-          turmas: []
-        };
-
+        this.reset();
         this.router.navigate(['cadastros/courses']);
       },
       error: (err: any) => {
         this.loading = false;
 
-        toast.error(err?.error?.error || 'Erro ao criar curso.', {
+        const errorMsg = err?.error?.message || err?.error?.error || 'Erro ao criar curso.';
+        toast.error(errorMsg, {
           duration: 5000,
           position: 'bottom-center',
         });
@@ -135,9 +78,8 @@ export class NewCourseComponent {
   reset() {
     this.model = {
       nome: '',
-      status: 'Ativo',
-      vagas: 0,
-      turmas: []
+      vagasTotais: 0,
+      ativo: true,
     };
 
     toast('Formulário limpo!', {

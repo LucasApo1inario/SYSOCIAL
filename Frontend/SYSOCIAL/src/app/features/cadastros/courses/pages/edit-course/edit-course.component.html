@@ -1,0 +1,112 @@
+<div class="flex justify-center p-6">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-1xl">
+
+    <form class="space-y-6" (ngSubmit)="onSubmit()" #editCourseForm="ngForm" autocomplete="off" novalidate>
+
+      <!-- NOME DO CURSO -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label zRequired for="nome">Nome do Curso</label>
+          <z-form-control>
+            <input
+              z-input
+              type="text"
+              id="nome"
+              placeholder="Digite o nome do curso"
+              [(ngModel)]="model.nome"
+              name="nome"
+              required
+              minlength="3"
+            />
+          </z-form-control>
+
+          @if (editCourseForm.submitted && !model.nome) {
+            <z-form-message>Nome do curso é obrigatório.</z-form-message>
+          }
+        </z-form-field>
+      </div>
+
+      <!-- VAGAS TOTAIS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label zRequired for="vagasTotais">Vagas Totais</label>
+          <z-form-control>
+            <input
+              z-input
+              type="number"
+              id="vagasTotais"
+              placeholder="30"
+              [(ngModel)]="model.vagasTotais"
+              name="vagasTotais"
+              required
+              min="1"
+            />
+          </z-form-control>
+
+          @if (editCourseForm.submitted && model.vagasTotais <= 0) {
+            <z-form-message>Número de vagas deve ser maior que zero.</z-form-message>
+          }
+        </z-form-field>
+      </div>
+
+      <!-- VAGAS RESTANTES (READ-ONLY) -->
+      @if (model.vagasRestantes !== undefined) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <z-form-field>
+            <label z-form-label for="vagasRestantes">Vagas Restantes</label>
+            <z-form-control>
+              <input
+                z-input
+                type="number"
+                id="vagasRestantes"
+                [(ngModel)]="model.vagasRestantes"
+                name="vagasRestantes"
+                disabled
+                readonly
+              />
+            </z-form-control>
+          </z-form-field>
+        </div>
+      }
+
+      <!-- STATUS (ATIVO) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label for="ativo">Ativo</label>
+          <z-form-control>
+            <select z-input id="ativo" [(ngModel)]="model.ativo" name="ativo">
+              <option [value]="true">Sim</option>
+              <option [value]="false">Não</option>
+            </select>
+          </z-form-control>
+        </z-form-field>
+      </div>
+
+      <!-- BOTÕES FINAIS -->
+      <div class="flex items-center gap-2 mt-6">
+        <button z-button zType="default" type="submit" [disabled]="loading">
+          Atualizar curso
+        </button>
+
+        <button z-button zType="ghost" type="button" (click)="reset()" [disabled]="loading">
+          Restaurar
+        </button>
+
+        <button
+          z-button
+          zType="ghost"
+          type="button"
+          (click)="return()"
+          class="ml-auto"
+        >
+          Voltar
+        </button>
+
+        @if (loading) {
+          <span class="ml-2">Processando...</span>
+        }
+      </div>
+    </form>
+
+  </div>
+</div>

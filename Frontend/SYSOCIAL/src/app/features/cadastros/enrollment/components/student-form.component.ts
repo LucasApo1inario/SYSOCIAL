@@ -36,9 +36,19 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 
         <!-- Documentos e Contato -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          
+          <!-- CAMPO CPF COM FEEDBACK VISUAL -->
           <div>
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">CPF</label>
-            <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+            <input type="text" formControlName="cpf" maxlength="14" (input)="formatCPF($event)" placeholder="000.000.000-00" 
+                   [class.border-red-500]="parentForm.get('cpf')?.hasError('cpfTaken') || (parentForm.get('cpf')?.invalid && parentForm.get('cpf')?.touched)"
+                   [class.focus:ring-red-500]="parentForm.get('cpf')?.hasError('cpfTaken')"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-300">
+            
+            <!-- Mensagens de Erro -->
+            <p *ngIf="parentForm.get('cpf')?.hasError('cpfTaken')" class="text-red-500 text-xs mt-1 font-bold animate-pulse">
+               Este CPF já está cadastrado.
+            </p>
           </div>
 
           <div>
@@ -130,7 +140,6 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
         </div>
 
         <hr class="border-gray-100 my-8">
-        <!-- NOVO CAMPO: Observações Gerais -->
         <div class="grid grid-cols-1 gap-6 mb-4">
            <div>
              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Observações Gerais</label>
@@ -153,6 +162,7 @@ export class StudentFormComponent {
     value = value.replace(/(\d{3})(\d)/, '$1.$2');
     value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     input.value = value;
+    this.parentForm.get('cpf')?.setValue(value, { emitEvent: true });
   }
 
   formatPhone(event: any): void {

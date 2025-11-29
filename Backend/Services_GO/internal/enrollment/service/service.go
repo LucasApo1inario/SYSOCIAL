@@ -17,6 +17,50 @@ func NewEnrollmentService(repo *repository.EnrollmentRepository, logger logger.L
 	return &EnrollmentService{repo: repo, logger: logger}
 }
 
+func (s *EnrollmentService) SearchStudents(ctx context.Context, filter model.StudentFilter) ([]model.StudentSummary, error) {
+	return s.repo.SearchStudents(ctx, filter)
+}
+
+func (s *EnrollmentService) CheckCpfAvailability(ctx context.Context, cpf string) (bool, error) {
+	// Assumindo que o repository faz a limpeza das strings ou recebe o dado bruto.
+	return s.repo.CheckCpfExists(ctx, cpf)
+}
+
+func (s *EnrollmentService) CancelEnrollment(ctx context.Context, studentID int) error {
+	s.logger.Infof("Cancelando (inativando) matrícula do aluno ID: %d", studentID)
+	return s.repo.CancelEnrollment(ctx, studentID)
+}
+
+func (s *EnrollmentService) GetEnrollmentByID(ctx context.Context, studentID int) (*model.NewEnrollmentPayload, error) {
+	return s.repo.GetEnrollmentByID(ctx, studentID)
+}
+
+func (s *EnrollmentService) UpdateEnrollment(ctx context.Context, id int, payload model.NewEnrollmentPayload) error {
+	// 1. Validações de Negócio (Mesmas do Create)
+	if payload.Student.FullName == "" {
+		return fmt.Errorf("nome do aluno é obrigatório")
+	}
+	if payload.Student.CPF == "" {
+		return fmt.Errorf("CPF do aluno é obrigatório")
+	}
+
+	// Verifica responsável financeiro
+	hasPrincipal := false
+	for _, g := range payload.Guardians {
+		if g.IsPrincipal {
+			hasPrincipal = true
+			break
+		}
+	}
+	if !hasPrincipal {
+		return fmt.Errorf("é obrigatório ter pelo menos um responsável financeiro")
+	}
+	
+	// 2. Log e Chamada ao Repositório
+	s.logger.Infof("Atualizando matrícula ID %d: %s", id, payload.Student.FullName)
+	return s.repo.UpdateEnrollment(ctx, id, payload)
+}
+
 func (s *EnrollmentService) CreateEnrollment(ctx context.Context, payload model.NewEnrollmentPayload) (int, error) {
 	// Validações de negócio
 	if payload.Student.FullName == "" {
@@ -56,4 +100,8 @@ func (s *EnrollmentService) GetCourseData(ctx context.Context) (map[string]inter
 // GetAvailableCourses chama o repositório para buscar cursos compatíveis com o turno
 func (s *EnrollmentService) GetAvailableCourses(ctx context.Context, schoolShift string) ([]model.CourseOption, error) {
 	return s.repo.GetAvailableCourses(ctx, schoolShift)
+}
+
+func (s *EnrollmentService) GetGuardianByCPF(ctx context.Context, cpf string) (*model.Guardian, error) {
+	return s.repo.GetGuardianByCPF(ctx, cpf)
 }

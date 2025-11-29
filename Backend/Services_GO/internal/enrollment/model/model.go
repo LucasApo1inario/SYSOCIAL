@@ -5,6 +5,38 @@ import (
 	"time"
 )
 
+// --- Structs de Resposta e Filtro ---
+
+// StudentSummary é o DTO usado na listagem de alunos
+type StudentSummary struct {
+	ID             int      `json:"id"`
+	FullName       string   `json:"fullName"`
+	CPF            string   `json:"cpf"`
+	Age            int      `json:"age"`
+	Gender         string   `json:"gender"`
+	School         string   `json:"school"`
+	SchoolShift    string   `json:"schoolShift"`
+	Courses        []string `json:"courses"`
+	Classes        []string `json:"classes"`
+	Shifts         []string `json:"shifts"` // Turnos dos cursos
+	Status         string   `json:"status"`
+	EnrollmentDate string   `json:"enrollmentDate"`
+}
+
+// StudentFilter mapeia os parâmetros de busca da URL
+type StudentFilter struct {
+	Name        string `form:"name"`
+	CPF         string `form:"cpf"`
+	Age         string `form:"age"` // Recebe como string para converter
+	Gender      string `form:"gender"`
+	School      string `form:"school"`
+	SchoolShift string `form:"schoolShift"`
+	Status      string `form:"status"` // "ATIVO", "INATIVO" ou ""
+	Course      string `form:"course"`
+	Class       string `form:"class"`
+	CourseShift string `form:"courseShift"`
+}
+
 // --- Payloads (JSON vindo do Frontend) ---
 
 // StudentPayload mapeia os dados do aluno vindos do formulário Angular
@@ -23,8 +55,8 @@ type StudentPayload struct {
 	CurrentSchool string `json:"currentSchool"`
 	Series        string `json:"series"`
 	SchoolShift   string `json:"schoolShift"`
-	// NOVO CAMPO
-	Observation string `json:"observation"`
+	Observation   string `json:"observation"`
+	IsActive      bool   `json:"isActive"`
 }
 
 // GuardianPayload mapeia os dados de cada responsável
@@ -49,7 +81,7 @@ type CourseEnrollmentPayload struct {
 
 // DocumentPayload mapeia os metadados dos documentos
 type DocumentPayload struct {
-	Type        string `json:"type"`
+	ID          int    `json:"id,omitempty"`
 	FileName    string `json:"fileName"`
 	Observation string `json:"observation"`
 }
@@ -66,31 +98,35 @@ type NewEnrollmentPayload struct {
 
 // Tabela: aluno
 type Student struct {
-	ID             int            `db:"id_aluno"`
-	NomeCompleto   string         `db:"nome_completo"`
-	DataNascimento time.Time      `db:"data_nascimento"`
-	Sexo           sql.NullString `db:"sexo"`
-	CPF            string         `db:"cpf"`
-	Telefone       sql.NullString `db:"telefone"`
-	EscolaAtual    sql.NullString `db:"escola_atual"`
-	SerieAtual     sql.NullInt64  `db:"serie_atual"`
-	PeriodoEscolar sql.NullString `db:"periodo_escolar"`
-	NomeRua        sql.NullString `db:"nome_rua"`
-	NumeroEndereco sql.NullInt64  `db:"numero_endereco"`
-	Bairro         sql.NullString `db:"bairro"`
-	DataMatricula  time.Time      `db:"data_matricula"`
-	Observacoes    sql.NullString `db:"observacoes"`
-	CEP            sql.NullString `db:"cep"`
+	ID              int            `db:"id_aluno"`
+	NomeCompleto    string         `db:"nome_completo"`
+	DataNascimento  time.Time      `db:"data_nascimento"`
+	Sexo            sql.NullString `db:"sexo"`
+	CPF             string         `db:"cpf"`
+	Telefone        sql.NullString `db:"telefone"`
+	EscolaAtual     sql.NullString `db:"escola_atual"`
+	SerieAtual      sql.NullInt64  `db:"serie_atual"`
+	PeriodoEscolar  sql.NullString `db:"periodo_escolar"`
+	NomeRua         sql.NullString `db:"nome_rua"`
+	NumeroEndereco  sql.NullInt64  `db:"numero_endereco"`
+	Bairro          sql.NullString `db:"bairro"`
+	DataMatricula   time.Time      `db:"data_matricula"`
+	Observacoes     sql.NullString `db:"observacoes"`
+	CEP             sql.NullString `db:"cep"`
+	Ativo			bool           `db:"ativo"`
 }
 
 type Guardian struct {
-	ID              int            `db:"id_responsavel"`
-	NomeCompleto    string         `db:"nome_completo"`
-	CPF             string         `db:"cpf"`
-	Telefone        string         `db:"telefone"`
-	TelefoneRecado1 sql.NullString `db:"telefone_recado1"`
-	TelefoneRecado2 sql.NullString `db:"telefone_recado2"`
-	Parentesco      string         `db:"parentesco"`
+	ID              int            `db:"id_responsavel" json:"id"`
+	NomeCompleto    string         `db:"nome_completo" json:"fullName"`
+	CPF             string         `db:"cpf" json:"cpf"`
+	Telefone        string         `db:"telefone" json:"phone"`
+	TelefoneRecado1 sql.NullString `db:"telefone_recado1" json:"messagePhone1"`
+	TelefoneRecado2 sql.NullString `db:"telefone_recado2" json:"messagePhone2"`
+	Parentesco      string         `db:"parentesco" json:"relationship"`
+	ContatoTelefone sql.NullString `db:"contato_telefone"`
+	ContatoRecado1  sql.NullString `db:"contato_recado1"`
+	ContatoRecado2  sql.NullString `db:"contato_recado2"`
 }
 
 type StudentGuardianPivot struct {

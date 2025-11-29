@@ -11,10 +11,8 @@
           </button>
           <ng-template #cadastrosMenu>
             <div z-menu-content class="w-48">
-              <button z-menu-item (click)="log('alunos')">Alunos</button>
-              <button z-menu-item (click)="log('responsaveis')">Responsáveis</button>
-              <button z-menu-item (click)="log('professores')">Professores</button>
               <button z-menu-item (click)="navigateTo('/cadastros/courses')">Cursos</button>
+              <button z-menu-item (click)="navigateTo('/cadastros/turmas')">Turmas</button>
             </div>
           </ng-template>
         </div>
@@ -28,7 +26,7 @@
           <ng-template #matriculasMenu>
             <div z-menu-content class="w-56">
               <button z-menu-item (click)="navigateTo('/cadastros/enrollment')">Nova matrícula</button>
-              <button z-menu-item (click)="log('controle')">Controle de matrículas</button>
+              <button z-menu-item (click)="navigateTo('/cadastros/student-list')">Controle de matrículas</button>
               <button z-menu-item (click)="log('cancelamentos')">Cancelamentos</button>
             </div>
           </ng-template>

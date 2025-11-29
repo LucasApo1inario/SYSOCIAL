@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 	"sysocial/internal/enrollment/model"
 	"sysocial/internal/enrollment/service"
 
@@ -16,6 +17,102 @@ func NewEnrollmentHandler(service *service.EnrollmentService) *EnrollmentHandler
 	return &EnrollmentHandler{service: service}
 }
 
+// PUT /api/v1/enrollments/:id
+func (h *EnrollmentHandler) UpdateEnrollment(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	var payload model.NewEnrollmentPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido", "details": err.Error()})
+		return
+	}
+
+	err = h.service.UpdateEnrollment(c.Request.Context(), id, payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar matrícula", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Matrícula atualizada/reativada com sucesso"})
+}
+
+// GET /api/v1/enrollments/students?name=...&cpf=...
+func (h *EnrollmentHandler) SearchStudents(c *gin.Context) {
+	var filter model.StudentFilter
+	
+	if err := c.ShouldBindQuery(&filter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Filtros inválidos"})
+		return
+	}
+
+	students, err := h.service.SearchStudents(c.Request.Context(), filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar alunos", "details": err.Error()})
+		return
+	}
+
+	// Retorna lista vazia [] em vez de null se não tiver resultados
+	if students == nil {
+		students = []model.StudentSummary{}
+	}
+
+	c.JSON(http.StatusOK, students)
+}
+
+// PATCH /api/v1/enrollments/:id/cancel
+func (h *EnrollmentHandler) CancelEnrollment(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	err = h.service.CancelEnrollment(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao cancelar matrícula", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Matrícula cancelada (inativada) com sucesso"})
+}
+
+// GET /api/v1/enrollments/:id (Para Edição)
+func (h *EnrollmentHandler) GetEnrollment(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	payload, err := h.service.GetEnrollmentByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar matrícula", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, payload)
+}
+
+// GET /api/v1/enrollments/check-cpf?cpf=...
+func (h *EnrollmentHandler) CheckCpf(c *gin.Context) {
+	cpf := c.Query("cpf")
+	
+	exists, err := h.service.CheckCpfAvailability(c.Request.Context(), cpf)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao verificar CPF", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"exists": exists})
+}
+
 // POST /api/v1/enrollments
 func (h *EnrollmentHandler) CreateEnrollment(c *gin.Context) {
 	var payload model.NewEnrollmentPayload
@@ -27,6 +124,11 @@ func (h *EnrollmentHandler) CreateEnrollment(c *gin.Context) {
 
 	id, err := h.service.CreateEnrollment(c.Request.Context(), payload)
 	if err != nil {
+		if err.Error() == "CPF já cadastrado no sistema" {
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error()}) // 409 Conflict
+			return
+		}
+		
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar matrícula", "details": err.Error()})
 		return
 	}
@@ -63,4 +165,39 @@ func (h *EnrollmentHandler) GetAvailableCourses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, courses)
+}
+
+// GET /api/v1/enrollments/guardian?cpf=...
+func (h *EnrollmentHandler) GetGuardian(c *gin.Context) {
+	cpf := c.Query("cpf")
+	if cpf == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "CPF é obrigatório"})
+		return
+	}
+
+	guardian, err := h.service.GetGuardianByCPF(c.Request.Context(), cpf)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar responsável", "details": err.Error()})
+		return
+	}
+
+	if guardian == nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Responsável não encontrado"})
+		return
+	}
+
+	response := gin.H{
+		"id":            guardian.ID,
+		"fullName":      guardian.NomeCompleto,
+		"cpf":           guardian.CPF,
+		"phone":         guardian.Telefone,
+		"relationship":  guardian.Parentesco,
+		"messagePhone1": guardian.TelefoneRecado1.String,
+		"messagePhone2": guardian.TelefoneRecado2.String,
+		"phoneContact":         guardian.ContatoTelefone.String,
+		"messagePhone1Contact": guardian.ContatoRecado1.String,
+		"messagePhone2Contact": guardian.ContatoRecado2.String,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

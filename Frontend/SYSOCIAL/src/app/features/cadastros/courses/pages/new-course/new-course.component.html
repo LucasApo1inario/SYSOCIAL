@@ -6,12 +6,12 @@
       <!-- NOME DO CURSO -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label zRequired for="{{ idNome }}">Nome do Curso</label>
+          <label z-form-label zRequired for="nome">Nome do Curso</label>
           <z-form-control>
             <input
               z-input
               type="text"
-              [id]="idNome"
+              id="nome"
               placeholder="Digite o nome do curso"
               [(ngModel)]="model.nome"
               name="nome"
@@ -26,98 +26,40 @@
         </z-form-field>
       </div>
 
-      <!-- VAGAS -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- VAGAS TOTAIS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label zRequired for="{{ idVagas }}">Vagas</label>
+          <label z-form-label zRequired for="vagasTotais">Vagas Totais</label>
           <z-form-control>
             <input
               z-input
               type="number"
-              [id]="idVagas"
+              id="vagasTotais"
               placeholder="30"
-              [(ngModel)]="model.vagas"
-              name="vagas"
+              [(ngModel)]="model.vagasTotais"
+              name="vagasTotais"
               required
               min="1"
             />
           </z-form-control>
 
-          @if (createCourseForm.submitted && model.vagas <= 0) {
+          @if (createCourseForm.submitted && model.vagasTotais <= 0) {
             <z-form-message>Número de vagas deve ser maior que zero.</z-form-message>
           }
         </z-form-field>
       </div>
 
-      <!-- STATUS -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- STATUS (ATIVO) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label for="{{ idStatus }}">Status</label>
+          <label z-form-label for="ativo">Ativo</label>
           <z-form-control>
-            <select z-input [id]="idStatus" [(ngModel)]="model.status" name="status">
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
+            <select z-input id="ativo" [(ngModel)]="model.ativo" name="ativo">
+              <option [value]="true">Sim</option>
+              <option [value]="false">Não</option>
             </select>
           </z-form-control>
         </z-form-field>
-      </div>
-
-      <!-- TURMAS -->
-      <div class="mt-6">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-semibold">Turmas</h3>
-
-          <button
-            z-button
-            zType="default"
-            type="button"
-            (click)="addTurma()"
-          >
-            Nova Turma
-          </button>
-        </div>
-
-        <!-- LISTA DE TURMAS -->
-        @if (model.turmas?.length) {
-          <div class="space-y-3">
-            @for (turma of model.turmas; track i; let i = $index) {
-
-              <div class="border p-3 rounded-lg flex items-center justify-between">
-
-                <!-- INFORMAÇÕES DA TURMA -->
-                <div>
-                  <p class="font-semibold">{{ turma.dia_semana }} - {{ turma.horario_inicio }} - {{turma.horario_fim }}</p>
-                  <p class="text-sm text-gray-600">Vagas: {{ turma.vagas_turma }}</p>
-                </div>
-
-                <!-- AÇÕES -->
-                <div class="flex gap-2">
-                  <button
-                    z-button
-                    zType="ghost"
-                    type="button"
-                    (click)="editTurma(turma, i)"
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    z-button
-                    zType="ghost"
-                    class="text-red-600"
-                    type="button"
-                    (click)="deleteTurma(i)"
-                  >
-                    Remover
-                  </button>
-                </div>
-
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="text-sm text-gray-500">Nenhuma turma adicionada ainda.</p>
-        }
       </div>
 
       <!-- BOTÕES FINAIS -->

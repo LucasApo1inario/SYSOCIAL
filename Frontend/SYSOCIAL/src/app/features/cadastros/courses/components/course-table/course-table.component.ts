@@ -24,7 +24,7 @@ export class CourseTableComponent {
   @Output() edit = new EventEmitter<Course>();
   @Output() delete = new EventEmitter<Course>();
 
-  trackById(index: number, course: Course): string {
+  trackById(index: number, course: Course): number {
     return course.id;
   }
 
@@ -36,7 +36,7 @@ export class CourseTableComponent {
     this.delete.emit(course);
   }
 
-  getBadgeType(status: Course['status']) {
-    return status === 'Ativo' ? 'default' : 'destructive';
+  getBadgeType(ativo: boolean): 'default' | 'destructive' {
+    return ativo ? 'default' : 'destructive';
   }
 }

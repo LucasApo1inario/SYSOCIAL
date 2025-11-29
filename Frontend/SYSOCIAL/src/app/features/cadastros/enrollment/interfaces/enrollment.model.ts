@@ -18,6 +18,38 @@ export interface CourseOption {
   classes: ClassOption[];
 }
 
+// --- DTOs PARA LISTAGEM DE ALUNOS ---
+
+export interface StudentSummary {
+  id: number;
+  fullName: string;
+  cpf: string;
+  age: number;
+  gender: string; 
+  school: string;
+  schoolShift: string; 
+  courses: string[]; 
+  classes: string[]; 
+  shifts: string[];     // Turno dos Cursos
+  status: string; 
+  enrollmentDate: string;
+}
+
+export interface StudentFilter {
+  name?: string;
+  cpf?: string;
+  status?: string;
+  
+  // Novos Filtros
+  gender?: string;
+  age?: number;
+  school?: string;
+  schoolShift?: string;
+  course?: string;      // Busca por nome do curso
+  class?: string;       // Busca por nome da turma
+  courseShift?: string; // Busca por turno do curso
+}
+
 // --- ENVIOS PARA O BACKEND DE MATRÍCULA (Porta 8084) ---
 
 export interface StudentPayload {
@@ -33,7 +65,8 @@ export interface StudentPayload {
   currentSchool: string;
   series: string;
   schoolShift: string;
-  observation?: string; 
+  observation?: string;
+  isActive?: boolean;
 }
 
 export interface GuardianPayload {
@@ -55,7 +88,7 @@ export interface CourseEnrollmentPayload {
 }
 
 export interface DocumentPayload {
-  type: string;
+  id?: number;
   fileName: string;
   observation?: string;
 }
@@ -77,3 +110,4 @@ export interface FileUploadRequest {
   extensao: string;
   observacao: string;
 }
+

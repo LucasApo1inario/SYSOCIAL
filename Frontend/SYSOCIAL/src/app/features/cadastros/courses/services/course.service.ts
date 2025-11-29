@@ -1,86 +1,58 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Course } from '../interfaces/course.interface';
 import { CourseCreateRequest } from '../interfaces/CourseCreateRequest.interface';
 import { CourseCreateResponse } from '../interfaces/CourseCreateResponse.interface';
-import { TurmaResponse } from '../interfaces/TurmaCreateResponse.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CoursesService {
 
-  createCourse(payload: CourseCreateRequest): Observable<CourseCreateResponse> {
-  const mockResponse: CourseCreateResponse = {
-    id: Math.random().toString(36).substr(2, 9),
-    nome: payload.nome,
-    status: payload.status,
-    vagas: payload.vagas,
+  private apiUrl = 'http://64.181.170.230:8080/api/v1/cursos';
 
-    // transforma TurmaCreateRequest → TurmaResponse
-    turmas: payload.turmas?.map((t, i) => ({
-      id: i + 1,
-      dia_semana: t.dia_semana,
-      horario_inicio: t.horario_inicio,
-      horario_fim: t.horario_fim,
-      vagas_turma: t.vagas_turma,
-    })) ?? []
-  };
+  constructor(private http: HttpClient) {}
 
-  return of(mockResponse).pipe(delay(800));
-}
-
-
-
-
-  getCourses(): Observable<CourseCreateResponse[]> {
-    return of([]).pipe(delay(500));
+  /**
+   * GET /api/v1/cursos
+   * Recupera lista de todos os cursos
+   */
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(this.apiUrl);
   }
 
-  getCourseById(id: string): Observable<CourseCreateResponse> {
-  const mockCourse: CourseCreateResponse = {
-    id,
-    nome: 'Curso Mockado',
-    status: 'Ativo',
-    vagas: 30,
-    turmas: [
-      {
-        id: 1,
-        dia_semana: 'Segunda-feira',
-        horario_inicio: '08:00',
-        horario_fim: '10:00',
-        vagas_turma: 25,
-      }
-    ]
-  };
+  /**
+   * GET /api/v1/cursos/:id
+   * Recupera um curso específico por ID
+   */
+  getCourseById(id: number): Observable<Course> {
+    return this.http.get<Course>(`${this.apiUrl}/${id}`);
+  }
 
-  return of(mockCourse).pipe(delay(500));
-}
+  /**
+   * POST /api/v1/cursos
+   * Cria um novo curso
+   * Retorna: { id: number, message: string }
+   */
+  createCourse(payload: CourseCreateRequest): Observable<CourseCreateResponse> {
+    return this.http.post<CourseCreateResponse>(this.apiUrl, payload);
+  }
 
+  /**
+   * PUT /api/v1/cursos/:id
+   * Atualiza um curso existente
+   * Retorna: { message: string }
+   */
+  updateCourse(id: number, payload: CourseCreateRequest): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${id}`, payload);
+  }
 
-
-  updateCourse(id: string | number, payload: Partial<CourseCreateRequest>): Observable<CourseCreateResponse> {
-  const mockResponse: CourseCreateResponse = {
-    id: id.toString(),
-    nome: payload.nome || 'Sem nome',
-    status: payload.status || 'Ativo',
-    vagas: payload.vagas || 0,
-
-    // Mesmo mapeamento usado na criação — garantindo TurmaResponse
-    turmas: payload.turmas?.map((t, i) => ({
-      id: i + 1,  // mock simples, já que o backend real que vai enviar IDs
-      dia_semana: t.dia_semana,
-      horario_inicio: t.horario_inicio,
-      horario_fim: t.horario_fim,
-      vagas_turma: t.vagas_turma,
-    })) ?? []
-  };
-
-  return of(mockResponse).pipe(delay(800));
-}
-
-
-
-  deleteCourse(id: string | number): Observable<void> {
-    return of(void 0).pipe(delay(500));
+  /**
+   * DELETE /api/v1/cursos/:id
+   * Deleta um curso
+   */
+  deleteCourse(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

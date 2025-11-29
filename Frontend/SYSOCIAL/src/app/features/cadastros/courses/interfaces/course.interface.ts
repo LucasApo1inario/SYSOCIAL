@@ -1,6 +1,7 @@
 export interface Course {
-  id: string;
+  id: number;
   nome: string;
-  vagas: number;
-  status: 'Ativo' | 'Inativo';
+  vagasTotais: number;
+  ativo: boolean;
+  vagasRestantes: number;
 }
