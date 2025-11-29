@@ -19,7 +19,7 @@ export class CoursesService {
    * Recupera lista de todos os cursos
    */
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(this.apiUrl);
+    return this.http.get<Course[]>(this.apiUrl + "/all");
   }
 
   /**
@@ -36,7 +36,7 @@ export class CoursesService {
    * Retorna: { id: number, message: string }
    */
   createCourse(payload: CourseCreateRequest): Observable<CourseCreateResponse> {
-    return this.http.post<CourseCreateResponse>(this.apiUrl, payload);
+    return this.http.post<CourseCreateResponse>(this.apiUrl + "/ins", payload);
   }
 
   /**

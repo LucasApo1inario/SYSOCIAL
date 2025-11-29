@@ -14,11 +14,11 @@ export class TurmasService {
   constructor(private http: HttpClient) {}
 
   /**
-   * GET /api/v1/turmas
+   * GET /api/v1/turmas/all
    * Recupera lista de todas as turmas
    */
   getTurmas(): Observable<Turma[]> {
-    return this.http.get<Turma[]>(this.apiUrl);
+    return this.http.get<Turma[]>(this.apiUrl + "/all");
   }
 
   /**
@@ -42,7 +42,7 @@ export class TurmasService {
    * Cria uma nova turma
    */
   createTurma(payload: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, payload);
+    return this.http.post<any>(this.apiUrl + "/ins", payload);
   }
 
   /**
