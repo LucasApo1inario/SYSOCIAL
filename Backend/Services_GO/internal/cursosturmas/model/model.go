@@ -63,3 +63,12 @@ type CursoComTurmas struct {
 	Curso  Curso   `json:"curso"`
 	Turmas []Turma `json:"turmas"`
 }
+
+// AlunoSimplificado representa apenas ID e Nome do aluno
+type AlunoSimplificado struct {
+	ID   int    `json:"id" db:"id_aluno"`
+	Nome string `json:"nome" db:"nome_completo"`
+}
+
+
+

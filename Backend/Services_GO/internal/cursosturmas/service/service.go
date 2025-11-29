@@ -104,3 +104,9 @@ func (s *CursosTurmasService) GetCursoComTurmas(ctx context.Context, cursoID int
 	return s.repo.GetCursoComTurmas(ctx, cursoID)
 }
 
+// GetAlunosByTurmaID busca todos os alunos de uma turma
+func (s *CursosTurmasService) GetAlunosByTurmaID(ctx context.Context, turmaID int) ([]model.AlunoSimplificado, error) {
+	s.logger.Infof("Buscando alunos da turma ID: %d", turmaID)
+	return s.repo.GetAlunosByTurmaID(ctx, turmaID)
+}
+

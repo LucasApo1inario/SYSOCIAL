@@ -64,6 +64,11 @@ func main() {
 		cursosturmasServiceURL = "http://cursosturmas-service:8085" // Docker
 	}
 
+	chamadasServiceURL := os.Getenv("CHAMADAS_SERVICE_URL")
+	if chamadasServiceURL == "" {
+		chamadasServiceURL = "http://chamadas-service:8086" // Docker
+	}
+
 	// Registrar serviços
 	proxyManager.RegisterService("user-service", &proxy.ServiceConfig{
 		Name:    "user-service",
@@ -96,6 +101,13 @@ func main() {
 	proxyManager.RegisterService("cursosturmas-service", &proxy.ServiceConfig{
 		Name:    "cursosturmas-service",
 		BaseURL: cursosturmasServiceURL,
+		Health:  "/health",
+		Timeout: 30 * time.Second,
+	})
+
+	proxyManager.RegisterService("chamadas-service", &proxy.ServiceConfig{
+		Name:    "chamadas-service",
+		BaseURL: chamadasServiceURL,
 		Health:  "/health",
 		Timeout: 30 * time.Second,
 	})
@@ -166,6 +178,25 @@ func main() {
 				}
 			})
 		}
+
+		// Proxy para chamadas-service (rotas públicas - chamadas e presenças)
+		chamadas := v1.Group("/chamadas")
+		{
+			chamadas.Any("/*path", func(c *gin.Context) {
+				if err := proxyManager.ProxyRequest("chamadas-service", c.Writer, c.Request); err != nil {
+					logger.Error("Erro no proxy para chamadas-service", err)
+				}
+			})
+		}
+
+		presencas := v1.Group("/presencas")
+		{
+			presencas.Any("/*path", func(c *gin.Context) {
+				if err := proxyManager.ProxyRequest("chamadas-service", c.Writer, c.Request); err != nil {
+					logger.Error("Erro no proxy para chamadas-service", err)
+				}
+			})
+		}
 	}
 
 	// Health check
@@ -176,6 +207,7 @@ func main() {
 		fileHealth, _ := proxyManager.HealthCheck("file-service")
 		enrollmentHealth, _ := proxyManager.HealthCheck("enrollment-service")
 		cursosturmasHealth, _ := proxyManager.HealthCheck("cursosturmas-service")
+		chamadasHealth, _ := proxyManager.HealthCheck("chamadas-service")
 
 		c.JSON(200, gin.H{
 			"status":  "ok",
@@ -186,6 +218,7 @@ func main() {
 				"file-service":         fileHealth,
 				"enrollment-service":   enrollmentHealth,
 				"cursosturmas-service": cursosturmasHealth,
+				"chamadas-service":     chamadasHealth,
 			},
 		})
 	})
