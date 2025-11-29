@@ -7,6 +7,7 @@ import (
 	"sysocial/internal/shared/config"
 	"sysocial/internal/shared/database"
 	"sysocial/internal/shared/logger"
+	"sysocial/internal/shared/middleware"
 	"sysocial/internal/user/handler"
 	"sysocial/internal/user/repository"
 	"sysocial/internal/user/service"
@@ -46,6 +47,7 @@ func main() {
 	router := gin.Default()
 
 	// Middleware
+	router.Use(middleware.CORS())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
