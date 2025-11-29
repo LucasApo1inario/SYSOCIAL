@@ -32,6 +32,7 @@ import { CourseOption, EnrollmentPayload, FileUploadRequest } from '../interface
         
         <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ isEditMode ? 'Editar Matrícula' : 'Nova Matrícula' }}</h1>
 
+        <!-- AVISO DE MATRÍCULA INATIVA -->
         <div *ngIf="isInactive" class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded shadow-sm flex items-start gap-3 animate-fade-in">
           <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
           <div>
@@ -152,38 +153,62 @@ export class EnrollmentPage implements OnInit {
     }
   }
 
+  // --- CARREGAR DADOS (EDIÇÃO) ---
   loadEnrollmentData(id: number) {
     this.isSubmitting = true;
     this.submittingMessage = 'Carregando dados...';
 
     this.service.getEnrollmentById(id).subscribe({
-      next: (data: any) => {
+      next: (data) => {
+        // 1. Aluno
         this.mainForm.get('student.cpf')?.clearAsyncValidators();
         
         if (data.student) {
-            this.mainForm.patchValue({ student: data.student }, { emitEvent: false });
+            // APLICA MÁSCARAS ANTES DE PREENCHER
+            const studentWithMask = {
+                ...data.student,
+                cpf: this.formatCpfDisplay(data.student.cpf),
+                phone: this.formatPhoneDisplay(data.student.phone),
+                zipCode: this.formatZipCodeDisplay(data.student.zipCode)
+            };
+            
+            this.mainForm.patchValue({ student: studentWithMask }, { emitEvent: false });
+            
             if (data.student.birthDate) this.studentAge = this.service.calculateAge(data.student.birthDate);
             this.isInactive = (data.student as any).isActive === false; 
         }
 
+        // 2. Responsáveis
         const guardiansArray = this.guardiansArray;
         guardiansArray.clear();
         if (data.guardians && data.guardians.length > 0) {
           data.guardians.forEach((g: any) => {
             const group = this.createGuardianGroup(g.isPrincipal);
-            group.patchValue(g);
+            
+            // APLICA MÁSCARAS NOS RESPONSÁVEIS
+            const guardianWithMask = {
+                ...g,
+                cpf: this.formatCpfDisplay(g.cpf),
+                phone: this.formatPhoneDisplay(g.phone),
+                messagePhone1: this.formatPhoneDisplay(g.messagePhone1),
+                messagePhone2: this.formatPhoneDisplay(g.messagePhone2)
+            };
+
+            group.patchValue(guardianWithMask);
             guardiansArray.push(group);
           });
         } else {
            this.addGuardian();
         }
 
+        // 3. Cursos
         if (data.student && data.student.schoolShift) {
           this.service.getAvailableCourses(data.student.schoolShift).subscribe({
             next: (coursesOptions) => {
               this.availableCourses = coursesOptions || [];
               const coursesArray = this.enrollmentsArray;
               coursesArray.clear();
+              
               if (data.courses && data.courses.length > 0) {
                 data.courses.forEach((c: any) => {
                   const group = this.createCourseGroup();
@@ -203,6 +228,7 @@ export class EnrollmentPage implements OnInit {
             this.addCourse();
         }
 
+        // 4. Documentos
         const docsArray = this.docsArray;
         docsArray.clear();
         if (data.documents && data.documents.length > 0) {
@@ -226,6 +252,31 @@ export class EnrollmentPage implements OnInit {
         this.router.navigate(['/cadastros/student-list']);
       }
     });
+  }
+
+  // --- HELPERS VISUAIS (FORMATADORES) ---
+  
+  formatCpfDisplay(cpf: string): string {
+    if (!cpf) return '';
+    const clean = cpf.replace(/\D/g, '');
+    return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
+  formatPhoneDisplay(phone: string): string {
+    if (!phone) return '';
+    const clean = phone.replace(/\D/g, '');
+    if (clean.length === 11) {
+      return clean.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (clean.length === 10) {
+      return clean.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return phone;
+  }
+
+  formatZipCodeDisplay(cep: string): string {
+    if (!cep) return '';
+    const clean = cep.replace(/\D/g, '');
+    return clean.replace(/(\d{5})(\d{3})/, '$1-$2');
   }
 
   reloadCoursesForShift(shift: string) {
@@ -253,7 +304,9 @@ export class EnrollmentPage implements OnInit {
 
   cpfAvailabilityValidator(): AsyncValidatorFn {
     return (control: AbstractControl) => {
-      if (!control.value || control.value.length < 11 || this.isEditMode) return of(null);
+      if (!control.value || control.value.length < 11) return of(null);
+      if (this.isEditMode) return of(null); 
+
       const cleanValue = this.cleanNumber(control.value);
       return this.service.checkCpfExists(cleanValue).pipe(
         map(exists => (exists ? { cpfTaken: true } : null))
@@ -261,6 +314,7 @@ export class EnrollmentPage implements OnInit {
     };
   }
 
+  // --- GETTERS & FORM ARRAY ---
   getGroup(name: string): FormGroup { return this.mainForm.get(name) as FormGroup; }
   get guardiansArray(): FormArray { return this.mainForm.get('guardians') as FormArray; }
   get enrollmentsArray(): FormArray { return this.mainForm.get('enrollments') as FormArray; }
@@ -278,8 +332,8 @@ export class EnrollmentPage implements OnInit {
   }
 
   addGuardian() { this.guardiansArray.push(this.createGuardianGroup()); }
+  
   removeGuardian(index: number) {
-    if (this.guardiansArray.length <= 1) { alert('É necessário manter pelo menos um responsável.'); return; }
     if (this.guardiansArray.length <= 1) { alert('É necessário manter pelo menos um responsável.'); return; }
     this.guardiansArray.removeAt(index);
     const hasPrincipal = this.guardiansArray.controls.some(g => g.get('isPrincipal')?.value);
@@ -326,31 +380,58 @@ export class EnrollmentPage implements OnInit {
   }
 
   async onSubmit() {
-    if (this.mainForm.invalid) { this.mainForm.markAllAsTouched(); alert('Verifique os campos.'); return; }
-    this.isSubmitting = true; this.submittingMessage = 'Salvando...';
+    if (this.mainForm.invalid) {
+      this.mainForm.markAllAsTouched();
+      alert('Por favor, verifique os campos obrigatórios.');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.submittingMessage = 'Salvando...';
+
     try {
       const rawValue = this.mainForm.getRawValue();
+      
       const enrollmentPayload: EnrollmentPayload = {
-        student: { ...rawValue.student, cpf: this.cleanNumber(rawValue.student.cpf), phone: this.cleanNumber(rawValue.student.phone), zipCode: this.cleanNumber(rawValue.student.zipCode) },
-        guardians: rawValue.guardians.map((g: any) => ({ ...g, cpf: this.cleanNumber(g.cpf), phone: this.cleanNumber(g.phone), messagePhone1: this.cleanNumber(g.messagePhone1), messagePhone2: this.cleanNumber(g.messagePhone2) })),
-        documents: rawValue.docs.map((d: any) => ({ fileName: d.fileName, observation: d.observation })), courses: rawValue.enrollments
+        student: {
+          ...rawValue.student,
+          cpf: this.cleanNumber(rawValue.student.cpf),
+          phone: this.cleanNumber(rawValue.student.phone),
+          zipCode: this.cleanNumber(rawValue.student.zipCode)
+        },
+        guardians: rawValue.guardians.map((g: any) => ({
+          ...g,
+          cpf: this.cleanNumber(g.cpf),
+          phone: this.cleanNumber(g.phone),
+          messagePhone1: this.cleanNumber(g.messagePhone1),
+          messagePhone2: this.cleanNumber(g.messagePhone2),
+        })),
+        documents: rawValue.docs.map((d: any) => ({ 
+          fileName: d.fileName, 
+          observation: d.observation 
+        })), 
+        courses: rawValue.enrollments
       };
+
       let enrollmentId;
+      
       if (this.isEditMode && this.enrollmentId) {
          await lastValueFrom(this.service.updateEnrollment(this.enrollmentId, enrollmentPayload));
          enrollmentId = this.enrollmentId;
-         if (this.isInactive) alert('Matrícula reativada!'); else alert('Atualizado com sucesso!');
+         
+         if (this.isInactive) alert('Matrícula atualizada e REATIVADA com sucesso!');
+         else alert('Dados atualizados com sucesso!');
+         
       } else {
          const response = await lastValueFrom(this.service.createEnrollment(enrollmentPayload));
          enrollmentId = response.enrollmentId;
-         alert(`Criado com ID: ${enrollmentId}`);
+         alert(`Matrícula criada com ID: ${enrollmentId}`);
       }
-      
+
       if (rawValue.docs && rawValue.docs.length > 0 && enrollmentId) {
         this.submittingMessage = `Enviando documentos...`;
         for (const doc of rawValue.docs) {
           if (doc.file) {
-            // VALIDAR TAMANHO PARA EVITAR ERRO 400 NO BACKEND
             if (doc.file.size === 0) {
                 console.warn(`Arquivo vazio: ${doc.fileName}`);
                 alert(`O arquivo "${doc.fileName}" está vazio e não será enviado.`);
@@ -358,16 +439,35 @@ export class EnrollmentPage implements OnInit {
             }
             try {
                 const base64 = await this.service.convertFileToBase64(doc.file);
-                const filePayload: FileUploadRequest = { entidade_pai: 'matricula', id_entidade_pai: enrollmentId.toString(), arquivo_base64: base64, nome_arquivo: doc.fileName, extensao: this.getFileExtension(doc.fileName), observacao: doc.observation || '' };
+                const ext = this.getFileExtension(doc.fileName);
+                
+                const filePayload: FileUploadRequest = {
+                  entidade_pai: 'matricula', 
+                  id_entidade_pai: enrollmentId.toString(), 
+                  arquivo_base64: base64, 
+                  nome_arquivo: doc.fileName, 
+                  extensao: ext, 
+                  observacao: doc.observation || ''
+                };
+                
                 await lastValueFrom(this.service.uploadFile(filePayload));
             } catch (uploadErr: any) {
-                console.error(`Erro envio ${doc.fileName}:`, uploadErr);
-                alert(`Erro no envio de "${doc.fileName}"`);
+                console.error(`Erro ao enviar arquivo ${doc.fileName}:`, uploadErr);
+                const msg = uploadErr.error?.details || uploadErr.error?.error || 'Verifique se o arquivo é válido.';
+                alert(`Atenção: O arquivo "${doc.fileName}" falhou no envio. Erro: ${msg}`);
             }
           }
         }
       }
+
       this.router.navigate(['/cadastros/student-list']);
-    } catch (error) { console.error(error); alert('Erro ao salvar.'); } finally { this.isSubmitting = false; this.submittingMessage = 'Salvar Matrícula'; }
+
+    } catch (error) {
+      console.error('Erro no processo geral:', error);
+      alert('Ocorreu um erro. Verifique o console.');
+    } finally {
+      this.isSubmitting = false;
+      this.submittingMessage = 'Salvar Matrícula';
+    }
   }
 }

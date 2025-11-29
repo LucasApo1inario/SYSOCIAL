@@ -4,12 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
 	"sysocial/internal/enrollment/model"
-	"time"
 )
 
 type EnrollmentRepository struct {
@@ -451,6 +449,7 @@ func (r *EnrollmentRepository) UpdateEnrollment(ctx context.Context, studentID i
 	}
 
 	return tx.Commit()
+}
 
 // GetAvailableCourses busca cursos e turmas compatíveis com o turno escolar
 func (r *EnrollmentRepository) GetAvailableCourses(ctx context.Context, schoolShift string) ([]model.CourseOption, error) {
