@@ -65,7 +65,8 @@ export interface StudentPayload {
   currentSchool: string;
   series: string;
   schoolShift: string;
-  observation?: string; 
+  observation?: string;
+  isActive?: boolean;
 }
 
 export interface GuardianPayload {
@@ -87,7 +88,7 @@ export interface CourseEnrollmentPayload {
 }
 
 export interface DocumentPayload {
-  type: string;
+  id?: number;
   fileName: string;
   observation?: string;
 }

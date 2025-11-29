@@ -14,11 +14,15 @@ export default [
     component: NewCourseComponent
   },
   {
+    path: 'student-list',
+    component: StudentListPage
+  },
+  {
+    path: 'enrollment/:id', 
+    component: EnrollmentPage 
+  },
+  {
     path: 'enrollment',
     component: EnrollmentPage
   },
-  {
-    path: 'student-list',
-    component: StudentListPage
-  }
 ] as Routes;

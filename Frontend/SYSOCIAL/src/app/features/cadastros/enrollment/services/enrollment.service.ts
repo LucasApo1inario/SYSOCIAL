@@ -1,8 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, lastValueFrom, of } from 'rxjs';
-import { catchError, map, delay } from 'rxjs/operators';
-import { CourseOption, EnrollmentPayload, FileUploadRequest, GuardianPayload, StudentSummary, StudentFilter } from '../interfaces/enrollment.model';
+import { map, catchError } from 'rxjs/operators';
+import { CourseOption, EnrollmentPayload, FileUploadRequest, StudentSummary, StudentFilter, GuardianPayload } from '../interfaces/enrollment.model';
+
+export interface StudentListState {
+  filters: StudentFilter;
+  page: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -10,25 +16,16 @@ import { CourseOption, EnrollmentPayload, FileUploadRequest, GuardianPayload, St
 export class EnrollmentService {
   private http = inject(HttpClient);
   
-  // Porta 8084 (Enrollment Service)
   private readonly ENROLLMENT_API_URL = 'http://localhost:8084/api/v1/enrollments';
-  
-  // Porta 8083 (File Service)
   private readonly FILE_API_URL = 'http://localhost:8083/api/v1/files';
 
-  public documentTypes = [
-    'Documento com foto do Aluno', 'CPF do Aluno', 'Certidão de Nascimento',
-    'Documento com foto do Responsável', 'CPF do Responsável', 'Comprovante de Residência',
-    'Declaração de matrícula escolar', 'Outros'
-  ];
+  private _listState: StudentListState | null = null;
 
-  public relationshipOptions = [
-    { value: 'pai', label: 'Pai' },
-    { value: 'mae', label: 'Mãe' },
-    { value: 'avo', label: 'Avô/Avó' },
-    { value: 'tio', label: 'Tio/Tia' },
-    { value: 'outro', label: 'Outro' }
-  ];
+  get listState() { return this._listState; }
+  set listState(state: StudentListState | null) { this._listState = state; }
+
+  public documentTypes = ['RG do Aluno', 'CPF do Aluno', 'Certidão de Nascimento', 'RG do Responsável', 'CPF do Responsável', 'Comprovante de Residência', 'Histórico Escolar', 'Carteira de Vacinação', 'Declaração de Transferência'];
+  public relationshipOptions = [{ value: 'pai', label: 'Pai' }, { value: 'mae', label: 'Mãe' }, { value: 'avo', label: 'Avô/Avó' }, { value: 'tio', label: 'Tio/Tia' }, { value: 'outro', label: 'Outro' }];
 
   // --- Enrollment API (8084) ---
 
@@ -41,12 +38,44 @@ export class EnrollmentService {
     return this.http.post<any>(this.ENROLLMENT_API_URL + '/', payload);
   }
 
+  updateEnrollment(id: number, payload: EnrollmentPayload): Observable<any> {
+    return this.http.put(`${this.ENROLLMENT_API_URL}/${id}`, payload);
+  }
+
   checkCpfExists(cpf: string): Observable<boolean> {
     const cleanCpf = cpf.replace(/\D/g, '');
     const params = new HttpParams().set('cpf', cleanCpf);
-    
-    return this.http.get<{exists: boolean}>(`${this.ENROLLMENT_API_URL}/check-cpf`, { params })
-      .pipe(map(response => response.exists));
+    return this.http.get<{exists: boolean}>(`${this.ENROLLMENT_API_URL}/check-cpf`, { params }).pipe(map(r => r.exists));
+  }
+
+  getGuardianByCpf(cpf: string): Observable<GuardianPayload | null> {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const params = new HttpParams().set('cpf', cleanCpf);
+    return this.http.get<GuardianPayload>(`${this.ENROLLMENT_API_URL}/guardian`, { params }).pipe(
+      catchError(err => { if (err.status === 404) return of(null); throw err; })
+    );
+  }
+
+  getEnrollmentById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.ENROLLMENT_API_URL}/${id}`);
+  }
+
+  cancelEnrollment(id: number): Observable<any> {
+    return this.http.patch(`${this.ENROLLMENT_API_URL}/${id}/cancel`, {});
+  }
+
+  searchStudents(filters: StudentFilter): Observable<StudentSummary[]> {
+    let params = new HttpParams();
+    if (filters.name) params = params.set('name', filters.name);
+    if (filters.cpf) params = params.set('cpf', filters.cpf.replace(/\D/g, ''));
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.gender) params = params.set('gender', filters.gender);
+    if (filters.age) params = params.set('age', filters.age.toString());
+    if (filters.school) params = params.set('school', filters.school);
+    if (filters.schoolShift) params = params.set('schoolShift', filters.schoolShift);
+    if (filters.course) params = params.set('course', filters.course);
+    if (filters.class) params = params.set('class', filters.class);
+    return this.http.get<StudentSummary[]>(`${this.ENROLLMENT_API_URL}/students`, { params });
   }
 
   // --- File API (8083) ---
@@ -55,62 +84,53 @@ export class EnrollmentService {
     return this.http.post<any>(this.FILE_API_URL + '/', payload);
   }
 
-    // Método de Busca de Alunos ---
-  searchStudents(filters: StudentFilter): Observable<StudentSummary[]> {
-    // MOCK DATA ENRIQUECIDO
-    const mockData: StudentSummary[] = [
-      { 
-        id: 1, fullName: 'João Silva', cpf: '123.456.789-00', age: 10, gender: 'M', 
-        school: 'Escola Municipal Central', schoolShift: 'manha', // Dados da Escola
-        courses: ['Ensino Fundamental I'], classes: ['Turma A'], shifts: ['Manhã'], 
-        status: 'ATIVO', enrollmentDate: '2024-01-15' 
-      },
-      { 
-        id: 2, fullName: 'Maria Oliveira', cpf: '987.654.321-11', age: 12, gender: 'F', 
-        school: 'Colégio Estrela do Saber', schoolShift: 'tarde',
-        courses: ['Robótica', 'Ballet', 'Futsal'], classes: ['Turma B', 'Baby Class', 'Sub-12'], 
-        shifts: ['Tarde', 'Tarde', 'Noite'], 
-        status: 'ATIVO', enrollmentDate: '2024-02-10' 
-      },
-      { 
-        id: 3, fullName: 'Pedro Santos', cpf: '456.123.789-22', age: 15, gender: 'M', 
-        school: 'Escola Estadual Norte', schoolShift: 'integral',
-        courses: ['Ensino Médio', 'Robótica'], classes: ['1º Ano', 'Avançado'], shifts: ['Integral', 'Tarde'], 
-        status: 'INATIVO', 
-        enrollmentDate: '2023-11-20' 
-      },
-    ];
-    
-    const filtered = mockData.filter(s => {
-      // Helper para ignorar case e acentos
-      const normalize = (text: string) => text ? text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
-
-      // 1. Nome e CPF
-      const matchName = !filters.name || normalize(s.fullName).includes(normalize(filters.name));
-      const matchCpf = !filters.cpf || s.cpf.includes(filters.cpf);
-      
-      // 2. Status
-      const matchStatus = !filters.status || s.status === filters.status;
-
-      // 3. Novos Filtros
-      const matchGender = !filters.gender || s.gender === filters.gender;
-      const matchAge = !filters.age || s.age === Number(filters.age); // Convertendo string do input para numero
-      
-      // Escola e Turno Escolar
-      const matchSchool = !filters.school || normalize(s.school).includes(normalize(filters.school));
-      const matchSchoolShift = !filters.schoolShift || s.schoolShift === filters.schoolShift;
-
-      // Cursos (Arrays - Verifica se ALGUM item do array bate com a busca)
-      const matchCourse = !filters.course || s.courses.some(c => normalize(c).includes(normalize(filters.course!)));
-      const matchClass = !filters.class || s.classes.some(c => normalize(c).includes(normalize(filters.class!)));
-      const matchCourseShift = !filters.courseShift || s.shifts.some(sh => normalize(sh) === normalize(filters.courseShift!));
-
-      return matchName && matchCpf && matchStatus && matchGender && matchAge && matchSchool && matchSchoolShift && matchCourse && matchClass && matchCourseShift;
-    });
-
-    return of(filtered).pipe(delay(500));
+  // Busca o arquivo pelo ID no file-service
+  getFile(id: number): Observable<any> {
+    return this.http.get<any>(`${this.FILE_API_URL}/${id}`);
   }
 
+  // --- VISUALIZAÇÃO DE ARQUIVOS ---
+
+  // Determina o tipo MIME baseado na extensão ou nome
+  getMimeType(fileNameOrExt: string): string {
+    const ext = fileNameOrExt.split('.').pop()?.toLowerCase() || '';
+    switch (ext) {
+      case 'pdf': return 'application/pdf';
+      case 'jpg':
+      case 'jpeg': return 'image/jpeg';
+      case 'png': return 'image/png';
+      case 'txt': return 'text/plain';
+      default: return 'application/octet-stream'; // Tipo genérico para download
+    }
+  }
+
+  // Converte Base64 para Blob e abre numa nova aba
+  openFile(base64Data: string, fileName: string) {
+    try {
+      const contentType = this.getMimeType(fileName);
+      
+      // Decodifica a string Base64
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      
+      // Cria o Blob
+      const blob = new Blob([byteArray], { type: contentType });
+      
+      // Cria uma URL temporária para o Blob
+      const fileURL = URL.createObjectURL(blob);
+      
+      // Abre em nova aba
+      window.open(fileURL, '_blank');
+      
+    } catch (e) {
+      console.error('Erro ao converter arquivo:', e);
+      alert('Não foi possível abrir o arquivo. O formato pode estar corrompido.');
+    }
+  }
 
   // --- Helpers ---
 
@@ -124,32 +144,16 @@ export class EnrollmentService {
     return age;
   }
 
-  // Converte File para Base64 (Promise)
   convertFileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove o prefixo (ex: "data:image/png;base64,") para enviar apenas o hash
-        const base64Clean = result.split(',')[1];
+        const base64Clean = result.split(',')[1]; // Remove o prefixo data:image...
         resolve(base64Clean);
       };
       reader.onerror = error => reject(error);
     });
-  }
-
-  // Busca dados de responsável existente
-  getGuardianByCpf(cpf: string): Observable<GuardianPayload | null> {
-    const cleanCpf = cpf.replace(/\D/g, '');
-    const params = new HttpParams().set('cpf', cleanCpf);
-    
-    // Retorna null se der 404 (catchError)
-    return this.http.get<GuardianPayload>(`${this.ENROLLMENT_API_URL}/guardian`, { params }).pipe(
-      catchError(err => {
-        if (err.status === 404) return of(null); // Não achou
-        throw err;
-      })
-    );
   }
 }
