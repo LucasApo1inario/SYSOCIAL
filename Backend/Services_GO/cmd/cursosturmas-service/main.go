@@ -68,6 +68,7 @@ func main() {
 		{
 			turmas.POST("/", cursosTurmasHandler.CreateTurma)
 			turmas.GET("/", cursosTurmasHandler.GetAllTurmas)
+			turmas.GET("/:id/alunos", cursosTurmasHandler.GetAlunosByTurmaID)
 			turmas.GET("/:id", cursosTurmasHandler.GetTurmaByID)
 			turmas.PUT("/:id", cursosTurmasHandler.UpdateTurma)
 			turmas.DELETE("/:id", cursosTurmasHandler.DeleteTurma)

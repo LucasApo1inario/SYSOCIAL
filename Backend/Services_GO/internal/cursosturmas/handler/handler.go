@@ -241,3 +241,24 @@ func (h *CursosTurmasHandler) DeleteTurma(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Turma deletada com sucesso"})
 }
 
+// GetAlunosByTurmaID GET /api/v1/turmas/:id/alunos
+func (h *CursosTurmasHandler) GetAlunosByTurmaID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	alunos, err := h.service.GetAlunosByTurmaID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar alunos da turma", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, alunos)
+}
+
+
+
+

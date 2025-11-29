@@ -462,3 +462,41 @@ func (r *CursosTurmasRepository) GetCursoComTurmas(ctx context.Context, cursoID 
 		Turmas: turmas,
 	}, nil
 }
+
+// GetAlunosByTurmaID busca todos os alunos de uma turma (apenas ID e Nome)
+func (r *CursosTurmasRepository) GetAlunosByTurmaID(ctx context.Context, turmaID int) ([]model.AlunoSimplificado, error) {
+	// Verificar se a turma existe
+	_, err := r.GetTurmaByID(ctx, turmaID)
+	if err != nil {
+		return nil, fmt.Errorf("turma não encontrada: %w", err)
+	}
+
+	query := `
+		SELECT DISTINCT a.id_aluno, a.nome_completo
+		FROM aluno a
+		INNER JOIN matricula m ON a.id_aluno = m.aluno_id_aluno
+		WHERE m.turmas_id_turma = $1
+		  AND a.ativo = true
+		ORDER BY a.nome_completo`
+
+	rows, err := r.db.QueryContext(ctx, query, turmaID)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar alunos da turma: %w", err)
+	}
+	defer rows.Close()
+
+	var alunos []model.AlunoSimplificado
+	for rows.Next() {
+		var aluno model.AlunoSimplificado
+		err := rows.Scan(&aluno.ID, &aluno.Nome)
+		if err != nil {
+			return nil, fmt.Errorf("erro ao escanear aluno: %w", err)
+		}
+		alunos = append(alunos, aluno)
+	}
+
+	return alunos, nil
+}
+
+
+

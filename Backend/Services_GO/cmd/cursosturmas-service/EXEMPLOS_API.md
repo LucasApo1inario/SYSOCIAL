@@ -304,6 +304,31 @@ http://localhost:8085/api/v1    (direto no serviço)
 
 ---
 
+### 6. Buscar Alunos de uma Turma
+**GET** `/turmas/1/alunos`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "nome": "João Silva"
+  },
+  {
+    "id": 2,
+    "nome": "Maria Santos"
+  },
+  {
+    "id": 3,
+    "nome": "Pedro Oliveira"
+  }
+]
+```
+
+**Nota:** Retorna apenas alunos ativos (`ativo = true`) que estão matriculados na turma. A lista é ordenada por nome.
+
+---
+
 ## 📋 EXEMPLOS COMPLETOS DE FLUXO
 
 ### Fluxo 1: Criar um curso completo com turmas
