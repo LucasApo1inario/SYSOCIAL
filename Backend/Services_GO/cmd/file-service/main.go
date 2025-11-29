@@ -10,7 +10,6 @@ import (
 	"sysocial/internal/shared/config"
 	"sysocial/internal/shared/database"
 	"sysocial/internal/shared/logger"
-	"sysocial/internal/shared/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -47,9 +46,23 @@ func main() {
 	router := gin.Default()
 
 	// --- MIDDLEWARE (Logger, Recovery e CORS) ---
-	router.Use(middleware.CORS())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+
+	// CORREÇÃO: Adicionado configuração de CORS manualmente
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
 
 	// Rotas
 	v1 := router.Group("/api/v1")

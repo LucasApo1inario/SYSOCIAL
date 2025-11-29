@@ -10,7 +10,6 @@ import (
 	"sysocial/internal/shared/config"
 	"sysocial/internal/shared/database"
 	"sysocial/internal/shared/logger"
-	"sysocial/internal/shared/middleware"
 	userrepository "sysocial/internal/user/repository"
 
 	"github.com/gin-gonic/gin"
@@ -49,7 +48,6 @@ func main() {
 	router := gin.Default()
 
 	// Middleware
-	router.Use(middleware.CORS())
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
