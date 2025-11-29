@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { CoursesListComponent } from './courses/pages/courses-list/courses-list.component';
 import { NewCourseComponent } from './courses/pages/new-course/new-course.component';
 import { EnrollmentPage } from './enrollment/pages/enrollment.page';
+import { StudentListPage } from './student-list/pages/student-list.page'
 
 export default [
   {
@@ -13,7 +14,22 @@ export default [
     component: NewCourseComponent
   },
   {
+    path: 'student-list',
+    component: StudentListPage
+  },
+  {
+    path: 'enrollment/:id', 
+    component: EnrollmentPage 
+  },
+  {
     path: 'enrollment',
     component: EnrollmentPage
+  },
+<<<<<<< HEAD
+=======
+  {
+    path: 'student-list',
+    component: StudentListPage
   }
+>>>>>>> e7ed14d8cb37949247690a923f3b6e60b172af33
 ] as Routes;

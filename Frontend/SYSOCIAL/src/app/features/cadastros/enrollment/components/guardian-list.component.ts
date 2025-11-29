@@ -189,7 +189,6 @@ export class GuardianListComponent {
     const cpfControl = form.get('cpf');
     if (!cpfControl || !cpfControl.value) return;
 
-    // Obtém índice do controle no FormArray para mostrar loading
     const index = this.guardians.controls.indexOf(form);
     this.loadingCpf[index] = true;
 

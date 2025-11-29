@@ -54,7 +54,11 @@ func main() {
 	{
 		enrollments := v1.Group("/enrollments")
 		{
+			enrollments.GET("/students", enrollmentHandler.SearchStudents)
 			enrollments.POST("/", enrollmentHandler.CreateEnrollment)
+			enrollments.GET("/:id", enrollmentHandler.GetEnrollment)
+			enrollments.PUT("/:id", enrollmentHandler.UpdateEnrollment)
+			enrollments.PATCH("/:id/cancel", enrollmentHandler.CancelEnrollment)
 			enrollments.GET("/available-courses", enrollmentHandler.GetAvailableCourses)
 			enrollments.GET("/courses", enrollmentHandler.GetAvailableCourses)
 			enrollments.GET("/check-cpf", enrollmentHandler.CheckCpf)
