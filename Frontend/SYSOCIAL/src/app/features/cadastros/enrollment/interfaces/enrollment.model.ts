@@ -26,8 +26,8 @@ export interface StudentSummary {
   cpf: string;
   age: number;
   gender: string; 
-  school: string;       // <--- NOVO: Escola
-  schoolShift: string;  // <--- NOVO: Turno da Escola
+  school: string;
+  schoolShift: string; 
   courses: string[]; 
   classes: string[]; 
   shifts: string[];     // Turno dos Cursos

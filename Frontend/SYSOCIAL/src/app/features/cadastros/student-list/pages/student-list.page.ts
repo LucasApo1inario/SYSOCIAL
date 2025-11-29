@@ -72,23 +72,20 @@ export class StudentListPage implements OnInit {
   currentFilters: StudentFilter = { status: 'ATIVO' };
 
   ngOnInit() {
-    // Tenta recuperar estado salvo do serviço
     const savedState = this.service.listState;
 
     if (savedState) {
-      // Se tiver estado, restaura
       this.currentFilters = savedState.filters;
       this.currentPage = savedState.page;
-      this.loadStudents(this.currentFilters, false); // false = não reseta página
+      this.loadStudents(this.currentFilters, false);
     } else {
-      // Se não, carrega padrão
       this.loadStudents({ status: 'ATIVO' }, true);
     }
   }
 
   onSearch(filters: StudentFilter) {
     this.currentFilters = filters;
-    this.loadStudents(filters, true); // Nova busca = página 1
+    this.loadStudents(filters, true);
   }
 
   loadStudents(filters: StudentFilter, resetPage: boolean) {
@@ -103,7 +100,6 @@ export class StudentListPage implements OnInit {
           this.currentPage = 1;
         }
 
-        // Atualiza o estado no serviço para persistência
         this.saveState();
         
         this.updatePaginatedList();
@@ -119,7 +115,7 @@ export class StudentListPage implements OnInit {
   onPageChange(newPage: number) {
     this.currentPage = newPage;
     this.updatePaginatedList();
-    this.saveState(); // Salva a nova página no serviço
+    this.saveState();
   }
 
   updatePaginatedList() {
@@ -149,7 +145,7 @@ export class StudentListPage implements OnInit {
       this.service.cancelEnrollment(id).subscribe({
         next: () => {
           alert('Matrícula cancelada com sucesso!');
-          this.loadStudents(this.currentFilters, false); // Recarrega mantendo página
+          this.loadStudents(this.currentFilters, false);
         },
         error: (err) => {
           console.error(err);

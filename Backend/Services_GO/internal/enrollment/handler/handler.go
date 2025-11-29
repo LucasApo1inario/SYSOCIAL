@@ -45,7 +45,6 @@ func (h *EnrollmentHandler) UpdateEnrollment(c *gin.Context) {
 func (h *EnrollmentHandler) SearchStudents(c *gin.Context) {
 	var filter model.StudentFilter
 	
-	// BindQuery lê os parâmetros da URL e joga na struct (usa as tags `form:"name"`)
 	if err := c.ShouldBindQuery(&filter); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Filtros inválidos"})
 		return

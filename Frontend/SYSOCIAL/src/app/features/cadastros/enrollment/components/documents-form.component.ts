@@ -79,7 +79,6 @@ export class DocumentsFormComponent {
   viewDocument(id: number, fileName: string) {
     this.service.getFile(id).subscribe({
       next: (response) => {
-        // O backend Go retorna { success: true, data: { arquivo_base64: "..." } }
         if (response.success && response.data && response.data.arquivo_base64) {
            this.service.openFile(response.data.arquivo_base64, fileName);
         } else {

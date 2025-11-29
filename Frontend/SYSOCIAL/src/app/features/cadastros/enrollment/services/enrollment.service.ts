@@ -9,7 +9,6 @@ export interface StudentListState {
   page: number;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })

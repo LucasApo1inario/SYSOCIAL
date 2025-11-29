@@ -23,7 +23,6 @@ func NewEnrollmentRepository(db *sql.DB) *EnrollmentRepository {
 // Verifica se o CPF existe (usado pelo validador assíncrono do frontend)
 func (r *EnrollmentRepository) CheckCpfExists(ctx context.Context, cpf string) (bool, error) {
 	var exists bool
-	// SELECT EXISTS é muito performático para essa checagem
 	query := "SELECT EXISTS(SELECT 1 FROM aluno WHERE cpf = $1)"
 	
 	err := r.db.QueryRowContext(ctx, query, cpf).Scan(&exists)
@@ -98,7 +97,6 @@ func (r *EnrollmentRepository) GetEnrollmentByID(ctx context.Context, studentID 
 	}
 
 	// 3. CURSOS
-	// Verifica se m.status = 'ATIVO' está correto no seu banco (case sensitive)
 	coursesQuery := `
 		SELECT t.cursos_id_curso, m.turmas_id_turma
 		FROM matricula m
@@ -299,7 +297,6 @@ func (r *EnrollmentRepository) CreateEnrollment(ctx context.Context, payload mod
 
 	err = tx.QueryRowContext(ctx, studentSQL, payload.Student.FullName, payload.Student.BirthDate, payload.Student.Gender, payload.Student.CPF, payload.Student.Phone, payload.Student.CurrentSchool, serie, payload.Student.SchoolShift, payload.Student.Street, numEnd, payload.Student.Neighborhood, payload.Student.ZipCode, time.Now(), payload.Student.Observation).Scan(&studentID)
 	if err != nil {
-		// Verifica se o erro contém a mensagem de violação unique do Postgres
 		if strings.Contains(err.Error(), "aluno_cpf_unique") || strings.Contains(err.Error(), "unique constraint") {
 			return 0, fmt.Errorf("CPF já cadastrado no sistema") 
 		}
