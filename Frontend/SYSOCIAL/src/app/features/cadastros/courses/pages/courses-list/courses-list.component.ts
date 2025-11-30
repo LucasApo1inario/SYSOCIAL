@@ -32,9 +32,11 @@ export class CoursesListComponent implements OnInit {
   loading = signal(false);
 
   displayedCourses = computed(() =>
-    this.courses().filter(c =>
-      c.nome.toLowerCase().includes(this.searchQuery().toLowerCase())
-    )
+    this.courses()
+      .filter(c =>
+        c.nome.toLowerCase().includes(this.searchQuery().toLowerCase())
+      )
+      .sort((a, b) => a.id - b.id)
   );
 
   pageSize = signal(7);

@@ -33,11 +33,26 @@ export class TurmasListComponent implements OnInit {
   loading = signal(false);
   selectedTurma = signal<Turma | null>(null);
   showAlunosModal = signal(false);
+  itemsPerPage = signal(10);
+  currentPage = signal(1);
 
-  displayedTurmas = computed(() =>
+  filteredTurmas = computed(() =>
     this.turmas().filter(t =>
-      t.nome.toLowerCase().includes(this.searchQuery().toLowerCase())
+      (t.nomeTurma || t.nome || '').toLowerCase().includes(this.searchQuery().toLowerCase())
     )
+  );
+
+  displayedTurmas = computed(() => {
+    const filtered = this.filteredTurmas();
+    const itemsPerPage = this.itemsPerPage();
+    const currentPage = this.currentPage();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  });
+
+  totalPages = computed(() =>
+    Math.ceil(this.filteredTurmas().length / this.itemsPerPage())
   );
 
   ngOnInit() {
@@ -51,6 +66,7 @@ export class TurmasListComponent implements OnInit {
     this.loading.set(true);
     this.turmasService.getTurmas().subscribe({
       next: (turmas) => {
+        console.log(turmas);
         this.turmas.set(turmas);
         this.loading.set(false);
       },
@@ -83,7 +99,8 @@ export class TurmasListComponent implements OnInit {
    * Deleta uma turma
    */
   deleteTurma(turma: Turma) {
-    if (!confirm(`Tem certeza que deseja deletar a turma "${turma.nome}"?`)) {
+    const nomeTurma = turma.nomeTurma || turma.nome || 'Sem nome';
+    if (!confirm(`Tem certeza que deseja deletar a turma "${nomeTurma}"?`)) {
       return;
     }
 
@@ -127,5 +144,29 @@ export class TurmasListComponent implements OnInit {
 
   set search(value: string) {
     this.searchQuery.set(value);
+    this.currentPage.set(1);
+  }
+
+  onItemsPerPageChange(value: string) {
+    this.itemsPerPage.set(parseInt(value, 10));
+    this.currentPage.set(1);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
+    }
   }
 }

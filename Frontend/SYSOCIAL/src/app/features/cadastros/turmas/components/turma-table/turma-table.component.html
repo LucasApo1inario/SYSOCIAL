@@ -3,42 +3,40 @@
     <thead z-table-header>
       <tr z-table-row>
         <th z-table-head>Turma</th>
+        <th z-table-head>Descrição</th>
         <th z-table-head>Horário</th>
         <th z-table-head>Dias</th>
         <th z-table-head>Vagas</th>
-        <th z-table-head>Ativo</th>
         <th z-table-head class="w-48 text-right">Ações</th>
       </tr>
     </thead>
     <tbody z-table-body>
       @for (turma of turmas; track turma.id) {
         <tr z-table-row>
-          <td z-table-cell>{{ turma.nome }}</td>
+          <td z-table-cell>{{ turma.nomeTurma || turma.nome }}</td>
+          <td z-table-cell class="max-w-xs truncate" [title]="turma.descricao || '-'">
+            {{ turma.descricao || '-' }}
+          </td>
           <td z-table-cell>
-            @if (turma.horario_inicio && turma.horario_fim) {
-              {{ turma.horario_inicio }} - {{ turma.horario_fim }}
+            @if ((turma.horaInicio || turma.horario_inicio) && (turma.horaFim || turma.horario_fim)) {
+              {{ turma.horaInicio || turma.horario_inicio }} - {{ turma.horaFim || turma.horario_fim }}
             } @else {
               -
             }
           </td>
           <td z-table-cell>
-            @if (turma.dias_semana) {
-              {{ turma.dias_semana }}
+            @if (turma.diaSemana || turma.dias_semana) {
+              {{ turma.diaSemana || turma.dias_semana }}
             } @else {
               -
             }
           </td>
           <td z-table-cell>
-            @if (turma.vagas_restantes !== undefined && turma.vagas_totais !== undefined) {
-              {{ turma.vagas_restantes }}/{{ turma.vagas_totais }}
+            @if ((turma.vagasTurma || turma.vagas_totais) !== undefined) {
+              {{ turma.vagasTurma || turma.vagas_totais }}
             } @else {
               -
             }
-          </td>
-          <td z-table-cell>
-            <z-badge [zType]="getBadgeType(turma.ativo)">
-              {{ turma.ativo ? 'Sim' : 'Não' }}
-            </z-badge>
           </td>
           <td z-table-cell>
             <div class="flex justify-end gap-2">
