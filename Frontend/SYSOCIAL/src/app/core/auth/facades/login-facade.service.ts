@@ -31,7 +31,11 @@ export class LoginFacadeService {
     return pipe(
       tap((res: AuthTokenResponse) => this.authTokenService.set(res.token)),
       switchMap((res) => this.authService.getCurrentUser(res)),
-      tap(user => this.loggedInUserStoreService.setUser(user))
+      tap(user => {
+        this.loggedInUserStoreService.setUser(user);
+        // Salvar dados do usuário no localStorage para recuperação ao refresh
+        localStorage.setItem('user-data', JSON.stringify(user));
+      })
     );
   }
 

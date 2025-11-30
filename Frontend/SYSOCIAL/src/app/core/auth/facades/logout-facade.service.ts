@@ -17,7 +17,8 @@ export class LogoutFacadeService {
     return this.authService.logout()
     .pipe(
       tap(()=> this.authTokenStorageService.remove()),
-      tap(()=> this.loggedInUserStoreService.logout())
+      tap(()=> this.loggedInUserStoreService.logout()),
+      tap(()=> localStorage.removeItem('user-data'))
     )    
   }
 
