@@ -41,9 +41,9 @@
           <ng-template #relatoriosMenu>
             <div z-menu-content class="w-64">
               <button z-menu-item (click)="log('frequencia')">Frequência dos alunos</button>
-              <button z-menu-item (click)="log('relatorios-professores')">Relatórios dos professores</button>
+              <button z-menu-item (click)="navigateTo('/reports/attendance-entry')">Chamadas</button>
               <button z-menu-item (click)="log('vagas')">Vagas disponíveis</button>
-              <button z-menu-item (click)="log('estatisticas')">Estatísticas</button>
+              <button z-menu-item (click)="navigateTo('/reports/attendance-manager')">Ver chamadas</button> <!-- Estatísticas. Alterado temporariamente-->
             </div>
           </ng-template>
         </div> -->

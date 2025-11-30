@@ -190,21 +190,18 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 	}
 
 	query := `
-		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id_turma`
 
 	var id int
-	var descricao, horaInicio, horaFim interface{}
-	if payload.Descricao != "" {
-		descricao = payload.Descricao
-	}
-	if payload.HoraInicio != "" {
-		horaInicio = payload.HoraInicio
-	}
-	if payload.HoraFim != "" {
-		horaFim = payload.HoraFim
-	}
+	var descricao, horaInicio, horaFim, dataInicio, dataFim interface{}
+	
+	if payload.Descricao != "" { descricao = payload.Descricao }
+	if payload.HoraInicio != "" { horaInicio = payload.HoraInicio }
+	if payload.HoraFim != "" { horaFim = payload.HoraFim }
+	if payload.DataInicio != "" { dataInicio = payload.DataInicio }
+	if payload.DataFim != "" { dataFim = payload.DataFim }
 
 	err = r.db.QueryRowContext(ctx, query,
 		payload.CursoID,
@@ -214,6 +211,8 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 		descricao,
 		horaInicio,
 		horaFim,
+		dataInicio,
+		dataFim,
 	).Scan(&id)
 
 	if err != nil {
@@ -226,12 +225,12 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 // GetTurmaByID busca uma turma por ID
 func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		WHERE id_turma = $1`
 
 	var turma model.Turma
-	var descricao, horaInicio, horaFim sql.NullString
+	var descricao, horaInicio, horaFim, dataInicio, dataFim sql.NullString
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&turma.ID,
@@ -242,6 +241,8 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 		&descricao,
 		&horaInicio,
 		&horaFim,
+		&dataInicio,
+		&dataFim,
 	)
 
 	if err != nil {
@@ -251,15 +252,11 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 		return nil, fmt.Errorf("erro ao buscar turma: %w", err)
 	}
 
-	if descricao.Valid {
-		turma.Descricao = descricao.String
-	}
-	if horaInicio.Valid {
-		turma.HoraInicio = horaInicio.String
-	}
-	if horaFim.Valid {
-		turma.HoraFim = horaFim.String
-	}
+	if descricao.Valid { turma.Descricao = descricao.String }
+	if horaInicio.Valid { turma.HoraInicio = horaInicio.String }
+	if horaFim.Valid { turma.HoraFim = horaFim.String }
+	if dataInicio.Valid { turma.DataInicio = dataInicio.String }
+	if dataFim.Valid { turma.DataFim = dataFim.String }
 
 	return &turma, nil
 }
@@ -267,7 +264,7 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 // GetTurmasByCursoID busca todas as turmas de um curso
 func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID int) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		WHERE cursos_id_curso = $1
 		ORDER BY nome_turma`
@@ -281,7 +278,7 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 	var turmas []model.Turma
 	for rows.Next() {
 		var turma model.Turma
-		var descricao, horaInicio, horaFim sql.NullString
+		var descricao, horaInicio, horaFim, dataInicio, dataFim sql.NullString
 
 		err := rows.Scan(
 			&turma.ID,
@@ -292,20 +289,18 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 			&descricao,
 			&horaInicio,
 			&horaFim,
+			&dataInicio,
+			&dataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
 		}
 
-		if descricao.Valid {
-			turma.Descricao = descricao.String
-		}
-		if horaInicio.Valid {
-			turma.HoraInicio = horaInicio.String
-		}
-		if horaFim.Valid {
-			turma.HoraFim = horaFim.String
-		}
+		if descricao.Valid { turma.Descricao = descricao.String }
+		if horaInicio.Valid { turma.HoraInicio = horaInicio.String }
+		if horaFim.Valid { turma.HoraFim = horaFim.String }
+		if dataInicio.Valid { turma.DataInicio = dataInicio.String }
+		if dataFim.Valid { turma.DataFim = dataFim.String }
 
 		turmas = append(turmas, turma)
 	}
@@ -316,7 +311,7 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 // GetAllTurmas lista todas as turmas
 func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		ORDER BY cursos_id_curso, nome_turma`
 
@@ -329,7 +324,7 @@ func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turm
 	var turmas []model.Turma
 	for rows.Next() {
 		var turma model.Turma
-		var descricao, horaInicio, horaFim sql.NullString
+		var descricao, horaInicio, horaFim, dataInicio, dataFim sql.NullString
 
 		err := rows.Scan(
 			&turma.ID,
@@ -340,20 +335,18 @@ func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turm
 			&descricao,
 			&horaInicio,
 			&horaFim,
+			&dataInicio,
+			&dataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
 		}
 
-		if descricao.Valid {
-			turma.Descricao = descricao.String
-		}
-		if horaInicio.Valid {
-			turma.HoraInicio = horaInicio.String
-		}
-		if horaFim.Valid {
-			turma.HoraFim = horaFim.String
-		}
+		if descricao.Valid { turma.Descricao = descricao.String }
+		if horaInicio.Valid { turma.HoraInicio = horaInicio.String }
+		if horaFim.Valid { turma.HoraFim = horaFim.String }
+		if dataInicio.Valid { turma.DataInicio = dataInicio.String }
+		if dataFim.Valid { turma.DataFim = dataFim.String }
 
 		turmas = append(turmas, turma)
 	}
@@ -363,70 +356,53 @@ func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turm
 
 // UpdateTurma atualiza uma turma
 func (r *CursosTurmasRepository) UpdateTurma(ctx context.Context, id int, payload model.UpdateTurmaPayload) error {
-	// Buscar turma atual
 	turma, err := r.GetTurmaByID(ctx, id)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	// Verificar se curso mudou e se existe
 	cursoID := turma.CursoID
 	if payload.CursoID != nil {
 		_, err := r.GetCursoByID(ctx, *payload.CursoID)
-		if err != nil {
-			return fmt.Errorf("curso não encontrado: %w", err)
-		}
+		if err != nil { return fmt.Errorf("curso não encontrado: %w", err) }
 		cursoID = *payload.CursoID
 	}
 
-	// Preparar valores para atualização
 	diaSemana := turma.DiaSemana
-	if payload.DiaSemana != "" {
-		diaSemana = payload.DiaSemana
-	}
+	if payload.DiaSemana != "" { diaSemana = payload.DiaSemana }
 
 	vagasTurma := turma.VagasTurma
-	if payload.VagasTurma != nil {
-		vagasTurma = *payload.VagasTurma
-	}
+	if payload.VagasTurma != nil { vagasTurma = *payload.VagasTurma }
 
 	nomeTurma := turma.NomeTurma
-	if payload.NomeTurma != "" {
-		nomeTurma = payload.NomeTurma
-	}
+	if payload.NomeTurma != "" { nomeTurma = payload.NomeTurma }
 
 	descricao := turma.Descricao
-	if payload.Descricao != nil {
-		descricao = *payload.Descricao
-	}
+	if payload.Descricao != nil { descricao = *payload.Descricao }
 
 	horaInicio := turma.HoraInicio
-	if payload.HoraInicio != nil {
-		horaInicio = *payload.HoraInicio
-	}
+	if payload.HoraInicio != nil { horaInicio = *payload.HoraInicio }
 
 	horaFim := turma.HoraFim
-	if payload.HoraFim != nil {
-		horaFim = *payload.HoraFim
-	}
+	if payload.HoraFim != nil { horaFim = *payload.HoraFim }
+
+	dataInicio := turma.DataInicio
+	if payload.DataInicio != nil { dataInicio = *payload.DataInicio }
+
+	dataFim := turma.DataFim
+	if payload.DataFim != nil { dataFim = *payload.DataFim }
 
 	query := `
 		UPDATE turma
-		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7
-		WHERE id_turma = $8`
+		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7, data_inicio = $8, data_fim = $9
+		WHERE id_turma = $10`
 
-	var descricaoVal, horaInicioVal, horaFimVal interface{}
-	if descricao != "" {
-		descricaoVal = descricao
-	}
-	if horaInicio != "" {
-		horaInicioVal = horaInicio
-	}
-	if horaFim != "" {
-		horaFimVal = horaFim
-	}
+	var descricaoVal, horaInicioVal, horaFimVal, dataInicioVal, dataFimVal interface{}
+	if descricao != "" { descricaoVal = descricao }
+	if horaInicio != "" { horaInicioVal = horaInicio }
+	if horaFim != "" { horaFimVal = horaFim }
+	if dataInicio != "" { dataInicioVal = dataInicio }
+	if dataFim != "" { dataFimVal = dataFim }
 
-	_, err = r.db.ExecContext(ctx, query, cursoID, diaSemana, vagasTurma, nomeTurma, descricaoVal, horaInicioVal, horaFimVal, id)
+	_, err = r.db.ExecContext(ctx, query, cursoID, diaSemana, vagasTurma, nomeTurma, descricaoVal, horaInicioVal, horaFimVal, dataInicioVal, dataFimVal, id)
 	if err != nil {
 		return fmt.Errorf("erro ao atualizar turma: %w", err)
 	}
@@ -497,6 +473,3 @@ func (r *CursosTurmasRepository) GetAlunosByTurmaID(ctx context.Context, turmaID
 
 	return alunos, nil
 }
-
-
-
