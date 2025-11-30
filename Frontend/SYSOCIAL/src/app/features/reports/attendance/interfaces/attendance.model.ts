@@ -14,8 +14,8 @@ export interface ClassDTO {
   horaInicio: string;
   horaFim: string;
   descricao?: string;
-  dataInicio?: string; // YYYY-MM-DD
-  dataFim?: string;    // YYYY-MM-DD
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 export interface StudentDTO {
@@ -28,35 +28,57 @@ export interface ChamadaDTO {
   id: number;
   usuarioId: number;
   turmaId: number;
-  dataAula: string; 
+  dataAula: string; // YYYY-MM-DD
+}
+
+// NOVO: Objeto de data dentro da resposta da matriz
+export interface DataChamadaDTO {
+  id: number;
+  data: string;
+}
+
+// NOVO: Resposta completa da matriz de chamadas
+export interface AttendanceResponseDTO {
+  datas: DataChamadaDTO[]; 
+  alunos: {
+    alunoId: number;
+    alunoNome: string;
+    presencas: {
+      [date: string]: {
+        presencaId?: number; // Pode vir no JSON novo para update direto
+        present: string;
+        observation: string;
+      }
+    }
+  }[];
 }
 
 export interface PresencaDTO {
   id: number;
   chamadaId: number;
   alunoId: number;
-  presente: string; 
+  presente: boolean;
   observacao: string;
 }
 
 export interface CreateChamadaPayload {
-  usuarioId?: number;
+  usuarioId: number;
   turmaId: number;
   dataAula: string;
 }
 
 export interface CreatePresencaItem {
-  alunoId: number;
-  presente: string; 
-  observacao: string;
+  idEstudante: number; // Ajustado para o padrão do endpoint novo
+  present: string;     // Ajustado para string (P, F, FJ)
+  observation: string;
 }
 
 export interface CreatePresencasPayload {
   chamadaId: number;
-  presencas: CreatePresencaItem[];
+  records: CreatePresencaItem[]; // Ajustado para 'records' conforme endpoint novo
 }
 
-// --- INTERFACES VISUAIS ---
+// --- INTERFACES VISUAIS (Mantidas para os Componentes) ---
 export interface CourseOption {
   id: number;
   name: string;
@@ -74,6 +96,8 @@ export interface ClassOption {
 export interface AttendanceGrid {
   dates: string[];
   students: StudentAttendance[];
+  // Opcional: Mapa de IDs para facilitar salvamento
+  callIds?: { [date: string]: number };
 }
 
 export interface StudentAttendance {
@@ -90,7 +114,7 @@ export interface StudentAttendance {
 export interface AttendanceRecord {
   presenceId?: number;
   callId?: number;
-  status: string; 
+  status: string; // Alterado de boolean 'present' para string 'status'
   observation: string;
 }
 
