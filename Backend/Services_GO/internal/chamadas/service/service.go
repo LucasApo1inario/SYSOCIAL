@@ -102,6 +102,22 @@ func (s *ChamadasService) DeletePresencasByChamadaID(ctx context.Context, chamad
 	return s.repo.DeletePresencasByChamadaID(ctx, chamadaID)
 }
 
+// GetChamadasPorTurmaMes busca chamadas por turma e mês/ano
+func (s *ChamadasService) GetChamadasPorTurmaMes(ctx context.Context, turmaID int, anoMes string, usuarioID int) (*model.ChamadasPorTurmaMesResponse, error) {
+	s.logger.Infof("Buscando chamadas para turma ID: %d, mês/ano: %s", turmaID, anoMes)
+	return s.repo.GetChamadasPorTurmaMes(ctx, turmaID, anoMes, usuarioID)
+}
+
+// UpsertPresencas cria ou atualiza múltiplas presenças
+func (s *ChamadasService) UpsertPresencas(ctx context.Context, payload model.UpsertPresencasPayload) error {
+	if len(payload.Records) == 0 {
+		return fmt.Errorf("lista de registros não pode estar vazia")
+	}
+
+	s.logger.Infof("Processando %d registros de presença para chamada ID: %d", len(payload.Records), payload.ChamadaID)
+	return s.repo.UpsertPresencas(ctx, payload)
+}
+
 
 
 

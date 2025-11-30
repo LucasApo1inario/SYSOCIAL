@@ -50,6 +50,8 @@ create table public.turma (
   descricao text null,
   hora_inicio time without time zone null,
   hora_fim time without time zone null,
+  data_inicio date not null,
+  data_fim date not null,
   constraint turma_pk primary key (id_turma),
   constraint possui foreign KEY (cursos_id_curso) references curso (id_curso)
 ) TABLESPACE pg_default;
@@ -74,8 +76,8 @@ create table public.presenca (
   id_presenca serial not null,
   chamada_id_chamada integer not null,
   aluno_id_aluno integer not null,
-  presente boolean not null default false,
   observacao text null,
+  presente character varying(2) not null default 'F '::character varying,
   constraint presenca_pkey primary key (id_presenca),
   constraint presenca_aluno_id_aluno_fkey foreign KEY (aluno_id_aluno) references aluno (id_aluno),
   constraint presenca_chamada_id_chamada_fkey foreign KEY (chamada_id_chamada) references chamada (id_chamada)

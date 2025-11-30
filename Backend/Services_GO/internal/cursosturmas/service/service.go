@@ -68,6 +68,12 @@ func (s *CursosTurmasService) CreateTurma(ctx context.Context, payload model.Cre
 	if payload.VagasTurma <= 0 {
 		return 0, fmt.Errorf("vagas da turma deve ser maior que zero")
 	}
+	if payload.DataInicio == "" {
+		return 0, fmt.Errorf("data de início é obrigatória")
+	}
+	if payload.DataFim == "" {
+		return 0, fmt.Errorf("data de fim é obrigatória")
+	}
 
 	s.logger.Infof("Criando turma: %s para curso ID: %d", payload.NomeTurma, payload.CursoID)
 	return s.repo.CreateTurma(ctx, payload)
@@ -89,6 +95,13 @@ func (s *CursosTurmasService) UpdateTurma(ctx context.Context, id int, payload m
 	if payload.VagasTurma != nil && *payload.VagasTurma <= 0 {
 		return fmt.Errorf("vagas da turma deve ser maior que zero")
 	}
+	if payload.DataInicio != nil && payload.DataFim != nil {
+		// Validação básica: data_fim deve ser depois de data_inicio
+		// (validação mais completa pode ser feita no frontend ou com biblioteca de datas)
+		if *payload.DataFim < *payload.DataInicio {
+			return fmt.Errorf("data de fim deve ser posterior à data de início")
+		}
+	}
 
 	s.logger.Infof("Atualizando turma ID: %d", id)
 	return s.repo.UpdateTurma(ctx, id, payload)
@@ -109,4 +122,3 @@ func (s *CursosTurmasService) GetAlunosByTurmaID(ctx context.Context, turmaID in
 	s.logger.Infof("Buscando alunos da turma ID: %d", turmaID)
 	return s.repo.GetAlunosByTurmaID(ctx, turmaID)
 }
-

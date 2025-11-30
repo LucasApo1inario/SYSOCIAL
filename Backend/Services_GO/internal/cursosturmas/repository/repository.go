@@ -190,8 +190,8 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 	}
 
 	query := `
-		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id_turma`
 
 	var id int
@@ -214,6 +214,8 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 		descricao,
 		horaInicio,
 		horaFim,
+		payload.DataInicio,
+		payload.DataFim,
 	).Scan(&id)
 
 	if err != nil {
@@ -226,7 +228,7 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 // GetTurmaByID busca uma turma por ID
 func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		WHERE id_turma = $1`
 
@@ -242,6 +244,8 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 		&descricao,
 		&horaInicio,
 		&horaFim,
+		&turma.DataInicio,
+		&turma.DataFim,
 	)
 
 	if err != nil {
@@ -267,7 +271,7 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 // GetTurmasByCursoID busca todas as turmas de um curso
 func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID int) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		WHERE cursos_id_curso = $1
 		ORDER BY nome_turma`
@@ -292,6 +296,8 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 			&descricao,
 			&horaInicio,
 			&horaFim,
+			&turma.DataInicio,
+			&turma.DataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
@@ -316,7 +322,7 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 // GetAllTurmas lista todas as turmas
 func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim
+		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
 		FROM turma
 		ORDER BY cursos_id_curso, nome_turma`
 
@@ -340,6 +346,8 @@ func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turm
 			&descricao,
 			&horaInicio,
 			&horaFim,
+			&turma.DataInicio,
+			&turma.DataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
@@ -410,10 +418,20 @@ func (r *CursosTurmasRepository) UpdateTurma(ctx context.Context, id int, payloa
 		horaFim = *payload.HoraFim
 	}
 
+	dataInicio := turma.DataInicio
+	if payload.DataInicio != nil {
+		dataInicio = *payload.DataInicio
+	}
+
+	dataFim := turma.DataFim
+	if payload.DataFim != nil {
+		dataFim = *payload.DataFim
+	}
+
 	query := `
 		UPDATE turma
-		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7
-		WHERE id_turma = $8`
+		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7, data_inicio = $8, data_fim = $9
+		WHERE id_turma = $10`
 
 	var descricaoVal, horaInicioVal, horaFimVal interface{}
 	if descricao != "" {
@@ -426,7 +444,7 @@ func (r *CursosTurmasRepository) UpdateTurma(ctx context.Context, id int, payloa
 		horaFimVal = horaFim
 	}
 
-	_, err = r.db.ExecContext(ctx, query, cursoID, diaSemana, vagasTurma, nomeTurma, descricaoVal, horaInicioVal, horaFimVal, id)
+	_, err = r.db.ExecContext(ctx, query, cursoID, diaSemana, vagasTurma, nomeTurma, descricaoVal, horaInicioVal, horaFimVal, dataInicio, dataFim, id)
 	if err != nil {
 		return fmt.Errorf("erro ao atualizar turma: %w", err)
 	}
