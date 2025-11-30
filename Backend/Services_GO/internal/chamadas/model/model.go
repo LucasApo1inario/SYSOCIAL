@@ -52,9 +52,15 @@ type AlunoPresencas struct {
 	Presencas map[string]PresencaPorData `json:"presencas"` // Chave é a data (YYYY-MM-DD)
 }
 
+// DataChamada representa uma data com seu ID de chamada
+type DataChamada struct {
+	Data string `json:"data"` // Formato: YYYY-MM-DD
+	ID   int    `json:"id"`   // ID da chamada
+}
+
 // ChamadasPorTurmaMesResponse resposta do GET de chamadas por turma e mês
 type ChamadasPorTurmaMesResponse struct {
-	Datas  []string         `json:"datas"` // Array de datas no formato YYYY-MM-DD
+	Datas  []DataChamada    `json:"datas"` // Array de datas com IDs das chamadas
 	Alunos []AlunoPresencas `json:"alunos"`
 }
 
@@ -62,19 +68,6 @@ type ChamadasPorTurmaMesResponse struct {
 type CreatePresencasPayload struct {
 	ChamadaID int                     `json:"chamadaId" binding:"required"`
 	Presencas []CreatePresencaPayload `json:"presencas" binding:"required"`
-}
-
-// UpsertPresencasPayload payload para criar/atualizar múltiplas presenças
-type UpsertPresencasPayload struct {
-	ChamadaID int                    `json:"chamadaId" binding:"required"`
-	Records   []UpsertPresencaRecord `json:"records" binding:"required"`
-}
-
-// UpsertPresencaRecord representa um registro de presença para upsert
-type UpsertPresencaRecord struct {
-	IDEstudante int    `json:"idEstudante" binding:"required"`
-	Present     string `json:"present"` // VARCHAR(2): "P", "F", "J", etc.
-	Observation string `json:"observation"`
 }
 
 // UpsertPresencasPayload payload para criar/atualizar múltiplas presenças
