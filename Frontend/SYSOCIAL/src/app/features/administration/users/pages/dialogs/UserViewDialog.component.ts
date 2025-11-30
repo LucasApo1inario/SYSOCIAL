@@ -47,7 +47,11 @@ import { toast } from "ngx-sonner";
       <!-- TIPO -->
       <div>
         <label class="text-sm font-medium">Tipo</label>
-        <input z-input type="text" [(ngModel)]="form.tipo" />
+        <select z-input [(ngModel)]="form.tipo">
+          <option value="U">User</option>
+          <option value="A">Admin</option>
+          <option value="P">Professor</option>
+        </select>
       </div>
 
       <!-- TROCAR SENHA -->

@@ -65,7 +65,6 @@ export class EditTurmaComponent implements OnInit {
     this.loading.set(true);
     this.turmasService.getTurmaById(this.turmaId).subscribe({
       next: (turma: any) => {
-        console.log(turma);
         // Extrai horários e datas do formato ISO quando necessário
         const horaInicio = turma.horaInicio
           ? this.extractTimeFromISO(turma.horaInicio)
@@ -169,7 +168,6 @@ export class EditTurmaComponent implements OnInit {
       dataFim: this.model.dataFim,
     };
 
-    console.log('Payload enviado:', payload);
 
     this.loading.set(true);
 

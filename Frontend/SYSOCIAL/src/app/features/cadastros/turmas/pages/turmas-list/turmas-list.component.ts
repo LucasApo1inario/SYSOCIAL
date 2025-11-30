@@ -66,7 +66,6 @@ export class TurmasListComponent implements OnInit {
     this.loading.set(true);
     this.turmasService.getTurmas().subscribe({
       next: (turmas) => {
-        console.log(turmas);
         this.turmas.set(turmas);
         this.loading.set(false);
       },

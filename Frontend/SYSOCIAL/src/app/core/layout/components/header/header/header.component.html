@@ -3,7 +3,7 @@
 
     <!-- Logo -->
     <a href="#default" class="text-2xl font-bold text-[#160F29] mr-4">
-      SYSOCIAL
+      <img src="/logo.png" alt="SYSOCIAL" class="h-16 w-auto" title="SYSOCIAL" />
     </a>
 
     <!-- Botão "Menu" (visível apenas no mobile) -->
@@ -26,9 +26,14 @@
     </div>
 
     <!-- Menu de navegação mobile (visível apenas no mobile quando menuAberto = true) -->
-    @if (menuAberto && isLoggedIn()) {
-      <div class="w-full mt-4 md:hidden">
-        <app-menu></app-menu>
+    @if (menuAberto) {
+      <div class="w-full mt-4 md:hidden bg-[#1a5260] rounded p-4 space-y-2">
+        @if (!isLoggedIn()) {
+          <a href="/sobre" class="block text-[#F7F7F2] hover:bg-[#0f3a45] px-4 py-2 rounded transition">Sobre</a>
+          <a href="/contato" class="block text-[#F7F7F2] hover:bg-[#0f3a45] px-4 py-2 rounded transition">Contato</a>
+        } @else {
+          <app-menu></app-menu>
+        }
       </div>
     }
 
