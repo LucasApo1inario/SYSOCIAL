@@ -7,23 +7,23 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-        "style": "css",
-        "prefix": "app",
-        "flat": false,
-        "skipTests": false,
-        "type": "component"
-      },
-      "@schematics/angular:service": {
-        "flat": false,
-        "skipTests": false,
-        "type": "service"
-      },
-      "@schematics/angular:directive": {
-        "skipTests": false
-      },
-      "@schematics/angular:pipe": {
-        "skipTests": false
-      }
+          "style": "css",
+          "prefix": "app",
+          "flat": false,
+          "skipTests": false,
+          "type": "component"
+        },
+        "@schematics/angular:service": {
+          "flat": false,
+          "skipTests": false,
+          "type": "service"
+        },
+        "@schematics/angular:directive": {
+          "skipTests": false
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": false
+        }
       },
       "root": "",
       "sourceRoot": "src",
@@ -50,6 +50,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",

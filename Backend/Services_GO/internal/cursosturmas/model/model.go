@@ -19,6 +19,8 @@ type Turma struct {
 	Descricao  string `json:"descricao" db:"descricao"`
 	HoraInicio string `json:"horaInicio" db:"hora_inicio"`
 	HoraFim    string `json:"horaFim" db:"hora_fim"`
+	DataInicio string `json:"dataInicio" db:"data_inicio"` 
+	DataFim    string `json:"dataFim" db:"data_fim"`      
 }
 
 // CreateCursoPayload payload para criar um curso
@@ -45,6 +47,8 @@ type CreateTurmaPayload struct {
 	Descricao  string `json:"descricao"`
 	HoraInicio string `json:"horaInicio"`
 	HoraFim    string `json:"horaFim"`
+	DataInicio string `json:"dataInicio"` 
+	DataFim    string `json:"dataFim"`   
 }
 
 // UpdateTurmaPayload payload para atualizar uma turma
@@ -56,6 +60,8 @@ type UpdateTurmaPayload struct {
 	Descricao  *string `json:"descricao"`
 	HoraInicio *string `json:"horaInicio"`
 	HoraFim    *string `json:"horaFim"`
+	DataInicio *string `json:"dataInicio"`
+	DataFim    *string `json:"dataFim"`  
 }
 
 // CursoComTurmas representa um curso com suas turmas
@@ -69,6 +75,3 @@ type AlunoSimplificado struct {
 	ID   int    `json:"id" db:"id_aluno"`
 	Nome string `json:"nome" db:"nome_completo"`
 }
-
-
-

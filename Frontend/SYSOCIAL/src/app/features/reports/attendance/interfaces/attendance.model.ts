@@ -1,4 +1,62 @@
-// Estrutura para os filtros
+// --- DTOs da API de Cursos/Turmas (Porta 8085) ---
+export interface CourseDTO {
+  id: number;
+  nome: string;
+  vagasTotais: number;
+  ativo: boolean;
+}
+
+export interface ClassDTO {
+  id: number;
+  cursoId: number;
+  nomeTurma: string;
+  diaSemana: string;
+  horaInicio: string;
+  horaFim: string;
+  descricao?: string;
+  dataInicio?: string; // YYYY-MM-DD
+  dataFim?: string;    // YYYY-MM-DD
+}
+
+export interface StudentDTO {
+  id: number;
+  nome: string;
+}
+
+// --- DTOs da API de Chamadas (Porta 8086) ---
+export interface ChamadaDTO {
+  id: number;
+  usuarioId: number;
+  turmaId: number;
+  dataAula: string; 
+}
+
+export interface PresencaDTO {
+  id: number;
+  chamadaId: number;
+  alunoId: number;
+  presente: string; 
+  observacao: string;
+}
+
+export interface CreateChamadaPayload {
+  usuarioId?: number;
+  turmaId: number;
+  dataAula: string;
+}
+
+export interface CreatePresencaItem {
+  alunoId: number;
+  presente: string; 
+  observacao: string;
+}
+
+export interface CreatePresencasPayload {
+  chamadaId: number;
+  presencas: CreatePresencaItem[];
+}
+
+// --- INTERFACES VISUAIS ---
 export interface CourseOption {
   id: number;
   name: string;
@@ -8,20 +66,20 @@ export interface ClassOption {
   id: number;
   courseId: number;
   name: string;
-  schedule: string; // Ex: "Terça-feira, 9h às 10h"
+  schedule: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
-// Estrutura de visualização (Matriz)
 export interface AttendanceGrid {
-  dates: string[]; // Cabeçalho das datas: ["2025-11-01", "2025-11-08"...]
-  students: StudentAttendanceRow[];
+  dates: string[];
+  students: StudentAttendance[];
 }
 
-export interface StudentAttendanceRow {
+export interface StudentAttendance {
   studentId: number;
   studentName: string;
-  // Mapa: Chave é a data (YYYY-MM-DD), Valor é o registro de presença
-  attendance: { [date: string]: AttendanceRecord }; 
+  attendance: { [date: string]: AttendanceRecord };
   stats: {
     presents: number;
     absences: number;
@@ -30,18 +88,15 @@ export interface StudentAttendanceRow {
 }
 
 export interface AttendanceRecord {
-  presenceId?: number; // id_presenca (se já existir no banco)
-  callId?: number;     // id_chamada
-  present: boolean;    // Mapeia para coluna 'presente'
-  observation: string; // Mapeia para coluna 'observacao'
+  presenceId?: number;
+  callId?: number;
+  status: string; 
+  observation: string;
 }
 
-// Payload para salvar (Batch update)
-export interface SaveAttendancePayload {
-  classId: number;
-  date: string;
-  records: {
-    studentId: number;
-    present: boolean;
-  }[];
+export interface AttendanceFilter {
+  classId: number | null;
+  courseId: number | null;
+  month: number;
+  year: number;
 }

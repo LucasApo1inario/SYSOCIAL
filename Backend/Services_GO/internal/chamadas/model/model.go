@@ -13,7 +13,7 @@ type Presenca struct {
 	ID         int    `json:"id" db:"id_presenca"`
 	ChamadaID  int    `json:"chamadaId" db:"chamada_id_chamada"`
 	AlunoID    int    `json:"alunoId" db:"aluno_id_aluno"`
-	Presente   bool   `json:"presente" db:"presente"`
+	Presente   string   `json:"presente" db:"presente"`
 	Observacao string `json:"observacao" db:"observacao"`
 }
 
@@ -34,7 +34,7 @@ type UpdateChamadaPayload struct {
 // CreatePresencaPayload payload para criar uma presença individual
 type CreatePresencaPayload struct {
 	AlunoID    int    `json:"alunoId" binding:"required"`
-	Presente   bool   `json:"presente"`
+	Presente   string `json:"presente"`
 	Observacao string `json:"observacao"`
 }
 

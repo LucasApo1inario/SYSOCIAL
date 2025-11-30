@@ -20,7 +20,7 @@ func NewChamadasService(repo *repository.ChamadasRepository, logger logger.Logge
 // ========== MÉTODOS PARA CHAMADA ==========
 
 func (s *ChamadasService) CreateChamada(ctx context.Context, payload model.CreateChamadaPayload) (int, error) {
-	// Validar se turma existe
+	// 1. Validar se turma existe
 	existe, err := s.repo.VerificaTurmaExiste(ctx, payload.TurmaID)
 	if err != nil {
 		return 0, fmt.Errorf("erro ao verificar turma: %w", err)
@@ -31,6 +31,15 @@ func (s *ChamadasService) CreateChamada(ctx context.Context, payload model.Creat
 
 	if payload.DataAula == "" {
 		return 0, fmt.Errorf("data da aula é obrigatória")
+	}
+
+	// 2. Validar se a data está dentro do período letivo da turma
+	dataValida, err := s.repo.CheckTurmaDateRange(ctx, payload.TurmaID, payload.DataAula)
+	if err != nil {
+		return 0, fmt.Errorf("erro ao validar data da turma: %w", err)
+	}
+	if !dataValida {
+		return 0, fmt.Errorf("data da aula está fora do período letivo da turma")
 	}
 
 	s.logger.Infof("Criando chamada para turma ID: %d, data: %s", payload.TurmaID, payload.DataAula)
@@ -50,6 +59,13 @@ func (s *ChamadasService) UpdateChamada(ctx context.Context, id int, payload mod
 		}
 		if !existe {
 			return fmt.Errorf("turma não encontrada")
+		}
+	}
+
+	if payload.TurmaID != nil && payload.DataAula != nil {
+		dataValida, err := s.repo.CheckTurmaDateRange(ctx, *payload.TurmaID, *payload.DataAula)
+		if err != nil || !dataValida {
+			return fmt.Errorf("data da aula está fora do período letivo da turma")
 		}
 	}
 
@@ -101,8 +117,3 @@ func (s *ChamadasService) DeletePresencasByChamadaID(ctx context.Context, chamad
 	s.logger.Infof("Deletando presenças da chamada ID: %d", chamadaID)
 	return s.repo.DeletePresencasByChamadaID(ctx, chamadaID)
 }
-
-
-
-
-

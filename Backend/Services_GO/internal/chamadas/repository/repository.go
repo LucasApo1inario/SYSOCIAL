@@ -97,13 +97,11 @@ func (r *ChamadasRepository) GetChamadasByTurmaID(ctx context.Context, turmaID i
 
 // UpdateChamada atualiza uma chamada
 func (r *ChamadasRepository) UpdateChamada(ctx context.Context, id int, payload model.UpdateChamadaPayload) error {
-	// Buscar chamada atual
 	chamada, err := r.GetChamadaByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	// Preparar valores para atualização
 	usuarioID := chamada.UsuarioID
 	if payload.UsuarioID != nil {
 		usuarioID = *payload.UsuarioID
@@ -130,6 +128,26 @@ func (r *ChamadasRepository) UpdateChamada(ctx context.Context, id int, payload 
 	}
 
 	return nil
+}
+
+// CheckTurmaDateRange verifica se a data da aula está dentro do período da turma
+func (r *ChamadasRepository) CheckTurmaDateRange(ctx context.Context, turmaID int, dataAula string) (bool, error) {
+
+	query := `
+		SELECT COUNT(*) 
+		FROM turma 
+		WHERE id_turma = $1 
+		  AND $2::date >= COALESCE(data_inicio, '1900-01-01') 
+		  AND $2::date <= COALESCE(data_fim, '2100-01-01')`
+
+	var count int
+	err := r.db.QueryRowContext(ctx, query, turmaID, dataAula).Scan(&count)
+	if err != nil {
+
+		return false, fmt.Errorf("erro ao validar data da turma: %w", err)
+	}
+
+	return count > 0, nil
 }
 
 // ========== MÉTODOS PARA PRESENÇA ==========
@@ -174,9 +192,8 @@ func (r *ChamadasRepository) GetPresencasByChamadaID(ctx context.Context, chamad
 	return presencas, nil
 }
 
-// CreatePresencas cria múltiplas presenças de uma vez
+// CreatePresencas cria OU atualiza presenças (Upsert Manual)
 func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int, presencas []model.CreatePresencaPayload) error {
-	// Iniciar transação
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("erro ao iniciar transação: %w", err)
@@ -190,7 +207,14 @@ func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int,
 		}
 	}()
 
-	query := `
+	// Query de Update (Tenta atualizar se já existe)
+	updateQuery := `
+		UPDATE presenca 
+		SET presente = $1, observacao = $2 
+		WHERE chamada_id_chamada = $3 AND aluno_id_aluno = $4`
+
+	// Query de Insert (Cria se não existir)
+	insertQuery := `
 		INSERT INTO presenca (chamada_id_chamada, aluno_id_aluno, presente, observacao)
 		VALUES ($1, $2, $3, $4)`
 
@@ -200,14 +224,33 @@ func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int,
 			observacao = presenca.Observacao
 		}
 
-		_, err = tx.ExecContext(ctx, query,
+		// 1. Tenta UPDATE
+		res, err := tx.ExecContext(ctx, updateQuery,
+			presenca.Presente, // String (P, F, FJ)
+			observacao,
 			chamadaID,
 			presenca.AlunoID,
-			presenca.Presente,
-			observacao,
 		)
 		if err != nil {
-			return fmt.Errorf("erro ao inserir presença: %w", err)
+			return fmt.Errorf("erro ao atualizar presença: %w", err)
+		}
+
+		rows, err := res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("erro ao verificar linhas afetadas: %w", err)
+		}
+
+		// 2. Se UPDATE não afetou nenhuma linha (registro não existe), faz INSERT
+		if rows == 0 {
+			_, err = tx.ExecContext(ctx, insertQuery,
+				chamadaID,
+				presenca.AlunoID,
+				presenca.Presente,
+				observacao,
+			)
+			if err != nil {
+				return fmt.Errorf("erro ao inserir presença: %w", err)
+			}
 		}
 	}
 
@@ -250,8 +293,3 @@ func (r *ChamadasRepository) VerificaAlunoExiste(ctx context.Context, alunoID in
 	}
 	return count > 0, nil
 }
-
-
-
-
-

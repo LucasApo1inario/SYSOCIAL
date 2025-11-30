@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AttendanceEntryPage } from './attendance/pages/attendance-entry.page';
-import { AttendanceListPage } from './attendance/pages/attendance-list.page';
+import { AttendanceManagerPage } from './attendance/pages/attendance-manager.page';
 
 export default [
   {
@@ -8,7 +8,7 @@ export default [
     component: AttendanceEntryPage,
   },
   {
-    path: 'attendance-list',
-    component: AttendanceListPage
+    path: 'attendance-manager',
+    component: AttendanceManagerPage
   }
 ] as Routes;

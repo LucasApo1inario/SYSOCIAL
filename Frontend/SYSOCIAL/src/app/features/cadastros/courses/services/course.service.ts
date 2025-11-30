@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { Course } from '../interfaces/course.interface';
 import { CourseCreateRequest } from '../interfaces/CourseCreateRequest.interface';
 import { CourseCreateResponse } from '../interfaces/CourseCreateResponse.interface';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CoursesService {
 
-  private apiUrl = 'http://64.181.170.230:8080/api/v1/cursos';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
