@@ -146,6 +146,63 @@ func (h *ChamadasHandler) DeletePresencasByChamadaID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Presenças deletadas com sucesso"})
 }
 
+// UpsertPresencas POST /api/v1/presencas/upsert
+func (h *ChamadasHandler) UpsertPresencas(c *gin.Context) {
+	var payload model.UpsertPresencasPayload
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido", "details": err.Error()})
+		return
+	}
+
+	if len(payload.Records) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Lista de registros não pode estar vazia"})
+		return
+	}
+
+	err := h.service.UpsertPresencas(c.Request.Context(), payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar presenças", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "Presenças processadas com sucesso",
+		"quantidade": len(payload.Records),
+	})
+}
+
+// GetChamadasPorTurmaMes GET /api/v1/chamadas/:userId/:turmaId/:anoMes
+func (h *ChamadasHandler) GetChamadasPorTurmaMes(c *gin.Context) {
+	usuarioIDStr := c.Param("userId")
+	usuarioID, err := strconv.Atoi(usuarioIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID do usuário inválido"})
+		return
+	}
+
+	turmaIDStr := c.Param("turmaId")
+	turmaID, err := strconv.Atoi(turmaIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID da turma inválido"})
+		return
+	}
+
+	anoMes := c.Param("anoMes")
+	if len(anoMes) != 6 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de ano/mês inválido. Use AAAAMM (ex: 202511)"})
+		return
+	}
+
+	result, err := h.service.GetChamadasPorTurmaMes(c.Request.Context(), turmaID, anoMes, usuarioID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar chamadas", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 
 
 

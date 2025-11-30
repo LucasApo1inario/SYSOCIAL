@@ -56,6 +56,7 @@ func main() {
 		chamadas := v1.Group("/chamadas")
 		{
 			chamadas.POST("/", chamadasHandler.CreateChamada)
+			chamadas.GET("/:userId/:turmaId/:anoMes", chamadasHandler.GetChamadasPorTurmaMes)
 			chamadas.GET("/turma/:turmaId", chamadasHandler.GetChamadasByTurmaID)
 			chamadas.PUT("/:id", chamadasHandler.UpdateChamada)
 		}
@@ -65,6 +66,7 @@ func main() {
 		{
 			presencas.GET("/chamada/:chamadaId", chamadasHandler.GetPresencasByChamadaID)
 			presencas.POST("/", chamadasHandler.CreatePresencas)
+			presencas.POST("/turma", chamadasHandler.UpsertPresencas)
 			presencas.DELETE("/chamada/:chamadaId", chamadasHandler.DeletePresencasByChamadaID)
 		}
 	}
@@ -85,8 +87,3 @@ func main() {
 		logger.Fatal("Erro ao iniciar servidor", err)
 	}
 }
-
-
-
-
-

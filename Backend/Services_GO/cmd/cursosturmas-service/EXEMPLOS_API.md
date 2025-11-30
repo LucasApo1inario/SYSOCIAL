@@ -138,7 +138,9 @@ http://localhost:8085/api/v1    (direto no serviço)
       "nomeTurma": "Turma A - Manhã",
       "descricao": "Turma para iniciantes",
       "horaInicio": "08:00:00",
-      "horaFim": "10:00:00"
+      "horaFim": "10:00:00",
+      "dataInicio": "2025-01-15",
+      "dataFim": "2025-06-30"
     },
     {
       "id": 2,
@@ -148,7 +150,9 @@ http://localhost:8085/api/v1    (direto no serviço)
       "nomeTurma": "Turma B - Tarde",
       "descricao": "Turma para iniciantes",
       "horaInicio": "14:00:00",
-      "horaFim": "16:00:00"
+      "horaFim": "16:00:00",
+      "dataInicio": "2025-01-15",
+      "dataFim": "2025-06-30"
     }
   ]
 }
@@ -170,7 +174,9 @@ http://localhost:8085/api/v1    (direto no serviço)
   "nomeTurma": "Turma A - Manhã",
   "descricao": "Turma para iniciantes em matemática básica",
   "horaInicio": "08:00:00",
-  "horaFim": "10:00:00"
+  "horaFim": "10:00:00",
+  "dataInicio": "2025-01-15",
+  "dataFim": "2025-06-30"
 }
 ```
 
@@ -179,13 +185,23 @@ http://localhost:8085/api/v1    (direto no serviço)
 - `horaInicio`
 - `horaFim`
 
+**Campos obrigatórios:**
+- `cursoId`
+- `diaSemana`
+- `vagasTurma`
+- `nomeTurma`
+- `dataInicio` (formato: YYYY-MM-DD)
+- `dataFim` (formato: YYYY-MM-DD)
+
 **Exemplo mínimo (apenas campos obrigatórios):**
 ```json
 {
   "cursoId": 1,
   "diaSemana": "Segunda-feira",
   "vagasTurma": 15,
-  "nomeTurma": "Turma A - Manhã"
+  "nomeTurma": "Turma A - Manhã",
+  "dataInicio": "2025-01-15",
+  "dataFim": "2025-06-30"
 }
 ```
 
@@ -213,7 +229,9 @@ http://localhost:8085/api/v1    (direto no serviço)
     "nomeTurma": "Turma A - Manhã",
     "descricao": "Turma para iniciantes",
     "horaInicio": "08:00:00",
-    "horaFim": "10:00:00"
+    "horaFim": "10:00:00",
+    "dataInicio": "2025-01-15",
+    "dataFim": "2025-06-30"
   },
   {
     "id": 2,
@@ -223,7 +241,9 @@ http://localhost:8085/api/v1    (direto no serviço)
     "nomeTurma": "Turma B - Tarde",
     "descricao": "Turma para iniciantes",
     "horaInicio": "14:00:00",
-    "horaFim": "16:00:00"
+    "horaFim": "16:00:00",
+    "dataInicio": "2025-01-15",
+    "dataFim": "2025-06-30"
   },
   {
     "id": 3,
@@ -233,7 +253,9 @@ http://localhost:8085/api/v1    (direto no serviço)
     "nomeTurma": "Turma Português - Manhã",
     "descricao": null,
     "horaInicio": null,
-    "horaFim": null
+    "horaFim": null,
+    "dataInicio": "2025-02-01",
+    "dataFim": "2025-07-15"
   }
 ]
 ```
@@ -253,7 +275,9 @@ http://localhost:8085/api/v1    (direto no serviço)
   "nomeTurma": "Turma A - Manhã",
   "descricao": "Turma para iniciantes",
   "horaInicio": "08:00:00",
-  "horaFim": "10:00:00"
+  "horaFim": "10:00:00",
+  "dataInicio": "2025-01-15",
+  "dataFim": "2025-06-30"
 }
 ```
 
@@ -271,7 +295,9 @@ http://localhost:8085/api/v1    (direto no serviço)
   "nomeTurma": "Turma A - Manhã Atualizada",
   "descricao": "Nova descrição da turma",
   "horaInicio": "09:00:00",
-  "horaFim": "11:00:00"
+  "horaFim": "11:00:00",
+  "dataInicio": "2025-02-01",
+  "dataFim": "2025-07-15"
 }
 ```
 
@@ -353,7 +379,9 @@ POST /api/v1/turmas
   "nomeTurma": "Turma Manhã - Segunda",
   "descricao": "Aulas de inglês básico pela manhã",
   "horaInicio": "08:00:00",
-  "horaFim": "10:00:00"
+  "horaFim": "10:00:00",
+  "dataInicio": "2025-01-15",
+  "dataFim": "2025-06-30"
 }
 ```
 
@@ -367,7 +395,9 @@ POST /api/v1/turmas
   "nomeTurma": "Turma Tarde - Quarta",
   "descricao": "Aulas de inglês básico pela tarde",
   "horaInicio": "14:00:00",
-  "horaFim": "16:00:00"
+  "horaFim": "16:00:00",
+  "dataInicio": "2025-01-15",
+  "dataFim": "2025-06-30"
 }
 ```
 
@@ -392,6 +422,8 @@ GET /api/v1/cursos/1/turmas
 - `diaSemana`: obrigatório, string
 - `vagasTurma`: obrigatório, inteiro maior que 0
 - `nomeTurma`: obrigatório, string
+- `dataInicio`: obrigatório, formato date (YYYY-MM-DD)
+- `dataFim`: obrigatório, formato date (YYYY-MM-DD)
 - `descricao`: opcional, string
 - `horaInicio`: opcional, formato time (HH:MM:SS)
 - `horaFim`: opcional, formato time (HH:MM:SS)

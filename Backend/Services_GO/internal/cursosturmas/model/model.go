@@ -19,8 +19,8 @@ type Turma struct {
 	Descricao  string `json:"descricao" db:"descricao"`
 	HoraInicio string `json:"horaInicio" db:"hora_inicio"`
 	HoraFim    string `json:"horaFim" db:"hora_fim"`
-	DataInicio string `json:"dataInicio" db:"data_inicio"` 
-	DataFim    string `json:"dataFim" db:"data_fim"`      
+	DataInicio string `json:"dataInicio" db:"data_inicio"` // Formato: YYYY-MM-DD
+	DataFim    string `json:"dataFim" db:"data_fim"`       // Formato: YYYY-MM-DD
 }
 
 // CreateCursoPayload payload para criar um curso
@@ -47,8 +47,8 @@ type CreateTurmaPayload struct {
 	Descricao  string `json:"descricao"`
 	HoraInicio string `json:"horaInicio"`
 	HoraFim    string `json:"horaFim"`
-	DataInicio string `json:"dataInicio"` 
-	DataFim    string `json:"dataFim"`   
+	DataInicio string `json:"dataInicio" binding:"required"` // Formato: YYYY-MM-DD
+	DataFim    string `json:"dataFim" binding:"required"`    // Formato: YYYY-MM-DD
 }
 
 // UpdateTurmaPayload payload para atualizar uma turma
@@ -60,8 +60,8 @@ type UpdateTurmaPayload struct {
 	Descricao  *string `json:"descricao"`
 	HoraInicio *string `json:"horaInicio"`
 	HoraFim    *string `json:"horaFim"`
-	DataInicio *string `json:"dataInicio"`
-	DataFim    *string `json:"dataFim"`  
+	DataInicio *string `json:"dataInicio"` // Formato: YYYY-MM-DD
+	DataFim    *string `json:"dataFim"`    // Formato: YYYY-MM-DD
 }
 
 // CursoComTurmas representa um curso com suas turmas

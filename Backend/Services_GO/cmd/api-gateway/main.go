@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"sysocial/internal/shared/logger"
@@ -181,8 +183,30 @@ func main() {
 
 		// Proxy para chamadas-service (rotas públicas - chamadas e presenças)
 		chamadas := v1.Group("/chamadas")
+		chamadas.Use(middleware.Auth()) // Aplicar middleware JWT para obter user_id
 		{
 			chamadas.Any("/*path", func(c *gin.Context) {
+				// Obter user_id do contexto JWT
+				userID, exists := c.Get("user_id")
+				if !exists {
+					c.JSON(401, gin.H{"error": "Usuário não autenticado"})
+					return
+				}
+
+				// Modificar a URL para incluir userId como primeiro path param
+				originalPath := c.Request.URL.Path
+				// Remover /api/v1/chamadas do início
+				pathWithoutPrefix := strings.TrimPrefix(originalPath, "/api/v1/chamadas")
+				// Garantir que o path comece com /
+				if !strings.HasPrefix(pathWithoutPrefix, "/") {
+					pathWithoutPrefix = "/" + pathWithoutPrefix
+				}
+				// Adicionar userId no início: /api/v1/chamadas/{userId}/...
+				newPath := fmt.Sprintf("/api/v1/chamadas/%v%s", userID, pathWithoutPrefix)
+				
+				// Criar uma cópia da requisição com a nova URL
+				c.Request.URL.Path = newPath
+				
 				if err := proxyManager.ProxyRequest("chamadas-service", c.Writer, c.Request); err != nil {
 					logger.Error("Erro no proxy para chamadas-service", err)
 				}

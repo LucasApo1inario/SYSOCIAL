@@ -49,14 +49,29 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
+	/*
+		router.Use(func(c *gin.Context) {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+			if c.Request.Method == "OPTIONS" {
+				c.AbortWithStatus(204)
+				return
+			}
+
+			c.Next()
+		})
+	*/
 	// Rotas
 	v1 := router.Group("/api/v1")
 	{
 		// Rotas para Cursos
 		cursos := v1.Group("/cursos")
 		{
-			cursos.POST("/", cursosTurmasHandler.CreateCurso)
-			cursos.GET("/", cursosTurmasHandler.GetAllCursos)
+			cursos.POST("/ins", cursosTurmasHandler.CreateCurso)
+			cursos.GET("/all", cursosTurmasHandler.GetAllCursos)
 			cursos.GET("/:id", cursosTurmasHandler.GetCursoByID)
 			cursos.PUT("/:id", cursosTurmasHandler.UpdateCurso)
 			cursos.DELETE("/:id", cursosTurmasHandler.DeleteCurso)
@@ -66,8 +81,8 @@ func main() {
 		// Rotas para Turmas
 		turmas := v1.Group("/turmas")
 		{
-			turmas.POST("/", cursosTurmasHandler.CreateTurma)
-			turmas.GET("/", cursosTurmasHandler.GetAllTurmas)
+			turmas.POST("/ins", cursosTurmasHandler.CreateTurma)
+			turmas.GET("/all", cursosTurmasHandler.GetAllTurmas)
 			turmas.GET("/:id/alunos", cursosTurmasHandler.GetAlunosByTurmaID)
 			turmas.GET("/:id", cursosTurmasHandler.GetTurmaByID)
 			turmas.PUT("/:id", cursosTurmasHandler.UpdateTurma)
@@ -91,4 +106,3 @@ func main() {
 		logger.Fatal("Erro ao iniciar servidor", err)
 	}
 }
-
