@@ -75,7 +75,6 @@ export class CoursesListComponent implements OnInit {
       },
       error: (err: any) => {
         this.loading.set(false);
-        console.log(err);
         const errorMsg = err?.error?.message || 'Erro ao carregar cursos.';
         toast.error(errorMsg, {
           duration: 5000,

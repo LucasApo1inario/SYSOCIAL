@@ -35,8 +35,6 @@ export class MenuComponent {
     this.router.navigate([route]);
   }
 
-   log(item: string) {
-    console.log('Navigate to:', item);
-  }
+ 
 
 }

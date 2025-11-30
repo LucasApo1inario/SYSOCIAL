@@ -86,7 +86,6 @@ export class NewTurmaComponent {
       dataFim: this.model.dataFim,
     };
 
-    console.log('Payload enviado:', payload);
 
     this.loading.set(true);
 
