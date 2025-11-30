@@ -592,8 +592,20 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 		}
 	}
 
+	// Construir array de datas com IDs das chamadas
+	datasComIDs := make([]model.DataChamada, 0, len(datas))
+	for _, data := range datas {
+		chamadaID, exists := chamadasMap[data]
+		if exists {
+			datasComIDs = append(datasComIDs, model.DataChamada{
+				Data: data,
+				ID:   chamadaID,
+			})
+		}
+	}
+
 	return &model.ChamadasPorTurmaMesResponse{
-		Datas:  datas,
+		Datas:  datasComIDs,
 		Alunos: alunos,
 	}, nil
 }
