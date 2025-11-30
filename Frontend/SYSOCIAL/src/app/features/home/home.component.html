@@ -1,28 +1,383 @@
-<div class="container">
-  <div class="home-container">
-    <div class="card">
-    <h3>Cursos</h3>
-    <ul>
-      <li>Angular Básico</li>
-      <li>Java Avançado</li>
-      <li>Banco de Dados</li>
-    </ul>
+<div class="w-full">
+  <!-- Hero Section com Imagem -->
+  <div class="relative w-full h-96 bg-cover bg-center rounded-lg shadow-lg overflow-hidden mb-12"
+       style="background-image: url('/images/home.jpg');">
+    <div class="absolute inset-0 bg-black/40"></div>
+    
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+      <h1 class="text-5xl font-bold text-center mb-4">Bem-vindo ao SYSOCIAL, {{ userName() }}!</h1>
+      <p class="text-xl text-center max-w-2xl">
+        Sistema completo de gestão de cursos, turmas e alunos
+      </p>
+    </div>
   </div>
 
-    <div class="card">
-    <h3>Usuários</h3>
-    <ul>
-      <li>Lucas</li>
-      <li>Maria</li>
-      <li>João</li>
-    </ul>
+  <!-- Quick Actions - Diferenciado por tipo de usuário -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Atalhos Rápidos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Admin: Todos os atalhos (suas opções + preview de professor e usuário) -->
+      @if (isAdmin()) {
+        <div class="quick-cards-grid">
+          <div class="quick-card quick-card-blue" (click)="criarCurso()" role="button" tabindex="0">
+            <div class="qa-icon">📚</div>
+            <div class="qa-content">
+              <div class="qa-title">Novo Curso</div>
+              <div class="qa-subtext">Criar e configurar um novo curso</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-green" (click)="criarTurma()" role="button" tabindex="0">
+            <div class="qa-icon">👥</div>
+            <div class="qa-content">
+              <div class="qa-title">Nova Turma</div>
+              <div class="qa-subtext">Abrir turma e gerenciar vagas</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-purple" (click)="criarUsuario()" role="button" tabindex="0">
+            <div class="qa-icon">🧑‍💼</div>
+            <div class="qa-content">
+              <div class="qa-title">Novo Usuário</div>
+              <div class="qa-subtext">Adicionar administrador ou professor</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+        </div>
+      }
+
+      <!-- Professor: Suas turmas -->
+      @if (isProfessor()) {
+        <div class="quick-cards-grid">
+          <div class="quick-card quick-card-green" (click)="navigateTo('cadastros/turmas')" role="button" tabindex="0">
+            <div class="qa-icon">🧑‍🏫</div>
+            <div class="qa-content">
+              <div class="qa-title">Minhas Turmas</div>
+              <div class="qa-subtext">Acesse turmas sob sua responsabilidade</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-blue" (click)="navigateTo('cadastros/enrollment')" role="button" tabindex="0">
+            <div class="qa-icon">🎒</div>
+            <div class="qa-content">
+              <div class="qa-title">Alunos</div>
+              <div class="qa-subtext">Gerenciar matrículas e presença</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-orange" (click)="navigateTo('cadastros/courses')" role="button" tabindex="0">
+            <div class="qa-icon">📘</div>
+            <div class="qa-content">
+              <div class="qa-title">Cursos</div>
+              <div class="qa-subtext">Ver catálogo de cursos</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+        </div>
+      }
+
+      <!-- Usuário Comum: Cursos e Turmas -->
+      @if (isUsuario()) {
+        <div class="quick-cards-grid">
+          <div class="quick-card quick-card-blue" (click)="navigateTo('cadastros/courses')" role="button" tabindex="0">
+            <div class="qa-icon">📚</div>
+            <div class="qa-content">
+              <div class="qa-title">Cursos</div>
+              <div class="qa-subtext">Explorar cursos disponíveis</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-green" (click)="navigateTo('cadastros/turmas')" role="button" tabindex="0">
+            <div class="qa-icon">🏷️</div>
+            <div class="qa-content">
+              <div class="qa-title">Turmas</div>
+              <div class="qa-subtext">Buscar turmas e horários</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+
+          <div class="quick-card quick-card-orange" (click)="navigateTo('cadastros/enrollment')" role="button" tabindex="0">
+            <div class="qa-icon">📝</div>
+            <div class="qa-content">
+              <div class="qa-title">Matrículas</div>
+              <div class="qa-subtext">Ver suas inscrições</div>
+            </div>
+            <div class="qa-arrow">→</div>
+          </div>
+        </div>
+      }
+    </div>
   </div>
 
-    <div class="card">
-    <h3>Estatísticas</h3>
-    <p>Total de Cursos: 3</p>
-    <p>Total de Usuários: 10</p>
+  <!-- Estatísticas - Dashboard -->
+  <div class="mb-12">
+    <div class="stats-header">
+      <h2 class="text-3xl font-bold text-gray-900">📊 Dashboard de Estatísticas</h2>
+      <p class="text-gray-600 mt-2">Visão geral do sistema em tempo real</p>
+    </div>
+
+    <div class="stats-grid">
+      <!-- Card Cursos -->
+      <div class="stat-card stat-card-blue">
+        <div class="stat-card-icon">
+          <div class="icon-books"></div>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-value">{{ totalCourses() }}</div>
+          <div class="stat-card-label">Cursos</div>
+          <div class="stat-card-subtext">Cursos cadastrados</div>
+        </div>
+      
+      </div>
+
+      <!-- Card Turmas -->
+      <div class="stat-card stat-card-green">
+        <div class="stat-card-icon">
+          <div class="icon-users"></div>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-value">{{ totalTurmas() }}</div>
+          <div class="stat-card-label">Turmas</div>
+          <div class="stat-card-subtext">Turmas ativas</div>
+        </div>
+      
+      </div>
+
+      <!-- Card Vagas Totais -->
+      <div class="stat-card stat-card-orange">
+        <div class="stat-card-icon">
+          <div class="icon-chart"></div>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-value">{{ totalVagas() }}</div>
+          <div class="stat-card-label">Total Vagas</div>
+          <div class="stat-card-subtext">Capacidade geral</div>
+        </div>
+      
+      </div>
+
+      <!-- Card Vagas Disponíveis -->
+      <div class="stat-card stat-card-purple">
+        <div class="stat-card-icon">
+          <div class="icon-check"></div>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-value">{{ vagasDisponiveis() }}</div>
+          <div class="stat-card-label">Disponíveis</div>
+          <div class="stat-card-subtext">Prontas para alunos</div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Mini Chart Stats -->
+    <div class="mini-stats-container mt-6">
+      <div class="mini-stat-card">
+        <div class="mini-stat-dot" style="background: #3b82f6;"></div>
+        <div class="mini-stat-info">
+          <div class="mini-stat-title">Taxa de Ocupação</div>
+          <div class="mini-stat-bar">
+            <div class="mini-stat-bar-fill" [style.width.%]="calculateOccupancyPercentage()"></div>
+          </div>
+          <div class="mini-stat-value">{{ calculateOccupancyPercentage() }}%</div>
+        </div>
+      </div>
+
+      <div class="mini-stat-card">
+        <div class="mini-stat-dot" style="background: #10b981;"></div>
+        <div class="mini-stat-info">
+          <div class="mini-stat-title">Média de Vagas por Turma</div>
+          <div class="mini-stat-value">{{ getAverageVagasPerTurma() }} vagas</div>
+        </div>
+      </div>
+
+      <div class="mini-stat-card">
+        <div class="mini-stat-dot" style="background: #f59e0b;"></div>
+        <div class="mini-stat-info">
+          <div class="mini-stat-title">Eficiência Geral</div>
+          <div class="mini-stat-value">{{ getEfficiencyRatio() }} cursos/turma</div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Cards Informativos Melhorados -->
+  <div class="home-container mb-12">
+    <div class="card card-cursos">
+      <div class="card-header">
+        <div class="icon-wrapper-lg">
+          <div class="icon-books"></div>
+        </div>
+        <div class="card-title-section">
+          <h3 class="text-2xl font-bold text-gray-800">Cursos</h3>
+          <p class="text-sm text-gray-500">Gestão de conteúdo</p>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="stat-display">
+          <div class="stat-number text-blue-600">{{ totalCourses() }}</div>
+          <div class="stat-label">Cursos Ativos</div>
+        </div>
+        <p class="text-gray-600 text-sm mt-4 mb-4">
+          Gerenciar e organizar seus cursos de forma eficiente, acompanhar vagas disponíveis
+        </p>
+        
+        @if (courses().length > 0) {
+          <div class="mini-list mb-4">
+            <div class="mini-list-title">Últimos adicionados:</div>
+            @for (course of courses().slice(0, 3); track course.id) {
+              <div class="mini-list-item">
+                <span class="bullet">•</span>
+                <span class="text-xs text-gray-700">{{ course.nome }}</span>
+                <span class="text-xs text-gray-500 ml-auto">{{ course.vagasTotais }} vagas</span>
+              </div>
+            }
+          </div>
+        }
+        
+        <button (click)="navigateTo('cadastros/courses')" class="card-button card-button-blue w-full">
+          <span>Ver Cursos</span>
+          <span class="ml-2">→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card card-turmas">
+      <div class="card-header">
+        <div class="icon-wrapper-lg">
+          <div class="icon-users"></div>
+        </div>
+        <div class="card-title-section">
+          <h3 class="text-2xl font-bold text-gray-800">Turmas</h3>
+          <p class="text-sm text-gray-500">Gerenciamento de classes</p>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="stat-display">
+          <div class="stat-number text-green-600">{{ totalTurmas() }}</div>
+          <div class="stat-label">Turmas Ativas</div>
+        </div>
+        <p class="text-gray-600 text-sm mt-4 mb-4">
+          Acompanhe suas turmas, horários, dias da semana e informações de vagas
+        </p>
+        
+        @if (totalTurmas() > 0) {
+          <div class="info-grid mb-4">
+            <div class="info-item">
+              <div class="info-label">Total de Vagas</div>
+              <div class="info-value text-green-600">{{ totalVagas() }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Disponíveis</div>
+              <div class="info-value text-purple-600">{{ vagasDisponiveis() }}</div>
+            </div>
+          </div>
+        }
+        
+        <button (click)="navigateTo('cadastros/turmas')" class="card-button card-button-green w-full">
+          <span>Ver Turmas</span>
+          <span class="ml-2">→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card card-vagas">
+      <div class="card-header">
+        <div class="icon-wrapper-lg">
+          <div class="icon-chart"></div>
+        </div>
+        <div class="card-title-section">
+          <h3 class="text-2xl font-bold text-gray-800">Vagas</h3>
+          <p class="text-sm text-gray-500">Disponibilidade em tempo real</p>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="vaga-progress mb-4">
+          <div class="progress-item">
+            <div class="progress-label">
+              <span class="text-sm font-semibold text-gray-700">Ocupação de Vagas</span>
+              <span class="text-xs text-gray-500">{{ calculateOccupancyPercentage() }}%</span>
+            </div>
+            <div class="progress-bar-container">
+              @if (totalVagas() > 0) {
+                <div class="progress-bar-fill" 
+                     [style.width.%]="calculateOccupancyPercentage()">
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-breakdown">
+          <div class="breakdown-item">
+            <div class="breakdown-dot" style="background-color: #3b82f6;"></div>
+            <div class="breakdown-text">
+              <div class="breakdown-label">Vagas Disponíveis</div>
+              <div class="breakdown-value">{{ vagasDisponiveis() }}</div>
+            </div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-dot" style="background-color: #ef4444;"></div>
+            <div class="breakdown-text">
+              <div class="breakdown-label">Vagas Ocupadas</div>
+              <div class="breakdown-value">{{ getOccupiedVagas() }}</div>
+            </div>
+          </div>
+        </div>
+
+        <button (click)="navigateTo('cadastros/turmas')" class="card-button card-button-orange w-full">
+          <span>Detalhes de Vagas</span>
+          <span class="ml-2">→</span>
+        </button>
+      </div>
+    </div>
   </div>
+
+  <!-- Últimas Turmas Criadas -->
+  @if (ultimasTurmas().length > 0) {
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Últimas Turmas</h2>
+      
+      @if (loadingTurmas()) {
+        <div class="text-center py-8 text-gray-500">Carregando turmas...</div>
+      } @else if (ultimasTurmas().length > 0) {
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+          <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Turma</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Data Início</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Vagas</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dias</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (turma of ultimasTurmas(); track turma.id) {
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ turma.nomeTurma || turma.nome }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-600">{{ turma.dataInicio | date:'dd/MM/yyyy' }}</td>
+                  <td class="px-6 py-4 text-sm">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {{ turma.vagasTurma }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">{{ turma.diaSemana }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="text-center py-8 text-gray-500">Nenhuma turma encontrada</div>
+      }
+    </div>
+  }
 </div>

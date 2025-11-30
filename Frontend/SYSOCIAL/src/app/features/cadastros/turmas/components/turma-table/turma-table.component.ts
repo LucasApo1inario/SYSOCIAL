@@ -9,7 +9,6 @@ import {
   ZardTableHeadComponent,
   ZardTableCellComponent
 } from '@shared/components/table/table.component';
-import { ZardBadgeComponent } from '@shared/components/badge/badge.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -23,7 +22,6 @@ import { CommonModule } from '@angular/common';
     ZardTableRowComponent,
     ZardTableHeadComponent,
     ZardTableCellComponent,
-    ZardBadgeComponent,
     ZardButtonComponent,
   ],
   templateUrl: './turma-table.component.html',
@@ -48,9 +46,5 @@ export class TurmaTableComponent {
 
   onViewAlunos(turma: Turma) {
     this.viewAlunos.emit(turma);
-  }
-
-  getBadgeType(ativo: boolean): 'default' | 'destructive' {
-    return ativo ? 'default' : 'destructive';
   }
 }

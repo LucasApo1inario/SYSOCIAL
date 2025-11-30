@@ -4,13 +4,14 @@ import { Observable } from 'rxjs';
 import { Course } from '../interfaces/course.interface';
 import { CourseCreateRequest } from '../interfaces/CourseCreateRequest.interface';
 import { CourseCreateResponse } from '../interfaces/CourseCreateResponse.interface';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CoursesService {
 
-  private apiUrl = 'http://64.181.170.230:8080/api/v1/cursos';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +20,7 @@ export class CoursesService {
    * Recupera lista de todos os cursos
    */
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(this.apiUrl);
+    return this.http.get<Course[]>(this.apiUrl + "/all");
   }
 
   /**
@@ -36,7 +37,7 @@ export class CoursesService {
    * Retorna: { id: number, message: string }
    */
   createCourse(payload: CourseCreateRequest): Observable<CourseCreateResponse> {
-    return this.http.post<CourseCreateResponse>(this.apiUrl, payload);
+    return this.http.post<CourseCreateResponse>(this.apiUrl + "/ins", payload);
   }
 
   /**

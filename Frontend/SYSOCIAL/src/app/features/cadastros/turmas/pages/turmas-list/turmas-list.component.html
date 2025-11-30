@@ -17,12 +17,67 @@
       <p class="text-gray-500">Carregando turmas...</p>
     </div>
   } @else {
+    <div class="mb-4 flex items-center gap-4">
+      <label class="text-sm font-medium">
+        Itens por página:
+        <select
+          z-input
+          [ngModel]="itemsPerPage()"
+          (ngModelChange)="onItemsPerPageChange($event)"
+          class="ml-2"
+          zSize="default"
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </label>
+      <span class="text-sm text-gray-500">
+        Mostrando {{ displayedTurmas().length }} de {{ filteredTurmas().length }} turmas
+      </span>
+    </div>
+
     <app-turma-table
       [turmas]="displayedTurmas()"
       (edit)="editTurma($event)"
       (delete)="deleteTurma($event)"
       (viewAlunos)="viewTurmaAlunos($event)"
     ></app-turma-table>
+
+    <!-- Paginação -->
+    @if (totalPages() > 1) {
+      <div class="flex justify-center items-center gap-2 mt-6">
+        <z-button
+          zType="ghost"
+          zSize="sm"
+          (click)="previousPage()"
+          [attr.disabled]="currentPage() === 1 ? true : null"
+        >
+          Anterior
+        </z-button>
+
+        @for (page of [].constructor(totalPages()); let i = $index; track i) {
+          <button
+            z-button
+            [zType]="currentPage() === i + 1 ? 'default' : 'ghost'"
+            zSize="sm"
+            (click)="goToPage(i + 1)"
+          >
+            {{ i + 1 }}
+          </button>
+        }
+
+        <z-button
+          zType="ghost"
+          zSize="sm"
+          (click)="nextPage()"
+          [attr.disabled]="currentPage() === totalPages() ? true : null"
+        >
+          Próxima
+        </z-button>
+      </div>
+    }
   }
 
   <!-- Modal de Alunos -->

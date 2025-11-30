@@ -1,67 +1,130 @@
 <div class="flex justify-center p-6">
   <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-1xl">
 
+    <!-- MODAL DE BUSCA DE CURSOS -->
+    @if (showCourseModal()) {
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+          <app-curso-search-modal
+            (select)="onCourseSelected($event)"
+            (close)="onCourseModalClose()"
+          ></app-curso-search-modal>
+        </div>
+      </div>
+    }
+
     <form class="space-y-6" (ngSubmit)="onSubmit()" #createTurmaForm="ngForm" autocomplete="off" novalidate>
 
       <!-- NOME DA TURMA -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label zRequired for="nome">Nome da Turma</label>
+          <label z-form-label zRequired for="nomeTurma">Nome da Turma</label>
           <z-form-control>
             <input
               z-input
               type="text"
-              id="nome"
-              placeholder="Ex: Turma A - Seg/Qua"
-              [(ngModel)]="model.nome"
-              name="nome"
+              id="nomeTurma"
+              placeholder="Ex: Turma A - Manhã"
+              [(ngModel)]="model.nomeTurma"
+              name="nomeTurma"
               required
               minlength="3"
             />
           </z-form-control>
 
-          @if (createTurmaForm.submitted && !model.nome) {
+          @if (createTurmaForm.submitted && !model.nomeTurma) {
             <z-form-message>Nome da turma é obrigatório.</z-form-message>
           }
         </z-form-field>
       </div>
 
-      <!-- CURSO ID -->
+      <!-- DESCRIÇÃO -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label zRequired for="curso_id">ID do Curso</label>
+          <label z-form-label for="descricao">Descrição</label>
           <z-form-control>
-            <input
+            <textarea
               z-input
-              type="number"
-              id="curso_id"
-              placeholder="1"
-              [(ngModel)]="model.curso_id"
-              name="curso_id"
-              required
-              min="1"
-            />
+              id="descricao"
+              placeholder="Descrição da turma (opcional)"
+              [(ngModel)]="model.descricao"
+              name="descricao"
+              rows="3"
+            ></textarea>
           </z-form-control>
-
-          @if (createTurmaForm.submitted && model.curso_id <= 0) {
-            <z-form-message>ID do curso é obrigatório.</z-form-message>
-          }
         </z-form-field>
       </div>
 
-      <!-- DIAS DA SEMANA -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- CURSO ID COM BOTÃO DE PESQUISA -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <z-form-field>
-          <label z-form-label for="dias_semana">Dias da Semana</label>
+          <label z-form-label zRequired for="cursoId">ID do Curso</label>
           <z-form-control>
             <input
               z-input
               type="text"
-              id="dias_semana"
-              placeholder="Segunda, Quarta"
-              [(ngModel)]="model.dias_semana"
-              name="dias_semana"
+              id="cursoId"
+              placeholder="ID será preenchido"
+              [value]="selectedCourse()?.id || ''"
+              name="cursoId"
+              readonly
+              required
+              class="flex-1"
             />
+          </z-form-control>
+
+          @if (createTurmaForm.submitted && model.cursoId <= 0) {
+            <z-form-message>Selecione um curso.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label zRequired for="cursoNome">Nome do Curso</label>
+          <z-form-control>
+            <input
+              z-input
+              type="text"
+              id="cursoNome"
+              placeholder="Nome será preenchido"
+              [value]="selectedCourse()?.nome || ''"
+              name="cursoNome"
+              readonly
+              required
+              class="flex-1"
+            />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="flex items-end">
+          <z-form-control>
+            <button
+              z-button
+              zType="default"
+              type="button"
+              (click)="openCourseModal()"
+              class="w-full"
+            >
+              Pesquisar Curso
+            </button>
+          </z-form-control>
+        </z-form-field>
+      </div>
+
+      <!-- DIA DA SEMANA -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label for="diaSemana">Dia da Semana</label>
+          <z-form-control>
+            <select z-input id="diaSemana" [(ngModel)]="model.diaSemana" name="diaSemana">
+              <option value="">Selecione um dia</option>
+              <option value="Segunda-feira">Segunda-feira</option>
+              <option value="Terça-feira">Terça-feira</option>
+              <option value="Quarta-feira">Quarta-feira</option>
+              <option value="Quinta-feira">Quinta-feira</option>
+              <option value="Sexta-feira">Sexta-feira</option>
+              <option value="Sábado">Sábado</option>
+              <option value="Domingo">Domingo</option>
+            </select>
           </z-form-control>
         </z-form-field>
       </div>
@@ -69,75 +132,101 @@
       <!-- HORÁRIO DE INÍCIO E FIM -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label for="horario_inicio">Horário de Início</label>
+          <label z-form-label for="horaInicio">Hora de Início</label>
           <z-form-control>
             <input
               z-input
               type="time"
-              id="horario_inicio"
-              [(ngModel)]="model.horario_inicio"
-              name="horario_inicio"
+              id="horaInicio"
+              [(ngModel)]="model.horaInicio"
+              name="horaInicio"
             />
           </z-form-control>
         </z-form-field>
 
         <z-form-field>
-          <label z-form-label for="horario_fim">Horário de Fim</label>
+          <label z-form-label for="horaFim">Hora de Fim</label>
           <z-form-control>
             <input
               z-input
               type="time"
-              id="horario_fim"
-              [(ngModel)]="model.horario_fim"
-              name="horario_fim"
+              id="horaFim"
+              [(ngModel)]="model.horaFim"
+              name="horaFim"
             />
           </z-form-control>
         </z-form-field>
       </div>
 
-      <!-- VAGAS TOTAIS -->
+      <!-- DATA DE INÍCIO E FIM -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <z-form-field>
-          <label z-form-label zRequired for="vagas_totais">Vagas Totais</label>
+          <label z-form-label zRequired for="dataInicio">Data de Início</label>
+          <z-form-control>
+            <input
+              z-input
+              type="date"
+              id="dataInicio"
+              [(ngModel)]="model.dataInicio"
+              name="dataInicio"
+              required
+            />
+          </z-form-control>
+
+          @if (createTurmaForm.submitted && !model.dataInicio) {
+            <z-form-message>Data de início é obrigatória.</z-form-message>
+          }
+        </z-form-field>
+
+        <z-form-field>
+          <label z-form-label zRequired for="dataFim">Data de Fim</label>
+          <z-form-control>
+            <input
+              z-input
+              type="date"
+              id="dataFim"
+              [(ngModel)]="model.dataFim"
+              name="dataFim"
+              required
+            />
+          </z-form-control>
+
+          @if (createTurmaForm.submitted && !model.dataFim) {
+            <z-form-message>Data de fim é obrigatória.</z-form-message>
+          }
+        </z-form-field>
+      </div>
+
+      <!-- VAGAS DA TURMA -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <z-form-field>
+          <label z-form-label zRequired for="vagasTurma">Vagas da Turma</label>
           <z-form-control>
             <input
               z-input
               type="number"
-              id="vagas_totais"
+              id="vagasTurma"
               placeholder="30"
-              [(ngModel)]="model.vagas_totais"
-              name="vagas_totais"
+              [(ngModel)]="model.vagasTurma"
+              name="vagasTurma"
               required
               min="1"
             />
           </z-form-control>
 
-          @if (createTurmaForm.submitted && model.vagas_totais <= 0) {
+          @if (createTurmaForm.submitted && model.vagasTurma <= 0) {
             <z-form-message>Número de vagas deve ser maior que zero.</z-form-message>
           }
         </z-form-field>
       </div>
 
-      <!-- STATUS (ATIVO) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <z-form-field>
-          <label z-form-label for="ativo">Ativo</label>
-          <z-form-control>
-            <select z-input id="ativo" [(ngModel)]="model.ativo" name="ativo">
-              <option [value]="true">Sim</option>
-              <option [value]="false">Não</option>
-            </select>
-          </z-form-control>
-        </z-form-field>
-      </div>
-
       <!-- BOTÕES FINAIS -->
       <div class="flex items-center gap-2 mt-6">
-        <button z-button zType="default" type="submit" [disabled]="loading">
+        <button z-button zType="default" type="submit" [disabled]="loading()">
           Criar turma
         </button>
 
-        <button z-button zType="ghost" type="button" (click)="reset()" [disabled]="loading">
+        <button z-button zType="ghost" type="button" (click)="reset()" [disabled]="loading()">
           Limpar
         </button>
 
@@ -151,7 +240,7 @@
           Voltar
         </button>
 
-        @if (loading) {
+        @if (loading()) {
           <span class="ml-2">Enviando...</span>
         }
       </div>

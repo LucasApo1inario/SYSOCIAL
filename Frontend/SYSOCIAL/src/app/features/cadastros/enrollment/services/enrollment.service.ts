@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, lastValueFrom, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CourseOption, EnrollmentPayload, FileUploadRequest, StudentSummary, StudentFilter, GuardianPayload } from '../interfaces/enrollment.model';
+import { environment } from 'src/environments/environment';
 
 export interface StudentListState {
   filters: StudentFilter;
@@ -15,8 +16,8 @@ export interface StudentListState {
 export class EnrollmentService {
   private http = inject(HttpClient);
   
-  private readonly ENROLLMENT_API_URL = 'http://localhost:8084/api/v1/enrollments';
-  private readonly FILE_API_URL = 'http://localhost:8083/api/v1/files';
+  private readonly ENROLLMENT_API_URL = environment.apiUrl + '/enrollments';
+  private readonly FILE_API_URL = environment.apiUrl + '/files';
 
   private _listState: StudentListState | null = null;
 

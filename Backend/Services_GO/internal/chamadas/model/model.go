@@ -2,10 +2,10 @@ package model
 
 // Chamada representa a tabela chamada
 type Chamada struct {
-	ID          int    `json:"id" db:"id_chamada"`
-	UsuarioID   int    `json:"usuarioId" db:"users_id_usuario"`
-	TurmaID     int    `json:"turmaId" db:"turmas_id_turma"`
-	DataAula    string `json:"dataAula" db:"data_aula"` // Formato: YYYY-MM-DD
+	ID        int    `json:"id" db:"id_chamada"`
+	UsuarioID int    `json:"usuarioId" db:"users_id_usuario"`
+	TurmaID   int    `json:"turmaId" db:"turmas_id_turma"`
+	DataAula  string `json:"dataAula" db:"data_aula"` // Formato: YYYY-MM-DD
 }
 
 // Presenca representa a tabela presenca
@@ -47,14 +47,14 @@ type PresencaPorData struct {
 
 // AlunoPresencas representa um aluno com suas presenças por data
 type AlunoPresencas struct {
-	AlunoID   int                       `json:"alunoId"`
-	AlunoNome string                    `json:"alunoNome"`
+	AlunoID   int                        `json:"alunoId"`
+	AlunoNome string                     `json:"alunoNome"`
 	Presencas map[string]PresencaPorData `json:"presencas"` // Chave é a data (YYYY-MM-DD)
 }
 
 // ChamadasPorTurmaMesResponse resposta do GET de chamadas por turma e mês
 type ChamadasPorTurmaMesResponse struct {
-	Datas  []string         `json:"datas"`  // Array de datas no formato YYYY-MM-DD
+	Datas  []string         `json:"datas"` // Array de datas no formato YYYY-MM-DD
 	Alunos []AlunoPresencas `json:"alunos"`
 }
 
@@ -66,18 +66,26 @@ type CreatePresencasPayload struct {
 
 // UpsertPresencasPayload payload para criar/atualizar múltiplas presenças
 type UpsertPresencasPayload struct {
-	ChamadaID int                      `json:"chamadaId" binding:"required"`
-	Records   []UpsertPresencaRecord   `json:"records" binding:"required"`
+	ChamadaID int                    `json:"chamadaId" binding:"required"`
+	Records   []UpsertPresencaRecord `json:"records" binding:"required"`
 }
 
 // UpsertPresencaRecord representa um registro de presença para upsert
 type UpsertPresencaRecord struct {
 	IDEstudante int    `json:"idEstudante" binding:"required"`
-	Present     string `json:"present"`     // VARCHAR(2): "P", "F", "J", etc.
+	Present     string `json:"present"` // VARCHAR(2): "P", "F", "J", etc.
 	Observation string `json:"observation"`
 }
 
+// UpsertPresencasPayload payload para criar/atualizar múltiplas presenças
+type UpsertPresencasPayload struct {
+	ChamadaID int                    `json:"chamadaId" binding:"required"`
+	Records   []UpsertPresencaRecord `json:"records" binding:"required"`
+}
 
-
-
-
+// UpsertPresencaRecord representa um registro de presença para upsert
+type UpsertPresencaRecord struct {
+	IDEstudante int    `json:"idEstudante" binding:"required"`
+	Present     string `json:"present"` // VARCHAR(2): "P", "F", "J", etc.
+	Observation string `json:"observation"`
+}

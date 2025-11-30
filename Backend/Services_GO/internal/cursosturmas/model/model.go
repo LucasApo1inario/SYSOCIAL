@@ -61,7 +61,7 @@ type UpdateTurmaPayload struct {
 	HoraInicio *string `json:"horaInicio"`
 	HoraFim    *string `json:"horaFim"`
 	DataInicio *string `json:"dataInicio"` // Formato: YYYY-MM-DD
-	DataFim    *string `json:"dataFim"`   // Formato: YYYY-MM-DD
+	DataFim    *string `json:"dataFim"`    // Formato: YYYY-MM-DD
 }
 
 // CursoComTurmas representa um curso com suas turmas

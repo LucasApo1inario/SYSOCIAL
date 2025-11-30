@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { isAuthenticatedGuard } from './core/auth/guards/is-authenticated-guard';
 
 export const routes: Routes = [
-     {
+    {
         path: '',
         loadChildren: () => import('./features/home/routes')
     },
@@ -18,6 +18,11 @@ export const routes: Routes = [
     {
         path: 'cadastros',
         loadChildren: () => import('./features/cadastros/routes'), // módulo filho
+        canActivate: [isAuthenticatedGuard],
+    },
+    {
+        path: 'reports',
+        loadChildren: () => import('./features/reports/routes'),
         canActivate: [isAuthenticatedGuard],
     }
 ];

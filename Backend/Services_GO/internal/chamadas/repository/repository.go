@@ -98,13 +98,11 @@ func (r *ChamadasRepository) GetChamadasByTurmaID(ctx context.Context, turmaID i
 
 // UpdateChamada atualiza uma chamada
 func (r *ChamadasRepository) UpdateChamada(ctx context.Context, id int, payload model.UpdateChamadaPayload) error {
-	// Buscar chamada atual
 	chamada, err := r.GetChamadaByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	// Preparar valores para atualização
 	usuarioID := chamada.UsuarioID
 	if payload.UsuarioID != nil {
 		usuarioID = *payload.UsuarioID
@@ -131,6 +129,26 @@ func (r *ChamadasRepository) UpdateChamada(ctx context.Context, id int, payload 
 	}
 
 	return nil
+}
+
+// CheckTurmaDateRange verifica se a data da aula está dentro do período da turma
+func (r *ChamadasRepository) CheckTurmaDateRange(ctx context.Context, turmaID int, dataAula string) (bool, error) {
+
+	query := `
+		SELECT COUNT(*) 
+		FROM turma 
+		WHERE id_turma = $1 
+		  AND $2::date >= COALESCE(data_inicio, '1900-01-01') 
+		  AND $2::date <= COALESCE(data_fim, '2100-01-01')`
+
+	var count int
+	err := r.db.QueryRowContext(ctx, query, turmaID, dataAula).Scan(&count)
+	if err != nil {
+
+		return false, fmt.Errorf("erro ao validar data da turma: %w", err)
+	}
+
+	return count > 0, nil
 }
 
 // ========== MÉTODOS PARA PRESENÇA ==========
@@ -177,9 +195,8 @@ func (r *ChamadasRepository) GetPresencasByChamadaID(ctx context.Context, chamad
 	return presencas, nil
 }
 
-// CreatePresencas cria múltiplas presenças de uma vez
+// CreatePresencas cria OU atualiza presenças (Upsert Manual)
 func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int, presencas []model.CreatePresencaPayload) error {
-	// Iniciar transação
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("erro ao iniciar transação: %w", err)
@@ -193,7 +210,14 @@ func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int,
 		}
 	}()
 
-	query := `
+	// Query de Update (Tenta atualizar se já existe)
+	updateQuery := `
+		UPDATE presenca 
+		SET presente = $1, observacao = $2 
+		WHERE chamada_id_chamada = $3 AND aluno_id_aluno = $4`
+
+	// Query de Insert (Cria se não existir)
+	insertQuery := `
 		INSERT INTO presenca (chamada_id_chamada, aluno_id_aluno, presente, observacao)
 		VALUES ($1, $2, $3, $4)`
 
@@ -203,14 +227,33 @@ func (r *ChamadasRepository) CreatePresencas(ctx context.Context, chamadaID int,
 			observacao = presenca.Observacao
 		}
 
-		_, err = tx.ExecContext(ctx, query,
+		// 1. Tenta UPDATE
+		res, err := tx.ExecContext(ctx, updateQuery,
+			presenca.Presente, // String (P, F, FJ)
+			observacao,
 			chamadaID,
 			presenca.AlunoID,
-			presenca.Presente,
-			observacao,
 		)
 		if err != nil {
-			return fmt.Errorf("erro ao inserir presença: %w", err)
+			return fmt.Errorf("erro ao atualizar presença: %w", err)
+		}
+
+		rows, err := res.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("erro ao verificar linhas afetadas: %w", err)
+		}
+
+		// 2. Se UPDATE não afetou nenhuma linha (registro não existe), faz INSERT
+		if rows == 0 {
+			_, err = tx.ExecContext(ctx, insertQuery,
+				chamadaID,
+				presenca.AlunoID,
+				presenca.Presente,
+				observacao,
+			)
+			if err != nil {
+				return fmt.Errorf("erro ao inserir presença: %w", err)
+			}
 		}
 	}
 
@@ -256,12 +299,12 @@ func (r *ChamadasRepository) UpsertPresencas(ctx context.Context, payload model.
 
 	// Query para verificar se presença existe
 	queryCheck := `SELECT id_presenca FROM presenca WHERE chamada_id_chamada = $1 AND aluno_id_aluno = $2`
-	
+
 	// Query para inserir
 	queryInsert := `
 		INSERT INTO presenca (chamada_id_chamada, aluno_id_aluno, presente, observacao)
 		VALUES ($1, $2, $3, $4)`
-	
+
 	// Query para atualizar
 	queryUpdate := `
 		UPDATE presenca
@@ -283,7 +326,7 @@ func (r *ChamadasRepository) UpsertPresencas(ctx context.Context, payload model.
 		// Verificar se presença já existe
 		var presencaID int
 		err = tx.QueryRowContext(ctx, queryCheck, payload.ChamadaID, record.IDEstudante).Scan(&presencaID)
-		
+
 		var observacao interface{}
 		if record.Observation != "" {
 			observacao = record.Observation
@@ -374,18 +417,18 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 
 	// Mapear dia da semana em português para time.Weekday
 	diaSemanaMap := map[string]time.Weekday{
-		"Domingo":     time.Sunday,
+		"Domingo":       time.Sunday,
 		"Segunda-feira": time.Monday,
-		"Terça-feira":  time.Tuesday,
-		"Quarta-feira": time.Wednesday,
-		"Quinta-feira": time.Thursday,
-		"Sexta-feira":  time.Friday,
-		"Sábado":      time.Saturday,
-		"Segunda":     time.Monday,
-		"Terça":       time.Tuesday,
-		"Quarta":      time.Wednesday,
-		"Quinta":      time.Thursday,
-		"Sexta":       time.Friday,
+		"Terça-feira":   time.Tuesday,
+		"Quarta-feira":  time.Wednesday,
+		"Quinta-feira":  time.Thursday,
+		"Sexta-feira":   time.Friday,
+		"Sábado":        time.Saturday,
+		"Segunda":       time.Monday,
+		"Terça":         time.Tuesday,
+		"Quarta":        time.Wednesday,
+		"Quinta":        time.Thursday,
+		"Sexta":         time.Friday,
 	}
 
 	targetWeekday, ok := diaSemanaMap[diaSemana]
@@ -413,7 +456,7 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 		var chamadaID int
 		queryChamada := `SELECT id_chamada FROM chamada WHERE turmas_id_turma = $1 AND data_aula = $2`
 		err := r.db.QueryRowContext(ctx, queryChamada, turmaID, data).Scan(&chamadaID)
-		
+
 		if err == sql.ErrNoRows {
 			// Criar chamada
 			queryInsert := `
@@ -427,7 +470,7 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 		} else if err != nil {
 			return nil, fmt.Errorf("erro ao verificar chamada: %w", err)
 		}
-		
+
 		chamadasMap[data] = chamadaID
 	}
 
@@ -477,7 +520,7 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 		// Construir lista de IDs de chamadas e placeholders
 		args := make([]interface{}, 0, len(chamadasMap))
 		placeholders := make([]string, 0, len(chamadasMap))
-		
+
 		argIndex := 1
 		for _, id := range chamadasMap {
 			placeholders = append(placeholders, fmt.Sprintf("$%d", argIndex))
@@ -493,7 +536,7 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 			}
 			placeholdersStr += ph
 		}
-		
+
 		queryPresencas := fmt.Sprintf(`
 			SELECT p.id_presenca, p.chamada_id_chamada, p.aluno_id_aluno, 
 			       COALESCE(p.presente, '') as presente, 
@@ -529,7 +572,7 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 				for i := range alunos {
 					if alunos[i].AlunoID == alunoID {
 						presencaData := model.PresencaPorData{
-							PresencaID: &presencaID,
+							PresencaID:  &presencaID,
 							Present:     "",
 							Observation: "",
 						}
@@ -559,28 +602,23 @@ func (r *ChamadasRepository) GetChamadasPorTurmaMes(ctx context.Context, turmaID
 func calcularDatasDoMes(ano int, mes time.Month, weekday time.Weekday) []string {
 	// Primeiro dia do mês
 	primeiroDia := time.Date(ano, mes, 1, 0, 0, 0, 0, time.UTC)
-	
+
 	// Encontrar o primeiro dia da semana no mês
 	diasParaAdicionar := int(weekday - primeiroDia.Weekday())
 	if diasParaAdicionar < 0 {
 		diasParaAdicionar += 7
 	}
-	
+
 	primeiraData := primeiroDia.AddDate(0, 0, diasParaAdicionar)
-	
+
 	var datas []string
 	dataAtual := primeiraData
-	
+
 	// Adicionar todas as datas do mesmo dia da semana no mês
 	for dataAtual.Month() == mes {
 		datas = append(datas, dataAtual.Format("2006-01-02"))
 		dataAtual = dataAtual.AddDate(0, 0, 7) // Adicionar 7 dias
 	}
-	
+
 	return datas
 }
-
-
-
-
-

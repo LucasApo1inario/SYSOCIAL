@@ -32,9 +32,11 @@ export class CoursesListComponent implements OnInit {
   loading = signal(false);
 
   displayedCourses = computed(() =>
-    this.courses().filter(c =>
-      c.nome.toLowerCase().includes(this.searchQuery().toLowerCase())
-    )
+    this.courses()
+      .filter(c =>
+        c.nome.toLowerCase().includes(this.searchQuery().toLowerCase())
+      )
+      .sort((a, b) => a.id - b.id)
   );
 
   pageSize = signal(7);
@@ -73,7 +75,6 @@ export class CoursesListComponent implements OnInit {
       },
       error: (err: any) => {
         this.loading.set(false);
-        console.log(err);
         const errorMsg = err?.error?.message || 'Erro ao carregar cursos.';
         toast.error(errorMsg, {
           duration: 5000,

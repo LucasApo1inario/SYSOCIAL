@@ -3,22 +3,23 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Turma } from '../interfaces/turma.interface';
 import { TurmaAluno } from '../interfaces/turma-aluno.interface';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TurmasService {
 
-  private apiUrl = 'http://64.181.170.230:8080/api/v1/turmas';
+  private apiUrl = environment.apiUrl + '/turmas';
 
   constructor(private http: HttpClient) {}
 
   /**
-   * GET /api/v1/turmas
+   * GET /api/v1/turmas/all
    * Recupera lista de todas as turmas
    */
   getTurmas(): Observable<Turma[]> {
-    return this.http.get<Turma[]>(this.apiUrl);
+    return this.http.get<Turma[]>(this.apiUrl + "/all");
   }
 
   /**
@@ -42,7 +43,7 @@ export class TurmasService {
    * Cria uma nova turma
    */
   createTurma(payload: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, payload);
+    return this.http.post<any>(this.apiUrl + "/ins", payload);
   }
 
   /**

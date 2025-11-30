@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserCreateRequest } from '../interfaces/UserCreateRequest.interface';
 import { UserCreateResponse } from '../interfaces/UserCreateResponse.interface';
-import { environment } from 'src/environments/enviroment';
+import { environment } from 'src/environments/environment';
 import { UserApiResponse } from '../interfaces/UserApiResponse.interface';
 
 @Injectable({

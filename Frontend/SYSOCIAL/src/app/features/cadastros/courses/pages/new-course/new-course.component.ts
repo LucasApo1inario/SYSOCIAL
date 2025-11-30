@@ -60,7 +60,6 @@ export class NewCourseComponent {
           position: 'bottom-center',
         });
 
-        this.reset();
         this.router.navigate(['cadastros/courses']);
       },
       error: (err: any) => {
