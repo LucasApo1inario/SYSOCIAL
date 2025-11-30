@@ -18,11 +18,6 @@ export interface ClassDTO {
   dataFim?: string;
 }
 
-export interface StudentDTO {
-  id: number;
-  nome: string;
-}
-
 // --- DTOs da API de Chamadas (Porta 8086) ---
 export interface ChamadaDTO {
   id: number;
@@ -31,13 +26,13 @@ export interface ChamadaDTO {
   dataAula: string; // YYYY-MM-DD
 }
 
-// NOVO: Objeto de data dentro da resposta da matriz
+// Objeto de data dentro da resposta da matriz
 export interface DataChamadaDTO {
-  id: number;
-  data: string;
+  id: number;       // ID da Chamada
+  data: string;     // YYYY-MM-DD
 }
 
-// NOVO: Resposta completa da matriz de chamadas
+// Resposta completa da matriz de chamadas
 export interface AttendanceResponseDTO {
   datas: DataChamadaDTO[]; 
   alunos: {
@@ -45,7 +40,6 @@ export interface AttendanceResponseDTO {
     alunoNome: string;
     presencas: {
       [date: string]: {
-        presencaId?: number; // Pode vir no JSON novo para update direto
         present: string;
         observation: string;
       }
@@ -53,32 +47,19 @@ export interface AttendanceResponseDTO {
   }[];
 }
 
-export interface PresencaDTO {
-  id: number;
-  chamadaId: number;
-  alunoId: number;
-  presente: boolean;
-  observacao: string;
-}
-
-export interface CreateChamadaPayload {
-  usuarioId: number;
-  turmaId: number;
-  dataAula: string;
-}
-
-export interface CreatePresencaItem {
-  idEstudante: number; // Ajustado para o padrão do endpoint novo
-  present: string;     // Ajustado para string (P, F, FJ)
+// Payload para Upsert (Salvar Presenças)
+export interface UpsertPresencaRecord {
+  idEstudante: number; 
+  present: string;    
   observation: string;
 }
 
-export interface CreatePresencasPayload {
+export interface UpsertPresencasPayload {
   chamadaId: number;
-  records: CreatePresencaItem[]; // Ajustado para 'records' conforme endpoint novo
+  records: UpsertPresencaRecord[];
 }
 
-// --- INTERFACES VISUAIS (Mantidas para os Componentes) ---
+// --- INTERFACES VISUAIS ---
 export interface CourseOption {
   id: number;
   name: string;
@@ -94,10 +75,9 @@ export interface ClassOption {
 }
 
 export interface AttendanceGrid {
-  dates: string[];
-  students: StudentAttendance[];
-  // Opcional: Mapa de IDs para facilitar salvamento
-  callIds?: { [date: string]: number };
+  dates: string[]; // Lista de datas para colunas da tabela
+  students: StudentAttendance[]; // Dados dos alunos
+  dateIdMap: { [date: string]: number }; // Data (YYYY-MM-DD) -> ID da Chamada
 }
 
 export interface StudentAttendance {
@@ -112,9 +92,7 @@ export interface StudentAttendance {
 }
 
 export interface AttendanceRecord {
-  presenceId?: number;
-  callId?: number;
-  status: string; // Alterado de boolean 'present' para string 'status'
+  status: string; 
   observation: string;
 }
 

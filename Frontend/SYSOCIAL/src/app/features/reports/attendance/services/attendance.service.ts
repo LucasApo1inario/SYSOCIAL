@@ -1,12 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of, throwError } from 'rxjs';
-import { map, switchMap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { 
   AttendanceGrid, ClassOption, CourseOption, 
-  ChamadaDTO, PresencaDTO, CreateChamadaPayload, CreatePresencasPayload, 
-  StudentAttendance, AttendanceRecord, AttendanceResponseDTO,
-  CourseDTO, ClassDTO, StudentDTO, CreatePresencaItem
+  AttendanceResponseDTO, UpsertPresencasPayload,
+  CourseDTO, ClassDTO, StudentAttendance, AttendanceRecord
 } from '../interfaces/attendance.model';
 import { environment } from 'src/environments/environment';
 
@@ -16,23 +15,17 @@ import { environment } from 'src/environments/environment';
 export class AttendanceService {
   private http = inject(HttpClient);
   
-  // URL Base do Gateway (http://IP:8080/api/v1)
   private readonly API_URL = environment.apiUrl;
-
-  // ID do usuário para criação de chamadas (Fallback)
-  private readonly loggedUserId = 2; 
 
   // --- LEITURA BÁSICA ---
 
   getCourses(): Observable<CourseOption[]> {
-    // Rota: GET /cursos/all
     return this.http.get<CourseDTO[]>(`${this.API_URL}/cursos/all`).pipe(
       map(courses => courses.map(c => ({ id: c.id, name: c.nome })))
     );
   }
 
   getClasses(courseId: number): Observable<ClassOption[]> {
-    // Rota: GET /cursos/{id}/turmas
     return this.http.get<{ turmas: ClassDTO[] }>(`${this.API_URL}/cursos/${courseId}/turmas`).pipe(
       map(response => response && response.turmas ? response.turmas.map(c => {
         const start = this.formatTime(c.horaInicio);
@@ -58,53 +51,72 @@ export class AttendanceService {
 
   // --- LEITURA DA MATRIZ (GRADE) ---
 
-  getAttendanceMatrix(classId: number, month: number, year: number): Observable<AttendanceGrid> {
+  getAttendanceMatrix(classId: number, month: number, year: number, classRange?: { start?: Date, end?: Date }): Observable<AttendanceGrid> {
     const monthStr = (month + 1).toString().padStart(2, '0');
     const periodParam = `${year}${monthStr}`;
+    
+    const userIdPlaceholder = 2; 
 
-    // Rota: GET /chamadas/{turmaId}/{anoMes}
-    // Exemplo: /chamadas/1/202511
     const url = `${this.API_URL}/chamadas/${classId}/${periodParam}`;
 
     console.log(`[Attendance] Buscando matriz: ${url}`);
 
     return this.http.get<AttendanceResponseDTO>(url).pipe(
-      map(response => this.mapApiToGrid(response)),
+      map(response => this.mapApiToGrid(response, classRange)),
       catchError(err => {
         console.error('[Attendance] Erro ao buscar matriz:', err);
-        // Retorna grade vazia em caso de erro para não quebrar a tela
-        return of({ dates: [], students: [] });
+        return of({ dates: [], students: [], dateIdMap: {} });
       })
     );
   }
 
-  private mapApiToGrid(apiData: AttendanceResponseDTO): AttendanceGrid {
-    // Proteção contra resposta nula ou sem alunos
+  private mapApiToGrid(apiData: AttendanceResponseDTO, classRange?: { start?: Date, end?: Date }): AttendanceGrid {
     if (!apiData || !apiData.alunos) {
-      return { dates: [], students: [] };
+      return { dates: [], students: [], dateIdMap: {} };
     }
 
-    // Extrai e ordena as datas
-    // O backend retorna: "datas": [{ "data": "2025-11-04", "id": 13 }, ...]
-    const sortedDataInfos = (apiData.datas || []).sort((a: any, b: any) => {
-        const dateA = a.data;
-        const dateB = b.data;
-        return dateA.localeCompare(dateB);
+    const sortedDataInfos = (apiData.datas || []).sort((a, b) => {
+        return a.data.localeCompare(b.data);
     });
-    
-    // Array de strings para o cabeçalho da tabela (['2025-11-04', ...])
-    const dateStrings = sortedDataInfos.map((d: any) => d.data);
-    
-    // Mapeia os alunos e suas presenças
+
+    const dates: string[] = [];
+    const dateIdMap: { [date: string]: number } = {};
+
+    sortedDataInfos.forEach(info => {
+      // Normaliza data da coluna
+      const cleanDate = info.data.split('T')[0];
+      
+      // === LÓGICA DE FILTRO DE DATAS ===
+      if (classRange) {
+        const currentDate = new Date(cleanDate);
+        currentDate.setHours(0, 0, 0, 0);
+
+        if (classRange.start) {
+          const start = new Date(classRange.start);
+          start.setHours(0, 0, 0, 0);
+          if (currentDate < start) return; // Data anterior ao início da turma
+        }
+
+        if (classRange.end) {
+          const end = new Date(classRange.end);
+          end.setHours(0, 0, 0, 0);
+          if (currentDate > end) return; // Data posterior ao fim da turma
+        }
+      }
+
+      dates.push(cleanDate);
+      dateIdMap[cleanDate] = info.id; 
+    });
+
     const students: StudentAttendance[] = apiData.alunos.map(aluno => {
       const attendanceMap: { [date: string]: AttendanceRecord } = {};
 
       if (aluno.presencas) {
         Object.keys(aluno.presencas).forEach(dateKey => {
           const apiRecord = aluno.presencas[dateKey];
-          
-          // Ignora a entrada com timestamp ISO se ela for duplicada/extra no JSON
-          if (dateKey.includes('T')) return;
+          const cleanKey = dateKey.split('T')[0];
+
+          if (!dateIdMap[cleanKey]) return;
 
           let status = 'F'; 
           const rawPresent = String(apiRecord.present).toUpperCase().trim();
@@ -115,14 +127,14 @@ export class AttendanceService {
           
           if (rawPresent === '') status = '___EMPTY___';
 
-          attendanceMap[dateKey] = {
+          attendanceMap[cleanKey] = {
             status: status,
             observation: apiRecord.observation || ''
           };
         });
       }
 
-      // Cálculos de estatísticas locais
+      // Estatísticas (Recalculadas apenas com as datas visíveis)
       const records = Object.values(attendanceMap);
       const stats = {
         presents: records.filter(r => r.status === 'P').length,
@@ -138,89 +150,45 @@ export class AttendanceService {
       };
     });
 
-    return { dates: dateStrings, students: students };
+    return { dates, students, dateIdMap };
   }
 
   // --- SALVAMENTO ---
 
-  saveDailyAttendance(classId: number, date: string, records: StudentAttendance[]): Observable<any> {
-    // 1. Busca o ID da Chamada para a data específica
-    return this.findChamadaId(classId, date).pipe(
-      switchMap(chamadaId => {
-        
-        // Prepara o payload de registros (Alunos)
-        const attendanceRecords = records.map(student => {
-          const record = student.attendance[date];
-          let safeObs = record ? (record.observation || '') : '';
-          if (safeObs === '___EMPTY___') safeObs = '';
-          
-          let statusEnvio = 'F';
-          if (record && record.status && record.status !== '___EMPTY___') {
-             statusEnvio = record.status;
-          }
-          
-          return { 
-            idEstudante: student.studentId, 
-            present: statusEnvio, 
-            observation: safeObs 
-          };
-        });
+  saveAttendanceForCall(callId: number, records: StudentAttendance[], date: string): Observable<any> {
+    const payloadRecords = records.map(student => {
+      const record = student.attendance[date];
+      
+      let safeObs = '';
+      let statusEnvio = 'F'; 
 
-        // Cenário A: Chamada JÁ existe (temos ID)
-        if (chamadaId) {
-            const payload = { 
-              chamadaId: chamadaId, 
-              records: attendanceRecords 
-            };
-            // Rota: POST /presencas/turma
-            return this.http.post(`${this.API_URL}/presencas/turma`, payload);
-        } 
-        
-        // Cenário B: Chamada NÃO existe -> Cria Chamada -> Salva Presenças
-        else {
-            console.log(`[Save] Chamada não encontrada para ${date}. Criando...`);
-            
-            const newCall: CreateChamadaPayload = { 
-                usuarioId: this.loggedUserId, 
-                turmaId: classId, 
-                dataAula: date 
-            };
-            
-            // Rota: POST /chamadas
-            return this.http.post<{ id: number }>(`${this.API_URL}/chamadas`, newCall).pipe(
-                switchMap(res => {
-                    const payload = { 
-                      chamadaId: res.id, 
-                      records: attendanceRecords 
-                    };
-                    // Rota: POST /presencas/turma
-                    return this.http.post(`${this.API_URL}/presencas/turma`, payload);
-                })
-            );
+      if (record) {
+        if (record.observation && record.observation !== '___EMPTY___') {
+          safeObs = record.observation;
         }
-      })
-    );
+        if (record.status && record.status !== '___EMPTY___') {
+          statusEnvio = record.status;
+        }
+      }
+      
+      if (statusEnvio === '___EMPTY___') statusEnvio = 'F'; 
+
+      return { 
+        idEstudante: student.studentId, 
+        present: statusEnvio, 
+        observation: safeObs 
+      };
+    });
+
+    const payload: UpsertPresencasPayload = {
+      chamadaId: callId,
+      records: payloadRecords
+    };
+
+    return this.http.post(`${this.API_URL}/presencas/turma`, payload);
   }
 
   // --- HELPERS ---
-
-  // Busca o ID da chamada usando o endpoint de lista (que retorna os IDs explicitamente)
-  private findChamadaId(classId: number, dateTarget: string): Observable<number | undefined> {
-    // Rota: GET /chamadas/turma/{turmaId}
-    return this.http.get<ChamadaDTO[]>(`${this.API_URL}/chamadas/turma/${classId}`).pipe(
-      map(chamadas => {
-        if (!chamadas) return undefined;
-        // Normaliza a data (apenas YYYY-MM-DD) para comparar
-        const found = chamadas.find(c => c.dataAula && c.dataAula.split('T')[0] === dateTarget);
-        return found ? found.id : undefined;
-      }),
-      catchError(err => {
-        console.error('[Attendance] Erro ao buscar ID da chamada:', err);
-        return of(undefined);
-      })
-    );
-  }
-
   private formatTime(time: string): string {
     if (!time) return '--:--';
     if (time.includes('T')) {
