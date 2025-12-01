@@ -192,18 +192,14 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 	query := `
 		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-		INSERT INTO turma (cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id_turma`
 
 	var id int
-	var descricao, horaInicio, horaFim, dataInicio, dataFim interface{}
+	var descricao, horaInicio, horaFim interface{}
 	
 	if payload.Descricao != "" { descricao = payload.Descricao }
 	if payload.HoraInicio != "" { horaInicio = payload.HoraInicio }
 	if payload.HoraFim != "" { horaFim = payload.HoraFim }
-	if payload.DataInicio != "" { dataInicio = payload.DataInicio }
-	if payload.DataFim != "" { dataFim = payload.DataFim }
 
 	err = r.db.QueryRowContext(ctx, query,
 		payload.CursoID,
@@ -227,10 +223,11 @@ func (r *CursosTurmasRepository) CreateTurma(ctx context.Context, payload model.
 // GetTurmaByID busca uma turma por ID
 func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		FROM turma
-		WHERE id_turma = $1`
+		SELECT t.id_turma, t.cursos_id_curso, c.nome as curso_nome, t.dia_semana, t.vagas_turma, t.nome_turma, 
+		       t.descricao, t.hora_inicio, t.hora_fim, t.data_inicio, t.data_fim
+		FROM turma t
+		INNER JOIN curso c ON t.cursos_id_curso = c.id_curso
+		WHERE t.id_turma = $1`
 
 	var turma model.Turma
 	var descricao, horaInicio, horaFim, dataInicio, dataFim sql.NullString
@@ -238,14 +235,15 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&turma.ID,
 		&turma.CursoID,
+		&turma.CursoNome,
 		&turma.DiaSemana,
 		&turma.VagasTurma,
 		&turma.NomeTurma,
 		&descricao,
 		&horaInicio,
 		&horaFim,
-		&turma.DataInicio,
-		&turma.DataFim,
+		&dataInicio,
+		&dataFim,
 	)
 
 	if err != nil {
@@ -267,11 +265,12 @@ func (r *CursosTurmasRepository) GetTurmaByID(ctx context.Context, id int) (*mod
 // GetTurmasByCursoID busca todas as turmas de um curso
 func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID int) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		FROM turma
-		WHERE cursos_id_curso = $1
-		ORDER BY nome_turma`
+		SELECT t.id_turma, t.cursos_id_curso, c.nome as curso_nome, t.dia_semana, t.vagas_turma, t.nome_turma, 
+		       t.descricao, t.hora_inicio, t.hora_fim, t.data_inicio, t.data_fim
+		FROM turma t
+		INNER JOIN curso c ON t.cursos_id_curso = c.id_curso
+		WHERE t.cursos_id_curso = $1
+		ORDER BY t.nome_turma`
 
 	rows, err := r.db.QueryContext(ctx, query, cursoID)
 	if err != nil {
@@ -287,14 +286,15 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 		err := rows.Scan(
 			&turma.ID,
 			&turma.CursoID,
+			&turma.CursoNome,
 			&turma.DiaSemana,
 			&turma.VagasTurma,
 			&turma.NomeTurma,
 			&descricao,
 			&horaInicio,
 			&horaFim,
-			&turma.DataInicio,
-			&turma.DataFim,
+			&dataInicio,
+			&dataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
@@ -315,10 +315,11 @@ func (r *CursosTurmasRepository) GetTurmasByCursoID(ctx context.Context, cursoID
 // GetAllTurmas lista todas as turmas
 func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turma, error) {
 	query := `
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		SELECT id_turma, cursos_id_curso, dia_semana, vagas_turma, nome_turma, descricao, hora_inicio, hora_fim, data_inicio, data_fim
-		FROM turma
-		ORDER BY cursos_id_curso, nome_turma`
+		SELECT t.id_turma, t.cursos_id_curso, c.nome as curso_nome, t.dia_semana, t.vagas_turma, t.nome_turma, 
+		       t.descricao, t.hora_inicio, t.hora_fim, t.data_inicio, t.data_fim
+		FROM turma t
+		INNER JOIN curso c ON t.cursos_id_curso = c.id_curso
+		ORDER BY t.cursos_id_curso, t.nome_turma`
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -334,14 +335,15 @@ func (r *CursosTurmasRepository) GetAllTurmas(ctx context.Context) ([]model.Turm
 		err := rows.Scan(
 			&turma.ID,
 			&turma.CursoID,
+			&turma.CursoNome,
 			&turma.DiaSemana,
 			&turma.VagasTurma,
 			&turma.NomeTurma,
 			&descricao,
 			&horaInicio,
 			&horaFim,
-			&turma.DataInicio,
-			&turma.DataFim,
+			&dataInicio,
+			&dataFim,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear turma: %w", err)
@@ -405,15 +407,11 @@ func (r *CursosTurmasRepository) UpdateTurma(ctx context.Context, id int, payloa
 		UPDATE turma
 		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7, data_inicio = $8, data_fim = $9
 		WHERE id_turma = $10`
-		SET cursos_id_curso = $1, dia_semana = $2, vagas_turma = $3, nome_turma = $4, descricao = $5, hora_inicio = $6, hora_fim = $7, data_inicio = $8, data_fim = $9
-		WHERE id_turma = $10`
 
-	var descricaoVal, horaInicioVal, horaFimVal, dataInicioVal, dataFimVal interface{}
+	var descricaoVal, horaInicioVal, horaFimVal interface{}
 	if descricao != "" { descricaoVal = descricao }
 	if horaInicio != "" { horaInicioVal = horaInicio }
 	if horaFim != "" { horaFimVal = horaFim }
-	if dataInicio != "" { dataInicioVal = dataInicio }
-	if dataFim != "" { dataFimVal = dataFim }
 
 	_, err = r.db.ExecContext(ctx, query, cursoID, diaSemana, vagasTurma, nomeTurma, descricaoVal, horaInicioVal, horaFimVal, dataInicio, dataFim, id)
 	if err != nil {

@@ -13,6 +13,7 @@ type Curso struct {
 type Turma struct {
 	ID         int    `json:"id" db:"id_turma"`
 	CursoID    int    `json:"cursoId" db:"cursos_id_curso"`
+	CursoNome  string `json:"cursoNome" db:"curso_nome"` // Nome do curso (via JOIN)
 	DiaSemana  string `json:"diaSemana" db:"dia_semana"`
 	VagasTurma int    `json:"vagasTurma" db:"vagas_turma"`
 	NomeTurma  string `json:"nomeTurma" db:"nome_turma"`
