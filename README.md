@@ -1,4 +1,4 @@
-# 🌎 SYSOCIAL - Sistema de Organização e Controle de Informações de Atividades Locais
+# 🌎 SYSOCIAL - Sistema de Organização e Controle de Informações em Atividades Locais
 
 ## 📖 Índice
 - [📝 Descrição do projeto](#-descrição-do-projeto)
@@ -9,7 +9,7 @@
 ---
 
 ## 📝 Descrição do projeto
-O SYSOCIAL é um sistema desenvolvido para auxiliar  na gestão educacional e social de cursos. Ele permite organizar alunos, professores, cursos e relatórios, fornecendo uma visão clara do impacto social da instituição.
+O SYSOCIAL é um sistema desenvolvido com fins educacionais por alunos da Universidade Federal de São Paulo - UNIFESP para auxiliar  na gestão educacional e social de cursos. Ele permite organizar alunos, professores, cursos e relatórios, fornecendo uma visão clara do impacto social da instituição.
 
 O sistema oferece funcionalidades essenciais, como o cadastro de alunos e seus responsáveis, de professores e o gerenciamento completo de cursos. Também possibilita o controle de matrículas, o acompanhamento de vagas disponíveis e o registro de matrículas canceladas.
 
