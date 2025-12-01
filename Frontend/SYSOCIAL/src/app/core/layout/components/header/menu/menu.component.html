@@ -1,86 +1,103 @@
-<div class="bg-[#246A73] text-white">
-  <div class="max-w-7xl mx-auto px-4">
-    <nav class="flex flex-wrap items-center justify-between py-4">
-      <div class="flex flex-wrap items-center gap-6">
-        
-        <!-- Cadastros -->
-        <div class="relative">
-          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="cadastrosMenu">
-            Cadastros
-            <i class="icon-chevron-down ml-1"></i>
-          </button>
-          <ng-template #cadastrosMenu>
-            <div z-menu-content class="w-48">
-              <button z-menu-item (click)="navigateTo('/cadastros/courses')">Cursos</button>
-              <button z-menu-item (click)="navigateTo('/cadastros/turmas')">Turmas</button>
-            </div>
-          </ng-template>
-        </div>
-
-        <!-- Matrículas -->
-        <div class="relative">
-          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="matriculasMenu">
-            Matrículas
-            <i class="icon-chevron-down ml-1"></i>
-          </button>
-          <ng-template #matriculasMenu>
-            <div z-menu-content class="w-56">
-              <button z-menu-item (click)="navigateTo('/cadastros/enrollment')">Nova matrícula</button>
-              <button z-menu-item (click)="navigateTo('/cadastros/student-list')">Controle de matrículas</button>
-              <!--<button z-menu-item (click)="log('cancelamentos')">Cancelamentos</button> -->
-            </div>
-          </ng-template>
-        </div>
-
-        <!-- Relatórios -->
-        <!-- <div class="relative">
-          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="relatoriosMenu">
-            Relatórios
-            <i class="icon-chevron-down ml-1"></i>
-          </button>
-          <ng-template #relatoriosMenu>
-            <div z-menu-content class="w-64">
-              <button z-menu-item (click)="log('frequencia')">Frequência dos alunos</button>
-              <button z-menu-item (click)="navigateTo('/reports/attendance-entry')">Chamadas</button>
-              <button z-menu-item (click)="log('vagas')">Vagas disponíveis</button>
-              <button z-menu-item (click)="navigateTo('/reports/attendance-manager')">Ver chamadas</button> <!-- Estatísticas. Alterado temporariamente-->
-            </div>
-          </ng-template>
-        </div> -->
-
-        <!-- Administração (visível apenas se admin) -->
-        @if(userType() === 'A'){
-        <div class="relative">
-          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="adminMenu">
-            Administração
-            <i class="icon-chevron-down ml-1"></i>
-          </button>
-          <ng-template #adminMenu>
-            <div z-menu-content class="w-48">
-              <button z-menu-item (click)="navigateTo('/administration/users')">Usuários do sistema</button>
-              <!--<button z-menu-item (click)="navigateTo('/administration/config')">Configurações</button> -->
-            </div>
-          </ng-template>
-        </div>
-        }
-
-        <!-- Ajuda -->
-        <div class="relative">
-          <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="ajudaMenu">
-            Ajuda
-            <i class="icon-chevron-down ml-1"></i>
-          </button>
-          <ng-template #ajudaMenu>
-            <div z-menu-content class="w-48">
-             <!-- <button z-menu-item (click)="log('docs')">Documentação</button>
-              <button z-menu-item (click)="log('tutoriais')">Tutoriais</button> -->
-              <button z-menu-item (click)="navigateTo('contato')">Contato / Suporte</button>
-              <button z-menu-item (click)="logout()">Desconectar</button>
-            </div>
-          </ng-template>
-        </div>
-
+<div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-6 w-full">
+  
+  <!-- 1. CADASTROS / CATÁLOGO -->
+  <div class="relative">
+    <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="cadastrosMenu" class="text-white hover:text-gray-200 font-medium">
+      {{ userType() === 'A' ? 'Cadastros' : 'Catálogo' }}
+      <i class="icon-chevron-down ml-1 text-xs"></i>
+    </button>
+    <ng-template #cadastrosMenu>
+      <div z-menu-content class="w-48 py-1">
+        <button z-menu-item (click)="navigateTo('/cadastros/courses')">
+          {{ userType() === 'A' ? 'Gerenciar Cursos' : 'Ver Cursos' }}
+        </button>
+        <button z-menu-item (click)="navigateTo('/cadastros/turmas')">
+          {{ userType() === 'A' ? 'Gerenciar Turmas' : 'Ver Turmas' }}
+        </button>
       </div>
-    </nav>
+    </ng-template>
   </div>
+
+  <!-- 2. MATRÍCULAS (Admin e Aluno) -->
+  @if (userType() === 'A' || userType() === 'U') {
+    <div class="relative">
+      <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="matriculasMenu" class="text-white hover:text-gray-200 font-medium">
+        Matrículas
+        <i class="icon-chevron-down ml-1 text-xs"></i>
+      </button>
+      <ng-template #matriculasMenu>
+        <div z-menu-content class="w-56 py-1">
+          <button z-menu-item (click)="navigateTo('/cadastros/enrollment')">Nova Matrícula</button>
+          <button z-menu-item (click)="navigateTo('/cadastros/student-list')">Minhas Matrículas</button>
+        </div>
+      </ng-template>
+    </div>
+  }
+
+  <!-- 3. FREQUÊNCIA (Todos) -->
+  <div class="relative">
+    <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="relatoriosMenu" class="text-white hover:text-gray-200 font-medium">
+      Frequência
+      <i class="icon-chevron-down ml-1 text-xs"></i>
+    </button>
+    <ng-template #relatoriosMenu>
+      <div z-menu-content class="w-64 py-1">
+        <!-- Professor e Admin: LANÇAR -->
+        @if (userType() === 'A' || userType() === 'P') {
+          <button z-menu-item (click)="navigateTo('/reports/attendance-entry')">
+            <span class="font-semibold text-[#246A73]">Lançar Chamada</span>
+          </button>
+        }
+        
+        <!-- Aluno e Admin: VISUALIZAR -->
+        @if (userType() === 'A' || userType() === 'U') {
+          <button z-menu-item (click)="navigateTo('/reports/attendance-manager')">
+            Histórico de Frequência
+          </button>
+        }
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- 4. ADMINISTRAÇÃO (Apenas Admin) -->
+  @if(userType() === 'A'){
+    <div class="relative">
+      <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="adminMenu" class="text-white hover:text-gray-200 font-medium">
+        Admin
+        <i class="icon-chevron-down ml-1 text-xs"></i>
+      </button>
+      <ng-template #adminMenu>
+        <div z-menu-content class="w-48 py-1">
+          <button z-menu-item (click)="navigateTo('/administration/users')">Usuários</button>
+        </div>
+      </ng-template>
+    </div>
+  }
+
+  <!-- 5. PERFIL / AJUDA (Direita no Desktop) -->
+  <div class="relative md:ml-4 md:pl-4 md:border-l md:border-white/20">
+    <button z-button zType="ghost" z-menu zTrigger="hover" [zMenuTriggerFor]="userMenu" class="flex items-center gap-2 text-white hover:text-gray-200">
+      <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold border border-white/30">
+        {{ userName().charAt(0).toUpperCase() }}
+      </div>
+      <span class="text-sm font-medium">{{ userName() }}</span>
+      <i class="icon-chevron-down ml-1 text-xs"></i>
+    </button>
+    <ng-template #userMenu>
+      <div z-menu-content class="w-48 py-1">
+        <div class="px-4 py-2 text-xs text-gray-500 border-b border-gray-100 mb-1">
+          Perfil: 
+          @if(userType() === 'A') { <strong>Administrador</strong> }
+          @if(userType() === 'P') { <strong>Professor</strong> }
+          @if(userType() === 'U') { <strong>Supervisor</strong> }
+        </div>
+        <button z-menu-item (click)="navigateTo('contato')">Suporte</button>
+        <button z-menu-item (click)="logout()" class="text-red-600 hover:bg-red-50 flex items-center justify-between">
+          Sair
+          <i class="icon-log-out text-xs"></i>
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
 </div>

@@ -99,11 +99,14 @@ export class AttendanceManagerPage implements OnInit {
   loadData(filter: AttendanceFilter) {
     if (!filter.classId) return;
     
+    const selectedClass = this.classes.find(c => c.id === filter.classId);
+    const range = selectedClass ? { start: selectedClass.startDate, end: selectedClass.endDate } : undefined;
+
     this.currentFilter = filter;
     this.isLoading = true;
     this.gridData = null; 
     
-    this.service.getAttendanceMatrix(filter.classId, filter.month, filter.year).subscribe({
+    this.service.getAttendanceMatrix(filter.classId, filter.month, filter.year, range).subscribe({
       next: (data) => {
         if (!data.dates) data.dates = [];
         this.gridData = data;
@@ -121,14 +124,8 @@ export class AttendanceManagerPage implements OnInit {
     });
   }
 
-  // Busca o nome do professor usando o ID salvo na chamada
   private findProfessorName() {
-    this.currentProfessorName = 'Não Identificado'; // Reset
-
-    if (!this.gridData || !this.gridData.students.length || !this.gridData.dates.length) return;
-    
-    // TODO: Implementar busca real se a API de chamadas retornar o ID do professor no grid.
-    this.currentProfessorName = "Professor (ID 2)"; 
+    this.currentProfessorName = 'Não Identificado'; 
   }
 
   onStatusChange(event: {studentId: number, date: string, present: string | undefined}) {
@@ -158,24 +155,36 @@ export class AttendanceManagerPage implements OnInit {
   }
 
   saveAll() {
-    if (!this.gridData || !this.currentFilter?.classId) return;
+    if (!this.gridData || !this.gridData.dateIdMap) return;
     if (this.changedDates.size === 0) {
         alert('Nenhuma alteração para salvar.');
         return;
     }
 
     this.isSaving = true;
-    const classId = this.currentFilter.classId;
 
-    const saveRequests = Array.from(this.changedDates).map(date => {
-        return this.service.saveDailyAttendance(
-            classId, 
-            date, 
-            this.gridData!.students
+    const requests = Array.from(this.changedDates).map(date => {
+        const callId = this.gridData!.dateIdMap[date];
+        
+        if (!callId) {
+            console.warn(`[Save] ID de chamada não encontrado para ${date}`);
+            return null;
+        }
+
+        return this.service.saveAttendanceForCall(
+            callId, 
+            this.gridData!.students,
+            date
         );
-    });
+    }).filter(req => req !== null);
 
-    forkJoin(saveRequests).subscribe({
+    if (requests.length === 0) {
+        this.isSaving = false;
+        alert('Erro técnico: IDs das chamadas não encontrados.');
+        return;
+    }
+
+    forkJoin(requests).subscribe({
         next: () => {
             this.isSaving = false;
             alert('Alterações salvas com sucesso!');
@@ -186,14 +195,12 @@ export class AttendanceManagerPage implements OnInit {
             console.error('Erro ao salvar:', err);
             this.isSaving = false;
             let msg = 'Erro ao salvar.';
-            if (err.error && err.error.details) msg += ` Detalhes: ${err.error.details}`;
-            else if (err.error && err.error.error) msg += ` Erro: ${err.error.error}`;
+            if (err.error && err.error.details) msg += ` ${err.error.details}`;
             alert(msg);
         }
     });
   }
 
-  // --- EXPORTAÇÃO CSV ---
   exportToCSV() {
     if (!this.gridData || !this.currentFilter) return;
 
@@ -246,8 +253,8 @@ export class AttendanceManagerPage implements OnInit {
     const link = document.createElement('a');
     const fileName = `Frequencia_${turma?.name || 'Turma'}_${monthName}_${year}.csv`;
     
-    if (navigator.msSaveBlob) { 
-        navigator.msSaveBlob(blob, fileName);
+    if ((navigator as any).msSaveBlob) { 
+        (navigator as any).msSaveBlob(blob, fileName);
     } else {
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
@@ -270,10 +277,4 @@ export class AttendanceManagerPage implements OnInit {
     const presents = records.filter(r => r && (r.status === 'P' || r.status === 'FJ')).length;
     return Math.round((presents / recordedDays) * 100);
   }
-}
-
-declare global {
-    interface Navigator {
-        msSaveBlob?: (blob: any, defaultName?: string) => boolean;
-    }
 }

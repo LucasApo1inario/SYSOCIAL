@@ -84,15 +84,16 @@ export class AttendanceEntryPage implements OnInit {
   loadData(filter: AttendanceFilter) {
     if (!filter.classId) return;
     
+    const selectedClass = this.classes.find(c => c.id === filter.classId);
+    const range = selectedClass ? { start: selectedClass.startDate, end: selectedClass.endDate } : undefined;
+
     this.currentFilter = filter;
     this.isLoading = true;
     this.gridData = null; 
     
-    this.service.getAttendanceMatrix(filter.classId, filter.month, filter.year).subscribe({
+    this.service.getAttendanceMatrix(filter.classId, filter.month, filter.year, range).subscribe({
       next: (data) => {
-
         if (!data.dates) data.dates = [];
-        
         this.gridData = data;
         this.changedDates.clear(); 
         this.isLoading = false;
@@ -110,36 +111,50 @@ export class AttendanceEntryPage implements OnInit {
   }
 
   saveAll() {
-    if (!this.gridData || !this.currentFilter?.classId) return;
+    if (!this.gridData || !this.gridData.dateIdMap) {
+        alert('Dados inválidos para salvamento.');
+        return;
+    }
+    
     if (this.changedDates.size === 0) {
         alert('Nenhuma alteração para salvar.');
         return;
     }
 
     this.isSaving = true;
-    const classId = this.currentFilter.classId;
 
-    const saveRequests = Array.from(this.changedDates).map(date => {
-        return this.service.saveDailyAttendance(
-            classId, 
-            date, 
-            this.gridData!.students
+    const requests = Array.from(this.changedDates).map(date => {
+        const callId = this.gridData!.dateIdMap[date];
+        
+        if (!callId) {
+            console.warn(`ID da chamada não encontrado para a data ${date}`);
+            return null; 
+        }
+
+        return this.service.saveAttendanceForCall(
+            callId, 
+            this.gridData!.students,
+            date
         );
-    });
+    }).filter(req => req !== null);
 
-    forkJoin(saveRequests).subscribe({
+    if (requests.length === 0) {
+        this.isSaving = false;
+        alert('Erro: IDs das chamadas não encontrados. Recarregue a página.');
+        return;
+    }
+
+    forkJoin(requests).subscribe({
         next: () => {
             this.isSaving = false;
             alert('Chamada salva com sucesso!');
             this.changedDates.clear();
-            this.loadData(this.currentFilter!);
         },
         error: (err) => {
-            console.error('Erro detalhado:', err);
+            console.error('Erro ao salvar:', err);
             this.isSaving = false;
             let msg = 'Erro ao salvar.';
-            if (err.error && err.error.details) msg += ` Detalhes: ${err.error.details}`;
-            else if (err.error && err.error.error) msg += ` Erro: ${err.error.error}`;
+            if (err.error && err.error.details) msg += ` ${err.error.details}`;
             alert(msg);
         }
     });

@@ -1,5 +1,15 @@
-.container{
-  display: flex;
-  justify-content: flex-end;
+:host {
+  display: block;
   width: 100%;
+}
+
+/* Removemos estilos de container fixo para deixar o Header controlar o layout */
+button[z-button] {
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+button[z-button]:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
