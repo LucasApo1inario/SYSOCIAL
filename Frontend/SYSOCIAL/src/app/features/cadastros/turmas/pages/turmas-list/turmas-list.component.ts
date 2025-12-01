@@ -36,11 +36,17 @@ export class TurmasListComponent implements OnInit {
   itemsPerPage = signal(10);
   currentPage = signal(1);
 
-  filteredTurmas = computed(() =>
-    this.turmas().filter(t =>
-      (t.nomeTurma || t.nome || '').toLowerCase().includes(this.searchQuery().toLowerCase())
-    )
-  );
+  filteredTurmas = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim(); // Boa prática: trim() remove espaços acidentais
+
+    return this.turmas().filter(t => {
+      const nomeTurma = (t.nomeTurma || t.nome || '').toLowerCase();
+      const nomeCurso = (t.cursoNome || '').toLowerCase(); // Pega o nome do curso (ou string vazia se for null)
+
+      // Retorna TRUE se encontrar na Turma OU no Curso
+      return nomeTurma.includes(query) || nomeCurso.includes(query);
+    });
+  });
 
   displayedTurmas = computed(() => {
     const filtered = this.filteredTurmas();
@@ -62,23 +68,24 @@ export class TurmasListComponent implements OnInit {
   /**
    * Carrega a lista de turmas da API
    */
-  loadTurmas() {
-    this.loading.set(true);
-    this.turmasService.getTurmas().subscribe({
-      next: (turmas) => {
-        this.turmas.set(turmas);
-        this.loading.set(false);
-      },
-      error: (err: any) => {
-        this.loading.set(false);
-        const errorMsg = err?.error?.message || 'Erro ao carregar turmas.';
-        toast.error(errorMsg, {
-          duration: 5000,
-          position: 'bottom-center',
-        });
-      }
-    });
-  }
+loadTurmas() {
+  this.loading.set(true);
+  
+  this.turmasService.getTurmas().subscribe({
+    next: (turmas) => {
+      this.turmas.set(turmas);
+      this.loading.set(false);
+    },
+    error: (err: any) => {
+      this.loading.set(false);
+      const errorMsg = err?.error?.message || 'Erro ao carregar turmas.';
+      toast.error(errorMsg, {
+        duration: 5000,
+        position: 'bottom-center',
+      });
+    }
+  });
+}
 
   /**
    * Navega para página de criação de nova turma

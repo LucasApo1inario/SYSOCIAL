@@ -15,6 +15,7 @@ export interface Turma {
   ativo?: boolean;
   // Fields novos (camelCase)
   nomeTurma?: string;
+  cursoNome?: string;
   cursoId?: number;
   diaSemana?: string;
   horaInicio?: string;
