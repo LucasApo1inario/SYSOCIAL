@@ -1,383 +1,350 @@
-<div class="w-full">
-  <!-- Hero Section com Imagem -->
+<div class="w-full pb-20">
+  
+  <!-- Hero Section Personalizado -->
   <div class="relative w-full h-96 bg-cover bg-center rounded-lg shadow-lg overflow-hidden mb-12"
        style="background-image: url('/images/home.jpg');">
-    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 bg-black/60"></div>
     
-    <div class="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
-      <h1 class="text-5xl font-bold text-center mb-4">Bem-vindo ao SYSOCIAL, {{ userName() }}!</h1>
-      <p class="text-xl text-center max-w-2xl">
-        Sistema completo de gestão de cursos, turmas e alunos
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-white px-4 z-10">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-4 tracking-tight">
+        Olá, {{ userName() }}
+      </h1>
+      <p class="text-lg md:text-xl text-center max-w-2xl text-blue-100 font-medium">
+        @if (isProfessor()) {
+          Painel do Professor - Gerencie suas chamadas e turmas
+        } @else if (isUsuario()) {
+          Área do Supervidor - Acompanhe as matrículas e frequências
+        } @else {
+          Painel Administrativo - Visão geral do sistema
+        }
       </p>
     </div>
   </div>
 
-  <!-- Quick Actions - Diferenciado por tipo de usuário -->
-  <div class="mb-12">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Atalhos Rápidos</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Admin: Todos os atalhos (suas opções + preview de professor e usuário) -->
-      @if (isAdmin()) {
-        <div class="quick-cards-grid">
-          <div class="quick-card quick-card-blue" (click)="criarCurso()" role="button" tabindex="0">
-            <div class="qa-icon">📚</div>
-            <div class="qa-content">
-              <div class="qa-title">Novo Curso</div>
-              <div class="qa-subtext">Criar e configurar um novo curso</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-green" (click)="criarTurma()" role="button" tabindex="0">
-            <div class="qa-icon">👥</div>
-            <div class="qa-content">
-              <div class="qa-title">Nova Turma</div>
-              <div class="qa-subtext">Abrir turma e gerenciar vagas</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-purple" (click)="criarUsuario()" role="button" tabindex="0">
-            <div class="qa-icon">🧑‍💼</div>
-            <div class="qa-content">
-              <div class="qa-title">Novo Usuário</div>
-              <div class="qa-subtext">Adicionar administrador ou professor</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-        </div>
-      }
-
-      <!-- Professor: Suas turmas -->
-      @if (isProfessor()) {
-        <div class="quick-cards-grid">
-          <div class="quick-card quick-card-green" (click)="navigateTo('cadastros/turmas')" role="button" tabindex="0">
-            <div class="qa-icon">🧑‍🏫</div>
-            <div class="qa-content">
-              <div class="qa-title">Minhas Turmas</div>
-              <div class="qa-subtext">Acesse turmas sob sua responsabilidade</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-blue" (click)="navigateTo('cadastros/enrollment')" role="button" tabindex="0">
-            <div class="qa-icon">🎒</div>
-            <div class="qa-content">
-              <div class="qa-title">Alunos</div>
-              <div class="qa-subtext">Gerenciar matrículas e presença</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-orange" (click)="navigateTo('cadastros/courses')" role="button" tabindex="0">
-            <div class="qa-icon">📘</div>
-            <div class="qa-content">
-              <div class="qa-title">Cursos</div>
-              <div class="qa-subtext">Ver catálogo de cursos</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-        </div>
-      }
-
-      <!-- Usuário Comum: Cursos e Turmas -->
-      @if (isUsuario()) {
-        <div class="quick-cards-grid">
-          <div class="quick-card quick-card-blue" (click)="navigateTo('cadastros/courses')" role="button" tabindex="0">
-            <div class="qa-icon">📚</div>
-            <div class="qa-content">
-              <div class="qa-title">Cursos</div>
-              <div class="qa-subtext">Explorar cursos disponíveis</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-green" (click)="navigateTo('cadastros/turmas')" role="button" tabindex="0">
-            <div class="qa-icon">🏷️</div>
-            <div class="qa-content">
-              <div class="qa-title">Turmas</div>
-              <div class="qa-subtext">Buscar turmas e horários</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-
-          <div class="quick-card quick-card-orange" (click)="navigateTo('cadastros/enrollment')" role="button" tabindex="0">
-            <div class="qa-icon">📝</div>
-            <div class="qa-content">
-              <div class="qa-title">Matrículas</div>
-              <div class="qa-subtext">Ver suas inscrições</div>
-            </div>
-            <div class="qa-arrow">→</div>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Estatísticas - Dashboard -->
-  <div class="mb-12">
-    <div class="stats-header">
-      <h2 class="text-3xl font-bold text-gray-900">📊 Dashboard de Estatísticas</h2>
-      <p class="text-gray-600 mt-2">Visão geral do sistema em tempo real</p>
-    </div>
-
-    <div class="stats-grid">
-      <!-- Card Cursos -->
-      <div class="stat-card stat-card-blue">
-        <div class="stat-card-icon">
-          <div class="icon-books"></div>
-        </div>
-        <div class="stat-card-content">
-          <div class="stat-card-value">{{ totalCourses() }}</div>
-          <div class="stat-card-label">Cursos</div>
-          <div class="stat-card-subtext">Cursos cadastrados</div>
-        </div>
-      
-      </div>
-
-      <!-- Card Turmas -->
-      <div class="stat-card stat-card-green">
-        <div class="stat-card-icon">
-          <div class="icon-users"></div>
-        </div>
-        <div class="stat-card-content">
-          <div class="stat-card-value">{{ totalTurmas() }}</div>
-          <div class="stat-card-label">Turmas</div>
-          <div class="stat-card-subtext">Turmas ativas</div>
-        </div>
-      
-      </div>
-
-      <!-- Card Vagas Totais -->
-      <div class="stat-card stat-card-orange">
-        <div class="stat-card-icon">
-          <div class="icon-chart"></div>
-        </div>
-        <div class="stat-card-content">
-          <div class="stat-card-value">{{ totalVagas() }}</div>
-          <div class="stat-card-label">Total Vagas</div>
-          <div class="stat-card-subtext">Capacidade geral</div>
-        </div>
-      
-      </div>
-
-      <!-- Card Vagas Disponíveis -->
-      <div class="stat-card stat-card-purple">
-        <div class="stat-card-icon">
-          <div class="icon-check"></div>
-        </div>
-        <div class="stat-card-content">
-          <div class="stat-card-value">{{ vagasDisponiveis() }}</div>
-          <div class="stat-card-label">Disponíveis</div>
-          <div class="stat-card-subtext">Prontas para alunos</div>
-        </div>
+  <div class="max-w-7xl mx-auto px-6">
+    
+    <!-- === ÁREA DO PROFESSOR === -->
+    @if (isProfessor()) {
+      <div class="mb-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <span class="w-1 h-6 bg-[#246A73] rounded-full"></span>
+          Ações Prioritárias
+        </h2>
         
-      </div>
-    </div>
-
-    <!-- Mini Chart Stats -->
-    <div class="mini-stats-container mt-6">
-      <div class="mini-stat-card">
-        <div class="mini-stat-dot" style="background: #3b82f6;"></div>
-        <div class="mini-stat-info">
-          <div class="mini-stat-title">Taxa de Ocupação</div>
-          <div class="mini-stat-bar">
-            <div class="mini-stat-bar-fill" [style.width.%]="calculateOccupancyPercentage()"></div>
-          </div>
-          <div class="mini-stat-value">{{ calculateOccupancyPercentage() }}%</div>
-        </div>
-      </div>
-
-      <div class="mini-stat-card">
-        <div class="mini-stat-dot" style="background: #10b981;"></div>
-        <div class="mini-stat-info">
-          <div class="mini-stat-title">Média de Vagas por Turma</div>
-          <div class="mini-stat-value">{{ getAverageVagasPerTurma() }} vagas</div>
-        </div>
-      </div>
-
-      <div class="mini-stat-card">
-        <div class="mini-stat-dot" style="background: #f59e0b;"></div>
-        <div class="mini-stat-info">
-          <div class="mini-stat-title">Eficiência Geral</div>
-          <div class="mini-stat-value">{{ getEfficiencyRatio() }} cursos/turma</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cards Informativos Melhorados -->
-  <div class="home-container mb-12">
-    <div class="card card-cursos">
-      <div class="card-header">
-        <div class="icon-wrapper-lg">
-          <div class="icon-books"></div>
-        </div>
-        <div class="card-title-section">
-          <h3 class="text-2xl font-bold text-gray-800">Cursos</h3>
-          <p class="text-sm text-gray-500">Gestão de conteúdo</p>
-        </div>
-      </div>
-      
-      <div class="card-content">
-        <div class="stat-display">
-          <div class="stat-number text-blue-600">{{ totalCourses() }}</div>
-          <div class="stat-label">Cursos Ativos</div>
-        </div>
-        <p class="text-gray-600 text-sm mt-4 mb-4">
-          Gerenciar e organizar seus cursos de forma eficiente, acompanhar vagas disponíveis
-        </p>
-        
-        @if (courses().length > 0) {
-          <div class="mini-list mb-4">
-            <div class="mini-list-title">Últimos adicionados:</div>
-            @for (course of courses().slice(0, 3); track course.id) {
-              <div class="mini-list-item">
-                <span class="bullet">•</span>
-                <span class="text-xs text-gray-700">{{ course.nome }}</span>
-                <span class="text-xs text-gray-500 ml-auto">{{ course.vagasTotais }} vagas</span>
-              </div>
-            }
-          </div>
-        }
-        
-        <button (click)="navigateTo('cadastros/courses')" class="card-button card-button-blue w-full">
-          <span>Ver Cursos</span>
-          <span class="ml-2">→</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="card card-turmas">
-      <div class="card-header">
-        <div class="icon-wrapper-lg">
-          <div class="icon-users"></div>
-        </div>
-        <div class="card-title-section">
-          <h3 class="text-2xl font-bold text-gray-800">Turmas</h3>
-          <p class="text-sm text-gray-500">Gerenciamento de classes</p>
-        </div>
-      </div>
-      
-      <div class="card-content">
-        <div class="stat-display">
-          <div class="stat-number text-green-600">{{ totalTurmas() }}</div>
-          <div class="stat-label">Turmas Ativas</div>
-        </div>
-        <p class="text-gray-600 text-sm mt-4 mb-4">
-          Acompanhe suas turmas, horários, dias da semana e informações de vagas
-        </p>
-        
-        @if (totalTurmas() > 0) {
-          <div class="info-grid mb-4">
-            <div class="info-item">
-              <div class="info-label">Total de Vagas</div>
-              <div class="info-value text-green-600">{{ totalVagas() }}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Disponíveis</div>
-              <div class="info-value text-purple-600">{{ vagasDisponiveis() }}</div>
-            </div>
-          </div>
-        }
-        
-        <button (click)="navigateTo('cadastros/turmas')" class="card-button card-button-green w-full">
-          <span>Ver Turmas</span>
-          <span class="ml-2">→</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="card card-vagas">
-      <div class="card-header">
-        <div class="icon-wrapper-lg">
-          <div class="icon-chart"></div>
-        </div>
-        <div class="card-title-section">
-          <h3 class="text-2xl font-bold text-gray-800">Vagas</h3>
-          <p class="text-sm text-gray-500">Disponibilidade em tempo real</p>
-        </div>
-      </div>
-      
-      <div class="card-content">
-        <div class="vaga-progress mb-4">
-          <div class="progress-item">
-            <div class="progress-label">
-              <span class="text-sm font-semibold text-gray-700">Ocupação de Vagas</span>
-              <span class="text-xs text-gray-500">{{ calculateOccupancyPercentage() }}%</span>
-            </div>
-            <div class="progress-bar-container">
-              @if (totalVagas() > 0) {
-                <div class="progress-bar-fill" 
-                     [style.width.%]="calculateOccupancyPercentage()">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card Principal: Lançar Chamada -->
+          <div class="quick-card bg-gradient-to-br from-[#246A73] to-[#1a4f56] text-white" 
+               (click)="navigateTo('/reports/attendance-entry')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                 </div>
-              }
+                <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">Hoje</span>
+              </div>
+              <h3 class="text-xl font-bold mb-1">Realizar Chamada</h3>
+              <p class="text-blue-100 text-sm">Registrar frequência da aula de hoje</p>
+            </div>
+            <div class="px-6 py-3 bg-black/10 flex justify-between items-center text-sm font-medium">
+              <span>Acessar pauta</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <!-- Card Secundário: Minhas Turmas -->
+          <div class="quick-card bg-white border border-gray-200 text-gray-800 hover:border-[#246A73] group" 
+               (click)="navigateTo('/cadastros/turmas')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-gray-100 rounded-xl group-hover:bg-[#246A73]/10 transition-colors">
+                  <svg class="w-8 h-8 text-gray-600 group-hover:text-[#246A73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-1">Minhas Turmas</h3>
+              <p class="text-gray-500 text-sm">Ver horários e lista de alunos</p>
+            </div>
+            <div class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center text-sm font-medium text-gray-600 group-hover:text-[#246A73]">
+              <span>Ver lista</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <!-- Card Terciário: Catálogo -->
+          <div class="quick-card bg-white border border-gray-200 text-gray-800 hover:border-blue-500 group" 
+               (click)="navigateTo('/cadastros/courses')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-gray-100 rounded-xl group-hover:bg-blue-50 transition-colors">
+                  <svg class="w-8 h-8 text-gray-600 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-1">Catálogo de Cursos</h3>
+              <p class="text-gray-500 text-sm">Consultar grade curricular</p>
+            </div>
+            <div class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center text-sm font-medium text-gray-600 group-hover:text-blue-600">
+              <span>Acessar</span>
+              <span>→</span>
             </div>
           </div>
         </div>
-
-        <div class="stat-breakdown">
-          <div class="breakdown-item">
-            <div class="breakdown-dot" style="background-color: #3b82f6;"></div>
-            <div class="breakdown-text">
-              <div class="breakdown-label">Vagas Disponíveis</div>
-              <div class="breakdown-value">{{ vagasDisponiveis() }}</div>
-            </div>
-          </div>
-          <div class="breakdown-item">
-            <div class="breakdown-dot" style="background-color: #ef4444;"></div>
-            <div class="breakdown-text">
-              <div class="breakdown-label">Vagas Ocupadas</div>
-              <div class="breakdown-value">{{ getOccupiedVagas() }}</div>
-            </div>
-          </div>
-        </div>
-
-        <button (click)="navigateTo('cadastros/turmas')" class="card-button card-button-orange w-full">
-          <span>Detalhes de Vagas</span>
-          <span class="ml-2">→</span>
-        </button>
       </div>
-    </div>
-  </div>
+    }
 
-  <!-- Últimas Turmas Criadas -->
-  @if (ultimasTurmas().length > 0) {
+    <!-- === ÁREA DO USER === -->
+    @if (isUsuario()) {
+      <div class="mb-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <span class="w-1 h-6 bg-blue-600 rounded-full"></span>
+          Administração rápida
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Card: Frequência -->
+          <div class="quick-card bg-white border border-gray-200 text-gray-800 hover:border-blue-500 group" 
+               (click)="navigateTo('/reports/attendance-manager')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-blue-50 rounded-xl text-blue-600">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-1 text-blue-600">Visualizar listas de frequência</h3>
+              <p class="text-gray-500 text-sm">Acompanhar faltas e presenças</p>
+            </div>
+          </div>
+
+          <!-- Card: Nova Matrícula -->
+          <div class="quick-card bg-white border border-gray-200 text-gray-800 hover:border-green-500 group" 
+               (click)="navigateTo('/cadastros/enrollment')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-green-50 rounded-xl text-green-600">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-1 text-green-600">Nova Matrícula</h3>
+              <p class="text-gray-500 text-sm">Criar nova matrícula</p>
+            </div>
+          </div>
+
+          <!-- Card: Minhas Inscrições -->
+          <div class="quick-card bg-white border border-gray-200 text-gray-800 hover:border-purple-500 group" 
+               (click)="navigateTo('/cadastros/student-list')">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-purple-50 rounded-xl text-purple-600">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold mb-1 text-purple-600">Gerenciar matrículas</h3>
+              <p class="text-gray-500 text-sm">Ver, editar ou excluir matrículas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- === ÁREA DO ADMIN (VISÃO GERAL) === -->
+    @if (isAdmin()) {
+      <!-- Dashboard Stats Original (Apenas para Admin) -->
+      <div class="mb-10">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <span class="w-1 h-6 bg-purple-600 rounded-full"></span>
+          Visão Geral do Sistema
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Card Cursos -->
+          <div class="stat-card stat-card-blue">
+            <div class="stat-card-icon"><div class="icon-books"></div></div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ totalCourses() }}</div>
+              <div class="stat-card-label">Cursos</div>
+            </div>
+          </div>
+
+          <!-- Card Turmas -->
+          <div class="stat-card stat-card-green">
+            <div class="stat-card-icon"><div class="icon-users"></div></div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ totalTurmas() }}</div>
+              <div class="stat-card-label">Turmas</div>
+            </div>
+          </div>
+
+          <!-- Card Vagas -->
+          <div class="stat-card stat-card-orange">
+            <div class="stat-card-icon"><div class="icon-chart"></div></div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ totalVagas() }}</div>
+              <div class="stat-card-label">Vagas Totais</div>
+            </div>
+          </div>
+
+          <!-- Card Disp -->
+          <div class="stat-card stat-card-purple">
+            <div class="stat-card-icon"><div class="icon-check"></div></div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ vagasDisponiveis() }}</div>
+              <div class="stat-card-label">Disponíveis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Quick Actions -->
+      <div class="mb-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <span class="w-1 h-6 bg-gray-800 rounded-full"></span>
+          Administração Rápida
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <button class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex items-center gap-3" (click)="criarCurso()">
+            <div class="bg-blue-100 text-blue-600 p-2 rounded-lg">📚</div>
+            <span class="font-bold text-gray-700">Novo Curso</span>
+          </button>
+          
+          <button class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex items-center gap-3" (click)="criarTurma()">
+            <div class="bg-green-100 text-green-600 p-2 rounded-lg">👥</div>
+            <span class="font-bold text-gray-700">Nova Turma</span>
+          </button>
+
+          <button class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex items-center gap-3" (click)="criarUsuario()">
+            <div class="bg-purple-100 text-purple-600 p-2 rounded-lg">🔑</div>
+            <span class="font-bold text-gray-700">Novo Usuário</span>
+          </button>
+
+          <button class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all text-left flex items-center gap-3" (click)="navigateTo('/reports/attendance-entry')">
+            <div class="bg-orange-100 text-orange-600 p-2 rounded-lg">📝</div>
+            <span class="font-bold text-gray-700">Lançar Chamada</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    @if(isAdmin() || isUsuario()){
+    <!-- TABELA: Vagas por Curso (Capacidade) - Visível para Admin e User  -->
     <div class="mb-12">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">Últimas Turmas</h2>
+      <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <span class="w-1 h-6 bg-blue-600 rounded-full"></span>
+        Disponibilidade de Vagas por Curso
+      </h2>
       
-      @if (loadingTurmas()) {
-        <div class="text-center py-8 text-gray-500">Carregando turmas...</div>
-      } @else if (ultimasTurmas().length > 0) {
-        <div class="overflow-x-auto rounded-lg border border-gray-200">
-          <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Turma</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Data Início</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Vagas</th>
-                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Dias</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (turma of ultimasTurmas(); track turma.id) {
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                  <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ turma.nomeTurma || turma.nome }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-600">{{ turma.dataInicio | date:'dd/MM/yyyy' }}</td>
-                  <td class="px-6 py-4 text-sm">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {{ turma.vagasTurma }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-600">{{ turma.diaSemana }}</td>
+      @if (loadingCourses()) {
+        <div class="flex justify-center py-10">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      } @else if (courses().length > 0) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100" style="text-indent: 55px;">
+                <tr>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Curso</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Capacidade Total</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase">Matrículas por Período (Ocup. / Disp.)</th>
+                  <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase w-1/4">Status Global</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                @for (course of paginatedCourses(); track course.id) {
+                  @let vagas = getVagasPorPeriodo(course.id);
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <!-- Nome do Curso -->
+                    <td class="px-6 py-4 text-center align-middle">
+                      <div class="text-sm font-semibold text-gray-900">
+                        {{ course.nome }}
+                        @if (!course.ativo) { <span class="ml-2 text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Inativo</span> }
+                      </div>
+                    </td>
+                    
+                    <!-- Capacidade Total (Vagas Totais do Curso) -->
+                    <td class="px-6 py-4 text-center align-middle">
+                      <div class="text-sm font-bold text-gray-800">{{ course.vagasTotais }}</div>
+                      <div class="text-xs text-gray-500">vagas totais</div>
+                    </td>
+
+                    <!-- Detalhamento por Período: Matriculados / Disponíveis -->
+                    <td class="px-6 py-4 text-center align">
+                      <div class="flex gap-5 justify-center mr-7">
+                        <!-- Manhã -->
+                        <div class="flex flex-col bg-yellow-50 px-3 py-2 rounded-lg border border-yellow-100 min-w-[90px]">
+                          <span class="text-[10px] text-yellow-600 uppercase font-bold mb-1 border-b border-yellow-100 pb-1">Manhã</span>
+                          <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500" title="Matriculados">Matr:</span>
+                            <span class="font-bold text-gray-700">{{ vagas.manha.ocupadas }}</span>
+                          </div>
+                          <div class="flex justify-between items-center text-xs mt-0.5">
+                            <span class="text-gray-500" title="Disponíveis">Vagas:</span>
+                            <span class="font-bold text-green-600">{{ vagas.manha.disponiveis }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Tarde -->
+                        <div class="flex flex-col bg-orange-50 px-3 py-2 rounded-lg border border-orange-100 min-w-[90px]">
+                          <span class="text-[10px] text-orange-600 uppercase font-bold mb-1 border-b border-orange-100 pb-1">Tarde</span>
+                          <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500" title="Matriculados">Matr:</span>
+                            <span class="font-bold text-gray-700">{{ vagas.tarde.ocupadas }}</span>
+                          </div>
+                          <div class="flex justify-between items-center text-xs mt-0.5">
+                            <span class="text-gray-500" title="Disponíveis">Vagas:</span>
+                            <span class="font-bold text-green-600">{{ vagas.tarde.disponiveis }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Barra de Progresso Global -->
+                    <td class="px-6 py-4 text-center align-middle">
+                      <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="h-2.5 rounded-full transition-all duration-500"
+                             [style.width.%]="getCourseOccupancy(course)"
+                             [ngClass]="{
+                               'bg-green-500': getCourseOccupancy(course) < 80,
+                               'bg-yellow-500': getCourseOccupancy(course) >= 80 && getCourseOccupancy(course) < 100,
+                               'bg-red-500': getCourseOccupancy(course) >= 100
+                             }">
+                        </div>
+                      </div>
+                      <div class="flex justify-between mt-1">
+                        <span class="text-xs text-gray-400">{{ getCourseOccupancy(course) }}% Ocupado</span>
+                        <span class="text-xs font-medium" [ngClass]="vagas.totalDisponivel > 0 ? 'text-green-600' : 'text-red-500'">
+                           {{ vagas.totalDisponivel }} livres
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Controles de Paginação -->
+          <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+             <div class="text-sm text-gray-500">
+               Página <span class="font-bold text-gray-900">{{ currentPage() + 1 }}</span> de {{ totalPages() }}
+             </div>
+             <div class="flex gap-2">
+               <button (click)="prevPage()" [disabled]="currentPage() === 0" 
+                       class="px-3 py-1 rounded border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                 Anterior
+               </button>
+               <button (click)="nextPage()" [disabled]="(currentPage() + 1) >= totalPages()" 
+                       class="px-3 py-1 rounded border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                 Próximo
+               </button>
+             </div>
+          </div>
         </div>
       } @else {
-        <div class="text-center py-8 text-gray-500">Nenhuma turma encontrada</div>
+        <div class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+          <p class="text-gray-500">Nenhum curso cadastrado.</p>
+        </div>
       }
     </div>
-  }
+    }
+
+  </div>
 </div>

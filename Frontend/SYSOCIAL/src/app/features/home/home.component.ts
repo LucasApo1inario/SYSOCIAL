@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { CoursesService } from '../cadastros/courses/services/course.service';
 import { TurmasService } from '../cadastros/turmas/services/turma.service';
 import { LoggedInUserStoreService } from 'src/app/core/auth/stores/logged-in-user-store.ts/logged-in-user-store.ts.service';
-import { toast } from 'ngx-sonner';
 import { Course } from './../../features/cadastros/courses/interfaces/course.interface';
 import { Turma } from './../../features/cadastros/turmas/interfaces/turma.interface';
 
@@ -21,14 +20,25 @@ export class HomeComponent implements OnInit {
   private turmasService = inject(TurmasService);
   private loggedInUserStore = inject(LoggedInUserStoreService);
 
-  // Sinais
+  // Sinais de Usuário
   userType = computed(() => this.loggedInUserStore.userType());
-  userName = computed(() => this.loggedInUserStore.userName());
+  
+  // CORREÇÃO: Tenta pegar o 'nome' (coluna do BD) do objeto user(), senão usa o userName() (login)
+  userName = computed(() => {
+    const user = this.loggedInUserStore.currentUser();
+    // @ts-ignore - Ignora erro se a interface User não tiver 'nome' tipado explicitamente ainda
+    return user?.nome || this.loggedInUserStore.userName();
+  });
 
+  // Dados
   courses = signal<Course[]>([]);
   turmas = signal<Turma[]>([]);
   loadingCourses = signal(false);
   loadingTurmas = signal(false);
+
+  // Paginação
+  currentPage = signal(0);
+  pageSize = 5;
 
   // Estatísticas computadas
   totalCourses = computed(() => this.courses().length);
@@ -38,17 +48,19 @@ export class HomeComponent implements OnInit {
   );
   vagasDisponiveis = computed(() => 
     this.turmas().reduce((sum, t) => {
-      const ocupadas = t.vagasTurma ? Math.floor(t.vagasTurma * 0.7) : 0;
+      const ocupadas = t.vagasTurma ? Math.floor(t.vagasTurma * 0.3) : 0;
       return sum + (t.vagasTurma ? t.vagasTurma - ocupadas : 0);
     }, 0)
   );
 
-  // Últimas turmas (últimas 5)
-  ultimasTurmas = computed(() => 
-    this.turmas()
-      .sort((a, b) => new Date(b.dataInicio || 0).getTime() - new Date(a.dataInicio || 0).getTime())
-      .slice(0, 5)
-  );
+  // Computados para a Tabela Paginada
+  paginatedCourses = computed(() => {
+    const start = this.currentPage() * this.pageSize;
+    const end = start + this.pageSize;
+    return this.courses().slice(start, end);
+  });
+
+  totalPages = computed(() => Math.ceil(this.courses().length / this.pageSize));
 
   ngOnInit() {
     this.loadData();
@@ -87,7 +99,67 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Navegação
+  // --- Helpers para a Tabela de Vagas ---
+  
+  getVagasRestantes(course: any): number {
+    return course.vagasRestantes !== undefined ? course.vagasRestantes : 0;
+  }
+
+  getCourseOccupancy(course: any): number {
+    if (!course.vagasTotais || course.vagasTotais === 0) return 0;
+    
+    const restantes = this.getVagasRestantes(course);
+    const occupied = course.vagasTotais - restantes;
+    
+    const percentage = (occupied / course.vagasTotais) * 100;
+    return Math.round(percentage);
+  }
+
+  getVagasPorPeriodo(courseId: number) {
+    const turmasDoCurso = this.turmas().filter(t => t.cursoId === courseId);
+    
+    const breakdown = {
+      manha: { ocupadas: 0, disponiveis: 0 },
+      tarde: { ocupadas: 0, disponiveis: 0 },
+      totalDisponivel: 0
+    };
+
+    turmasDoCurso.forEach(t => {
+      const totalTurma = t.vagasTurma || 0;
+      const ocupadas = Math.floor(totalTurma * 0.3);
+      const disponiveis = totalTurma - ocupadas;
+
+      breakdown.totalDisponivel += disponiveis;
+
+      if (t.horaInicio) {
+        const hora = parseInt(t.horaInicio.split(':')[0], 10);
+        if (hora < 12) {
+          breakdown.manha.ocupadas += ocupadas;
+          breakdown.manha.disponiveis += disponiveis;
+        } else if (hora >= 12 && hora < 18) {
+          breakdown.tarde.ocupadas += ocupadas;
+          breakdown.tarde.disponiveis += disponiveis;
+        } 
+      }
+    });
+
+    return breakdown;
+  }
+
+  // --- Navegação e Ações ---
+
+  nextPage() {
+    if ((this.currentPage() + 1) * this.pageSize < this.courses().length) {
+      this.currentPage.update(v => v + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(v => v - 1);
+    }
+  }
+
   navigateTo(route: string) {
     this.router.navigate([route]);
   }
@@ -104,7 +176,8 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['administration/new-user']);
   }
 
-  // Verifica tipo de usuário
+  // --- Verificações de Papel ---
+
   isAdmin() {
     return this.userType() === 'A';
   }
@@ -116,46 +189,4 @@ export class HomeComponent implements OnInit {
   isUsuario() {
     return this.userType() === 'U';
   }
-
-  /**
-   * Admin pode visualizar TUDO - retorna true se o usuário é admin ou professor
-   * Usado para determinar se deve mostrar opções que tanto professor quanto admin podem acessar
-   */
-  canViewAsProfessor() {
-    return this.isAdmin() || this.isProfessor();
-  }
-
-  /**
-   * Admin pode visualizar TUDO - retorna true se o usuário é admin ou usuário comum
-   * Usado para determinar se deve mostrar opções que tanto usuário quanto admin podem acessar
-   */
-  canViewAsUser() {
-    return this.isAdmin() || this.isUsuario();
-  }
-
-  // Métodos auxiliares
-  calculateOccupancyPercentage(): number {
-    if (this.totalVagas() <= 0) return 0;
-    return Math.round(((this.totalVagas() - this.vagasDisponiveis()) / this.totalVagas()) * 100);
-  }
-
-  getOccupiedVagas(): number {
-    return this.totalVagas() - this.vagasDisponiveis();
-  }
-
-  getOccupancyPercentageForBadge(): string {
-    return this.calculateOccupancyPercentage() + '%';
-  }
-
-  getAverageVagasPerTurma(): number {
-    if (this.totalTurmas() <= 0) return 0;
-    return Math.round((this.totalVagas() / this.totalTurmas()) * 10) / 10;
-  }
-
-  getEfficiencyRatio(): number {
-    if (this.totalTurmas() <= 0) return 0;
-    return Math.round((this.totalCourses() / this.totalTurmas()) * 10) / 10;
-  }
-
-  Math = Math;
 }
