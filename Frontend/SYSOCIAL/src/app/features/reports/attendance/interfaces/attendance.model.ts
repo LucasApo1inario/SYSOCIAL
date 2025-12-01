@@ -14,13 +14,8 @@ export interface ClassDTO {
   horaInicio: string;
   horaFim: string;
   descricao?: string;
-  dataInicio?: string; // YYYY-MM-DD
-  dataFim?: string;    // YYYY-MM-DD
-}
-
-export interface StudentDTO {
-  id: number;
-  nome: string;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 // --- DTOs da API de Chamadas (Porta 8086) ---
@@ -28,32 +23,40 @@ export interface ChamadaDTO {
   id: number;
   usuarioId: number;
   turmaId: number;
-  dataAula: string; 
+  dataAula: string; // YYYY-MM-DD
 }
 
-export interface PresencaDTO {
-  id: number;
+// Objeto de data dentro da resposta da matriz
+export interface DataChamadaDTO {
+  id: number;       // ID da Chamada
+  data: string;     // YYYY-MM-DD
+}
+
+// Resposta completa da matriz de chamadas
+export interface AttendanceResponseDTO {
+  datas: DataChamadaDTO[]; 
+  alunos: {
+    alunoId: number;
+    alunoNome: string;
+    presencas: {
+      [date: string]: {
+        present: string;
+        observation: string;
+      }
+    }
+  }[];
+}
+
+// Payload para Upsert (Salvar Presenças)
+export interface UpsertPresencaRecord {
+  idEstudante: number; 
+  present: string;    
+  observation: string;
+}
+
+export interface UpsertPresencasPayload {
   chamadaId: number;
-  alunoId: number;
-  presente: string; 
-  observacao: string;
-}
-
-export interface CreateChamadaPayload {
-  usuarioId?: number;
-  turmaId: number;
-  dataAula: string;
-}
-
-export interface CreatePresencaItem {
-  alunoId: number;
-  presente: string; 
-  observacao: string;
-}
-
-export interface CreatePresencasPayload {
-  chamadaId: number;
-  presencas: CreatePresencaItem[];
+  records: UpsertPresencaRecord[];
 }
 
 // --- INTERFACES VISUAIS ---
@@ -72,8 +75,9 @@ export interface ClassOption {
 }
 
 export interface AttendanceGrid {
-  dates: string[];
-  students: StudentAttendance[];
+  dates: string[]; // Lista de datas para colunas da tabela
+  students: StudentAttendance[]; // Dados dos alunos
+  dateIdMap: { [date: string]: number }; // Data (YYYY-MM-DD) -> ID da Chamada
 }
 
 export interface StudentAttendance {
@@ -88,8 +92,6 @@ export interface StudentAttendance {
 }
 
 export interface AttendanceRecord {
-  presenceId?: number;
-  callId?: number;
   status: string; 
   observation: string;
 }

@@ -2,6 +2,7 @@
   <table z-table class="w-full">
     <thead z-table-header>
       <tr z-table-row>
+        <th z-table-head>Curso</th>
         <th z-table-head>Turma</th>
         <th z-table-head>Descrição</th>
         <th z-table-head>Horário</th>
@@ -13,6 +14,7 @@
     <tbody z-table-body>
       @for (turma of turmas; track turma.id) {
         <tr z-table-row>
+          <td z-table-cell class="font-medium">{{ turma.cursoNome || '-' }}</td>
           <td z-table-cell>{{ turma.nomeTurma || turma.nome }}</td>
           <td z-table-cell class="max-w-xs truncate" [title]="turma.descricao || '-'">
             {{ turma.descricao || '-' }}
