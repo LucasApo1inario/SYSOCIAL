@@ -1,4 +1,4 @@
-# 🌎 SYSOCIAL - Software de Gestão para ONGs
+# 🌎 SYSOCIAL - Sistema de Organização e Controle de Informações de Atividades Locais
 
 ## 📖 Índice
 - [📝 Descrição do projeto](#-descrição-do-projeto)
@@ -9,13 +9,13 @@
 ---
 
 ## 📝 Descrição do projeto
-O SYSOCIAL é um sistema desenvolvido para auxiliar ONGs na gestão educacional e social de cursos. Ele permite organizar alunos, professores, cursos e relatórios, fornecendo uma visão clara do impacto social da instituição.
+O SYSOCIAL é um sistema desenvolvido para auxiliar  na gestão educacional e social de cursos. Ele permite organizar alunos, professores, cursos e relatórios, fornecendo uma visão clara do impacto social da instituição.
 
-O sistema oferece funcionalidades essenciais, como o cadastro de alunos e seus responsáveis, de professores e o gerenciamento completo de cursos. Também possibilita o controle de matrículas, o acompanhamento de vagas disponíveis e o registro de matrículas canceladas, incluindo taxa de desistência e motivos.
+O sistema oferece funcionalidades essenciais, como o cadastro de alunos e seus responsáveis, de professores e o gerenciamento completo de cursos. Também possibilita o controle de matrículas, o acompanhamento de vagas disponíveis e o registro de matrículas canceladas.
 
-Além disso, o SYSOCIAL permite gerar relatórios de frequência dos alunos e relatórios mensais de aulas preenchidos pelos professores, contribuindo para um acompanhamento mais preciso das atividades realizadas.
+Além disso, o SYSOCIAL permite gerar relatórios de frequência dos alunos preenchidos pelos professores, contribuindo para um acompanhamento mais preciso das atividades realizadas.
 
-O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONGs, monitorar a frequência e o desempenho dos estudantes, permitir uma análise clara sobre evasão escolar e engajamento e oferecer relatórios estratégicos que apoiem decisões pedagógicas e administrativas.
+O principal objetivo do sistema é facilitar a gestão de alunos e cursos em entidades de fins sociais, monitorar a frequência e o desempenho dos estudantes, permitir uma análise clara sobre evasão escolar e engajamento e oferecer relatórios estratégicos que apoiem decisões pedagógicas e administrativas.
 
 ---
 
@@ -23,20 +23,15 @@ O principal objetivo do sistema é facilitar a gestão de alunos e cursos em ONG
 
 | N | Descrição |
 | :---: | :--- |
-|1  |Como Regular, quero preencher relatórios de aulas divididas em semanas com a descrição do planejamento e a descrição da execução. |
-|2  |Como Regular, quero inserir o status de presença ou falta em cada aluno de turmas diferentes, apenas nos dias que aconteceram as aulas. |
-|3  |Como Regular, quero poder visualizar e editar o relatório de aulas e lista de frequência dos últimos 3 meses. |
-|4  |Como Administrador, quero inserir, editar, excluir e atualizar usuários e as informações pertinentes. |
-|5  |Como Administrador, quero inserir, editar, excluir e atualizar cursos e as informações pertinentes. |
-|6  |Como Administrador, quero ter a possibilidade de retornar alguma ação feita em uma matrícula registrada em um histórico de edições. |
-|7  |Como Administrador ou Operador, quero inserir, editar, excluir ou atualizar matrículas e suas informações pertinentes. |
-|8  |Como Administrador ou Operador, quero filtrar as matrículas a partir das informações cadastradas. |
-|9  |Como Administrador ou Operador, quero exportar fichas de matrículas em um modelo pré-definido. |
-|10 |Como Administrador ou Operador, quero exportar informações das matrículas em uma tabela (xlsx). |
-|11 |Como Administrador ou Operador, quero exportar os relatórios por mês e curso em formato de tabela (xlsx). |
-|12 |Como Administrador ou Operador, quero exportar as listas de frequências por mês e curso em formato de tabela (xlsx). |
-|13 |Como usuário do sistema (todos os níveis), quero poder me autenticar no sistema via username e senha. |
-|14 |Como usuário do sistema (todos os níveis), quero que o sistema possua uma interface que se adapte bem a diferentes tamanho de tela., como celulares ou computadores.|
+|1  |Como Regular, quero inserir o status de presença ou falta em cada aluno de turmas diferentes, apenas nos dias que aconteceram as aulas. |
+|2  |Como Regular, quero poder visualizar e editar a lista de frequência dos últimos meses. |
+|3  |Como Administrador, quero inserir, editar, excluir e atualizar usuários e as informações pertinentes. |
+|4  |Como Administrador, quero inserir, editar, excluir e atualizar cursos e as informações pertinentes. |
+|5  |Como Administrador ou Operador, quero inserir, editar, excluir ou atualizar matrículas e suas informações pertinentes. |
+|6  |Como Administrador ou Operador, quero filtrar as matrículas a partir das informações cadastradas. |
+|7 |Como Administrador ou Operador, quero exportar as listas de frequências por mês e curso em formato de valores separados por vírgula (csv). |
+|8 |Como usuário do sistema (todos os níveis), quero poder me autenticar no sistema via username e senha. |
+|9 |Como usuário do sistema (todos os níveis), quero que o sistema possua uma interface que se adapte bem a diferentes tamanho de tela., como celulares ou computadores.|
 
 ---
 
